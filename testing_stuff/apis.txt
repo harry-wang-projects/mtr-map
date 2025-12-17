@@ -1,0 +1,17 @@
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=KET
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=HKU
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=SYP
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=SHW
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=CEN
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=ADM
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=WAC
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=CAB
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=TIH
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=FOH
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=NOP
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=QUB
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=TAK
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=SWH
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=SKW
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=HFC
+https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line=ISL&sta=CHW

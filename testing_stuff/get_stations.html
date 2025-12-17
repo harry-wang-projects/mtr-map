@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Combine Multiple APIs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+    h1 { color: #2c3e50; text-align: center; }
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-family: monospace;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover { background: #2980b9; }
+    button:disabled { background: #95a5a6; cursor: not-allowed; }
+    #status {
+      margin: 15px 0;
+      padding: 10px;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .success { background: #d5f5e3; color: #27ae60; }
+    .error { background: #fadbd8; color: #c0392b; }
+    #results {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 5px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    pre {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Combine Multiple APIs (Async)</h1>
+
+  <p>Enter one API URL per line (JSON APIs only):</p>
+  <textarea id="urlList" placeholder="https://jsonplaceholder.typicode.com/posts
+https://jsonplaceholder.typicode.com/users
+https://jsonplaceholder.typicode.com/todos">
+  </textarea>
+
+  <button id="fetchBtn">Fetch & Combine All APIs</button>
+  <div id="status"></div>
+
+  <div id="results">
+    <strong>Combined Results (<span id="count">0</span> items):</strong>
+    <pre id="output">Click the button to load data...</pre>
+  </div>
+
+  <script>
+    // Helper to show status messages
+    function setStatus(message, type = '') {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = message;
+      statusEl.className = type; // clear
+      if (type) statusEl.classList.add(type);
+    }
+
+    // Extract list from common API response patterns
+    function extractArray(data) {
+      if (Array.isArray(data)) return data;
+      if (typeof data === 'object' && data !== null) {
+        for (const key of ['data', 'results', 'items', 'entries', 'content', 'posts', 'users']) {
+          if (Array.isArray(data[key])) return data[key];
+        }
+      }
+      // If nothing matches, return as single-item array
+      return [data];
+    }
+
+    // Main function: fetch all APIs concurrently
+    async function fetchAndCombine() {
+      const textarea = document.getElementById('urlList');
+      const btn = document.getElementById('fetchBtn');
+      const output = document.getElementById('output');
+      const countEl = document.getElementById('count');
+
+      const rawUrls = textarea.value.trim();
+      if (!rawUrls) {
+        setStatus('Please enter at least one URL', 'error');
+        return;
+      }
+
+      const urls = rawUrls.split('\n')
+                         .map(u => u.trim())
+                         .filter(u => u.length > 0 && u.startsWith('http'));
+
+      if (urls.length === 0) {
+        setStatus('No valid URLs found', 'error');
+        return;
+      }
+
+      // UI feedback
+      btn.disabled = true;
+      setStatus(`Fetching ${urls.length} APIs concurrently...`, 'success');
+      output.textContent = 'Loading...';
+      countEl.textContent = '0';
+
+      let combined = [];
+      let completed = 0;
+
+      try {
+        // Fetch all APIs in parallel using Promise.allSettled (so one failure doesn't stop others)
+        const promises = urls.map(async (url) => {
+          try {
+            const response = await fetch(url, { timeout: 10000 });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const data = await response.json();
+            const items = extractArray(data);
+            combined.push(...items);
+            return { url, success: true, count: items.length };
+          } catch (err) {
+            console.error(`Failed: ${url}`, err);
+            return { url, success: false, error: err.message };
+          } finally {
+            completed++;
+            setStatus(`Progress: ${completed}/${urls.length} completed...`);
+          }
+        });
+
+        const results = await Promise.allSettled(promises);
+
+        // Show summary of successes/failures
+        const successful = results.filter(r => r.status === 'fulfilled' && r.value.success);
+        const failed = results.filter(r => r.status === 'rejected' || !r.value.success);
+
+        if (failed.length > 0) {
+          console.warn('Some APIs failed:', failed.map(r => r.value || r.reason));
+        }
+
+        // Final display
+        countEl.textContent = combined.length;
+        output.textContent = JSON.stringify(combined, null, 2);
+
+        setStatus(
+          `Completed! ${successful.length} succeeded, ${failed.length} failed. Total items: ${combined.length}`,
+          combined.length > 0 ? 'success' : 'error'
+        );
+
+      } catch (err) {
+        setStatus('Unexpected error: ' + err.message, 'error');
+        output.textContent = 'Error occurred. Check console.';
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // Attach event listener
+    document.getElementById('fetchBtn').addEventListener('click', fetchAndCombine);
+
+    // Optional: Press Ctrl+Enter in textarea to trigger
+    document.getElementById('urlList').addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        fetchAndCombine();
+      }
+    });
+  </script>
+
+</body>
+</html>
