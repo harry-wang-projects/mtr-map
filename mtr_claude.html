@@ -86,64 +86,6 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="mtr_claude.js">
-        /*
-        // Island Line stations with actual coordinates
-        const stations = [
-            { name: "Kennedy Town", lat: 22.2810, lng: 114.1289 },
-            { name: "HKU", lat: 22.2840, lng: 114.1350 },
-            { name: "Sai Ying Pun", lat: 22.2860, lng: 114.1430 },
-            { name: "Sheung Wan", lat: 22.2870, lng: 114.1510 },
-            { name: "Central", lat: 22.2820, lng: 114.1580 },
-            { name: "Admiralty", lat: 22.2790, lng: 114.1650 },
-            { name: "Wan Chai", lat: 22.2770, lng: 114.1730 },
-            { name: "Causeway Bay", lat: 22.2800, lng: 114.1850 },
-            { name: "Tin Hau", lat: 22.2820, lng: 114.1920 },
-            { name: "Fortress Hill", lat: 22.2880, lng: 114.1940 },
-            { name: "North Point", lat: 22.2910, lng: 114.2000 },
-            { name: "Quarry Bay", lat: 22.2890, lng: 114.2120 },
-            { name: "Tai Koo", lat: 22.2850, lng: 114.2170 },
-            { name: "Sai Wan Ho", lat: 22.2810, lng: 114.2230 },
-            { name: "Shau Kei Wan", lat: 22.2790, lng: 114.2290 },
-            { name: "Heng Fa Chuen", lat: 22.2770, lng: 114.2390 },
-            { name: "Chai Wan", lat: 22.2650, lng: 114.2370 }
-        ];
-
-        // Initialize map centered on Hong Kong Island
-        const map = L.map('map').setView([22.2800, 114.1800], 13);
-
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map);
-
-        // Create station markers
-        stations.forEach(station => {
-            L.circleMarker([station.lat, station.lng], {
-                radius: 6,
-                fillColor: '#0860a8',
-                color: '#fff',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 1
-            }).addTo(map);
-        });
-
-        // Draw line connecting stations
-        const lineCoordinates = stations.map(s => [s.lat, s.lng]);
-        
-        L.polyline(lineCoordinates, {
-            color: '#0860a8',
-            weight: 4,
-            opacity: 0.8,
-            smoothFactor: 1
-        }).addTo(map);
-
-        // Fit map to show all stations
-        const bounds = L.latLngBounds(lineCoordinates);
-        map.fitBounds(bounds, { padding: [50, 50] });
-        */
-    </script>
+    <script src="mtr_claude.js"></script>
 </body>
 </html>

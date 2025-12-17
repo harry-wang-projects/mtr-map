@@ -1,3 +1,5 @@
+//map here
+
 
 /* =========  CONFIGURATION  ============================================= */
 const stations = [
@@ -33,12 +35,19 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 /* draw static line */
 const lineCoords = stations.map(s=>[s.lat, s.lng]);
-L.polyline(lineCoords, {color:'#0860a8', weight:4}).addTo(map);
+L.polyline(lineCoords, {color:'#0860a8', weight:2}).addTo(map);
 stations.forEach(s=>{
   L.circleMarker([s.lat, s.lng], {radius:6, color:'#fff',
     weight:2, fillColor:'#0860a8', fillOpacity:1}).addTo(map);
 });
+
 map.fitBounds(L.latLngBounds(lineCoords), {padding:[50,50]});
+
+
+
+//train simulation here
+
+
 /* ---------------------------------------------------------------------- */
 
 /* =====================  SIMULATION  =================================== */
@@ -49,15 +58,17 @@ let firstTrainFinished = false;
 
 class Train {
   constructor(direction){   // +1 = towards Chai Wan, -1 = towards K-Town
+    this.startDir = direction;   // remember original direction
     this.id   = 'T' + Math.floor(Math.random()*1e6);
     this.dir  = direction;
     this.idx  = direction===1 ? 0 : stations.length-1; // start at terminus
     this.segmentProgress = 0; // seconds into current leg
     this.marker = L.marker(this.latlng(), {
       icon: L.divIcon({
-        html:`<div style="background:#ff6600;width:14px;height:14px;
-              border-radius:50%;border:2px solid #fff;
-              box-shadow:0 0 4px #0006;"></div>`,
+        html:`<div style="
+          background:#0860a8;
+          width:14px;height:14px;border-radius:50%;
+          border:2px solid #fff;box-shadow:0 0 4px #0006;"></div>`,
         iconSize:[14,14], iconAnchor:[7,7]
       })
     }).addTo(map);
@@ -84,9 +95,29 @@ class Train {
       this.segmentProgress = 0;
       this.arrivalTick = tick;
       // turnaround at termini
+      // ---------- turn-around at termini ----------
       if (this.idx === 0 || this.idx === stations.length-1){
-        this.dir *= -1;
-        if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
+        this.dir *= -1;                 // reverse
+        if(this.idx === stations.length-1){
+          this.idx += 0;           // step one station INTO the new direction
+        }else{
+        }
+        this.segmentProgress = 0;       // start fresh leg
+        this.arrivalTick = tick;        // mark arrival for dwell calculation
+        // -- loop-completion logic (see #2) --
+        console.log("nana");
+        console.log(this.dir === this.startDir);
+        console.log(this.idx === (this.startDir===1?0:stations.length-1));
+        if (this.dir === this.startDir){
+          if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
+        }
+        /*
+        if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
+          if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
+        }
+        */
+       
+        
       }
     }
     this.marker.setLatLng(this.latlng());
