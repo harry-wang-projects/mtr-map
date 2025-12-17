@@ -68,11 +68,26 @@
     <div class="container">
         <h1>MTR Island Line</h1>
         <div class="subtitle">Real-time tracking map</div>
+        <div id="controls" style="margin-bottom:15px;font-size:14px;">
+            <label>Spawn every <input id="spawnEvery" type="number" value="120" min="10" max="600" style="width:60px;"> s</label>
+            <button id="applyBtn">Apply & Restart</button>
+            <span id="status"></span>
+            <label>Simulation speed
+                <input id="tickRate" type="range" min="1" max="120" value="30" step="1">
+                <span id="tickRateLbl">30</span> ticks / real sec
+            </label>
+        </div>     
+
+        <details style="margin-bottom:15px;">
+            <summary style="cursor:pointer;color:#0860a8;">Edit running / dwell times (seconds)</summary>
+            <div id="timeTables" style="display:flex;gap:20px;margin-top:10px;"></div>
+        </details>
         <div id="map"></div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
+    <script src="mtr_claude.js">
+        /*
         // Island Line stations with actual coordinates
         const stations = [
             { name: "Kennedy Town", lat: 22.2810, lng: 114.1289 },
@@ -128,6 +143,7 @@
         // Fit map to show all stations
         const bounds = L.latLngBounds(lineCoordinates);
         map.fitBounds(bounds, { padding: [50, 50] });
+        */
     </script>
 </body>
 </html>
