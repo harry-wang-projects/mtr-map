@@ -36,8 +36,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 /* draw static line */
 const lineCoords = stations.map(s=>[s.lat, s.lng]);
 L.polyline(lineCoords, {color:'#0860a8', weight:2}).addTo(map);
+
 stations.forEach(s=>{
-  L.circleMarker([s.lat, s.lng], {radius:6, color:'#fff',
+  L.circleMarker([s.lat, s.lng], {radius:3, color:'#fff',
     weight:2, fillColor:'#0860a8', fillOpacity:1}).addTo(map);
 });
 

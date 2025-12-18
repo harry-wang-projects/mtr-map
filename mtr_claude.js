@@ -1,26 +1,64 @@
+//basic numbers
+
+let TICK_RATE = 30;          // sim ticks per real second
+let SIM_MS    = 1000 / TICK_RATE;
+let clockId   = null;
+
+
 //map here
 
 
+
 /* =========  CONFIGURATION  ============================================= */
-const stations = [
-  {name:"Kennedy Town", lat:22.2810, lng:114.1289},
-  {name:"HKU", lat:22.2840, lng:114.1350},
-  {name:"Sai Ying Pun", lat:22.2860, lng:114.1430},
-  {name:"Sheung Wan", lat:22.2870, lng:114.1510},
-  {name:"Central", lat:22.2820, lng:114.1580},
-  {name:"Admiralty", lat:22.2790, lng:114.1650},
-  {name:"Wan Chai", lat:22.2770, lng:114.1730},
-  {name:"Causeway Bay", lat:22.2800, lng:114.1850},
-  {name:"Tin Hau", lat:22.2820, lng:114.1920},
-  {name:"Fortress Hill", lat:22.2880, lng:114.1940},
-  {name:"North Point", lat:22.2910, lng:114.2000},
-  {name:"Quarry Bay", lat:22.2890, lng:114.2120},
-  {name:"Tai Koo", lat:22.2850, lng:114.2170},
-  {name:"Sai Wan Ho", lat:22.2810, lng:114.2230},
-  {name:"Shau Kei Wan", lat:22.2790, lng:114.2290},
-  {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390},
-  {name:"Chai Wan", lat:22.2650, lng:114.2370}
-];
+/* ==========  MULTI-LINE DATABASE  ==================================== */
+const LINES = {
+  ISL: {                     // Island Line (your original one)
+    name: 'Island Line',
+    color: '#0860a8',
+    stations: [
+      {name:'Kennedy Town',      lat:22.2810, lng:114.1289},
+      {name:'HKU',               lat:22.2840, lng:114.1350},
+      {name:'Sai Ying Pun',      lat:22.2860, lng:114.1430},
+      {name:'Sheung Wan',        lat:22.2870, lng:114.1510},
+      {name:'Central',           lat:22.2820, lng:114.1580},
+      {name:'Admiralty',         lat:22.2790, lng:114.1650},
+      {name:'Wan Chai',          lat:22.2770, lng:114.1730},
+      {name:'Causeway Bay',      lat:22.2800, lng:114.1850},
+      {name:'Tin Hau',           lat:22.2820, lng:114.1920},
+      {name:'Fortress Hill',     lat:22.2880, lng:114.1940},
+      {name:'North Point',       lat:22.2910, lng:114.2000},
+      {name:'Quarry Bay',        lat:22.2890, lng:114.2120},
+      {name:'Tai Koo',           lat:22.2850, lng:114.2170},
+      {name:'Sai Wan Ho',        lat:22.2810, lng:114.2230},
+      {name:'Shau Kei Wan',      lat:22.2790, lng:114.2290},
+      {name:'Heng Fa Chuen',     lat:22.2770, lng:114.2390},
+      {name:'Chai Wan',          lat:22.2650, lng:114.2370}
+    ]
+  },
+  SIL: {                     // South Island Line (new)
+    name: 'South Island Line',
+    color: '#bac429',
+    stations: [
+      {name:'Admiralty',         lat:22.2790, lng:114.1650},  // shared
+      {name:'Ocean Park',        lat:22.2470, lng:114.1730},
+      {name:'Wong Chuk Hang',    lat:22.2481, lng:114.1680},
+      {name:'Lei Tung',          lat:22.2422, lng:114.1561},
+      {name:'South Horizons',    lat:22.2425, lng:114.1492}
+    ]
+  }
+};
+
+/* ---- sane defaults for every line ---- */
+Object.keys(LINES).forEach(code=>{
+  const st = LINES[code].stations;
+  LINES[code].running = Array(st.length-1).fill(90); // seconds
+  LINES[code].dwell   = Array(st.length).fill(25);   // seconds
+});
+Object.keys(LINES).forEach(code=>{
+  const st = LINES[code].stations;
+  LINES[code].runningTicks = Array(st.length-1).fill(90 * TICK_RATE); // 90 s → ticks
+  LINES[code].dwellTicks   = Array(st.length)  .fill(25 * TICK_RATE); // 25 s → ticks
+});
 
 let RUNNING = [];          // running[i] = seconds from station i → i+1
 let DWELL   = [];          // dwell[i]   = seconds stopped at station i
@@ -33,16 +71,53 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution:'© OSM', maxZoom:19
 }).addTo(map);
 
-/* draw static line */
-const lineCoords = stations.map(s=>[s.lat, s.lng]);
-L.polyline(lineCoords, {color:'#0860a8', weight:2}).addTo(map);
-stations.forEach(s=>{
-  L.circleMarker([s.lat, s.lng], {radius:6, color:'#fff',
-    weight:2, fillColor:'#0860a8', fillOpacity:1}).addTo(map);
+/* ==========  DRAW ALL LINES  ========================================== */
+const lineLayers = {};      // lineCode → { line, stations[], trains[] }
+
+function drawLine(code){
+  const meta = LINES[code];
+  const coords = meta.stations.map(s=>[s.lat, s.lng]);
+
+  // polyline
+  const line = L.polyline(coords, {color: meta.color, weight: 4});
+  line.addTo(map);
+
+  // station markers
+  const marks = [];
+  meta.stations.forEach(st=>{
+    const m = L.circleMarker([st.lat, st.lng], {
+      radius: 6,
+      color: '#fff',
+      weight: 2,
+      fillColor: meta.color,
+      fillOpacity: 1
+    }).addTo(map);
+    m.bindTooltip(st.name, {direction:'top', permanent:false});
+    marks.push(m);
+  });
+
+  lineLayers[code] = { line, stations: meta.stations, trains: [], color: meta.color };
+}
+
+/* initial draw */
+Object.keys(LINES).forEach(drawLine);
+
+/* ---------- checkbox toggle ---------- */
+document.querySelectorAll('#lineToggle input').forEach(box=>{
+  box.addEventListener('change', e=>{
+    const code = e.target.dataset.line;
+    const lyr  = lineLayers[code];
+    if (e.target.checked){
+      lyr.line.addTo(map);
+      lyr.stations.forEach((s,i)=>lyr.stations[i].marker?.addTo(map));
+      lyr.trains.forEach(t=>t.marker.addTo(map));
+    } else {
+      lyr.line.remove();
+      lyr.stations.forEach((s,i)=>lyr.stations[i].marker?.remove());
+      lyr.trains.forEach(t=>t.marker.remove());
+    }
+  });
 });
-
-map.fitBounds(L.latLngBounds(lineCoords), {padding:[50,50]});
-
 
 
 //train simulation here
@@ -57,35 +132,45 @@ let spawnEnabled = true;    // becomes false once first train finishes lap
 let firstTrainFinished = false;
 
 class Train {
-  constructor(direction){   // +1 = towards Chai Wan, -1 = towards K-Town
-    this.startDir = direction;   // remember original direction
-    this.id   = 'T' + Math.floor(Math.random()*1e6);
-    this.dir  = direction;
-    this.idx  = direction===1 ? 0 : stations.length-1; // start at terminus
-    this.segmentProgress = 0; // seconds into current leg
+  constructor(code, direction){   // code = 'ISL' | 'SIL' | ...
+    this.lineCode = code;
+    const meta    = LINES[code];
+    this.color   = meta.color;
+    this.stations = meta.stations;
+    this.id      = code + '_' + Math.floor(Math.random()*1e6);
+    this.dir     = direction;
+    this.startDir= direction;
+    this.idx     = direction === 1 ? 0 : this.stations.length-1;
+    this.segmentProgress = 0;
+    this.arrivalTick = tick;
+
+    /* marker icon now uses the line colour */
     this.marker = L.marker(this.latlng(), {
       icon: L.divIcon({
-        html:`<div style="
-          background:#0860a8;
+        html: `<div style="
+          background:${this.color};
           width:14px;height:14px;border-radius:50%;
           border:2px solid #fff;box-shadow:0 0 4px #0006;"></div>`,
         iconSize:[14,14], iconAnchor:[7,7]
-      })
+        })
     }).addTo(map);
   }
   latlng(){
-    const A = stations[this.idx];
-    const B = stations[this.idx + this.dir];
-    if (!B) return [A.lat, A.lng]; // terminus
-    const f = this.segmentProgress / RUNNING[this.idx];
+    const A = this.stations[this.idx];
+    const B = this.stations[this.idx + this.dir];
+    if (!B) return [A.lat, A.lng];          // terminus – dwell position
+    const seg = RUNNING[this.idx];
+    if (!seg || seg <= 0) return [A.lat, A.lng]; // bad data – stay put
+    const f = this.segmentProgress / seg;
     return [
       A.lat + (B.lat - A.lat)*f,
       A.lng + (B.lng - A.lng)*f
     ];
   }
   step(){ // advance by 1 tick
-    const leg = RUNNING[this.idx];
-    const dwell = DWELL[this.idx + (this.dir===1?0:1)]; // station ahead when moving
+    const leg   = LINES[this.lineCode].runningTicks[this.idx];
+    const dwell = LINES[this.lineCode].dwellTicks  [this.idx + (this.dir===1?0:1)];
+    console.log(this.lineCode, this.idx, this.dir, this.stations.length);
     if (this.segmentProgress < leg){               // still running
       this.segmentProgress++;
     } else {                                       // arrived
@@ -96,28 +181,17 @@ class Train {
       this.arrivalTick = tick;
       // turnaround at termini
       // ---------- turn-around at termini ----------
-      if (this.idx === 0 || this.idx === stations.length-1){
-        this.dir *= -1;                 // reverse
-        if(this.idx === stations.length-1){
-          this.idx += 0;           // step one station INTO the new direction
-        }else{
+      /* -------- turn-around at termini -------------------------------- */
+      if (this.idx === 0 || this.idx === this.stations.length-1){
+        this.dir *= -1;
+        this.idx += this.dir;                 // step into new direction
+        this.segmentProgress = 0;
+        this.arrivalTick = tick;
+        /* full-loop detection */
+        if (this.dir === this.startDir && this.idx === (this.startDir===1?0:this.stations.length-1)){
+          if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled = false; }
         }
-        this.segmentProgress = 0;       // start fresh leg
-        this.arrivalTick = tick;        // mark arrival for dwell calculation
-        // -- loop-completion logic (see #2) --
-        console.log("nana");
-        console.log(this.dir === this.startDir);
-        console.log(this.idx === (this.startDir===1?0:stations.length-1));
-        if (this.dir === this.startDir){
-          if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
-        }
-        /*
-        if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
-          if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
-        }
-        */
-       
-        
+        return;
       }
     }
     this.marker.setLatLng(this.latlng());
@@ -126,24 +200,25 @@ class Train {
 }
 
 /* -------------------- time-table builder ------------------------------ */
-function buildTables(){
-  const defaultRun = 90, defaultDwell = 25;
-  RUNNING = Array(stations.length-1).fill(defaultRun);
-  DWELL   = Array(stations.length).fill(defaultDwell);
-  const wrap = (arr, title) => {
-    const tbl = document.createElement('table');
-    tbl.innerHTML = `<caption>${title}</caption>` +
-      arr.map((v,i)=>`<tr><td>${stations[i].name||'leg '+i}</td>
-        <td><input data-array="${title}" data-idx="${i}" type="number"
-                   min="5" max="600" value="${v}" style="width:60px;"></td></tr>`).join('');
-    return tbl;
-  };
-  const div = document.getElementById('timeTables');
+function buildPerLineTables(){
+  const div = document.getElementById('perLineTables');
   div.innerHTML = '';
-  div.appendChild(wrap(RUNNING, 'Running'));
-  div.appendChild(wrap(DWELL, 'Dwell'));
+  Object.entries(LINES).forEach(([code,meta])=>{
+    const wrap = (arr, title) => {
+      const tbl = document.createElement('table');
+      tbl.innerHTML = `<caption>${meta.name} – ${title}</caption>` +
+        arr.map((v,i)=>`<tr><td>${meta.stations[i].name||'leg '+i}</td>
+          <td><input data-line="${code}" data-array="${title}" data-idx="${i}"
+                     type="number" min="5" max="600" value="${v}" style="width:60px;"></td></tr>`).join('');
+      return tbl;
+    };
+    const runs = Array(meta.stations.length-1).fill(90);
+    const dwells = Array(meta.stations.length).fill(25);
+    div.appendChild(wrap(runs,'Running'));
+    div.appendChild(wrap(dwells,'Dwell'));
+  });
 }
-buildTables();
+buildPerLineTables();
 
 /* -------------------- apply button ----------------------------------- */
 document.getElementById('applyBtn').onclick = () => {
@@ -171,18 +246,22 @@ function restart(){
 /* ---------- simulation step ---------- */
 function simulate(){
   tick++;
-  if (spawnEnabled && tick % SPAWN_EVERY === 0){
-    trains.push(new Train(1));
-  }
-  trains.forEach(t=>t.step());
+  Object.keys(LINES).forEach(code=>{
+    if (!lineLayers[code]) return;
+    const meta = lineLayers[code];
+    /* spawn */
+    if (spawnEnabled && tick % SPAWN_EVERY === 0){
+      meta.trains.push(new Train(code, 1));
+    }
+    /* move */
+    meta.trains.forEach(t=>t.step());
+  });
   document.getElementById('status').textContent =
-    `Tick ${tick} | Trains ${trains.length} | Spawning ${spawnEnabled?'ON':'OFF'}`;
+    `Tick ${tick} | Lines ${Object.keys(LINES).length} | Spawning ${spawnEnabled?'ON':'OFF'}`;
 }
 
 /* ---------- configurable clock ---------- */
-let TICK_RATE = 30;          // sim ticks per real second
-let SIM_MS    = 1000 / TICK_RATE;
-let clockId   = null;
+//parameters at the top
 
 function startClock(){
   if (clockId) clearInterval(clockId);
