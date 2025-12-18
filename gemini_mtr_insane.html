@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTR Network Simulator</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #map { height: 100vh; width: 100%; z-index: 1; }
+        .custom-train-icon {
+            background: white;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        /* Custom scrollbar for sidebar */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        
+        .panel-hidden { transform: translateX(-100%); transition: transform 0.3s ease; }
+        .panel-visible { transform: translateX(0); transition: transform 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-100 overflow-hidden">
+
+    <!-- Sidebar UI -->
+    <div id="sidebar" class="absolute top-0 left-0 h-full w-80 bg-white shadow-2xl z-[1000] flex flex-col transition-transform duration-300">
+        <!-- Header -->
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-lg font-bold">MTR Simulator</h1>
+                <p class="text-xs text-slate-400">Network Control Center</p>
+            </div>
+            <button onclick="toggleSidebar()" class="md:hidden p-1 hover:bg-slate-700 rounded">
+                ✕
+            </button>
+        </div>
+
+        <!-- Global Controls -->
+        <div class="p-4 border-b space-y-4 bg-slate-50">
+            <div class="flex items-center justify-between">
+                <button id="playPauseBtn" onclick="togglePlay()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors w-full justify-center font-bold">
+                    <span>Pause</span>
+                </button>
+            </div>
+            
+            <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Simulation Speed</label>
+                <select id="simSpeed" onchange="updateSpeed()" class="w-full p-2 border rounded-md text-sm">
+                    <option value="0.5">0.5x (Slow)</option>
+                    <option value="1" selected>1.0x (Normal)</option>
+                    <option value="2">2.0x (Fast)</option>
+                    <option value="5">5.0x (Turbo)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Line Selection -->
+        <div class="flex border-b">
+            <button onclick="switchLine('island')" id="tab-island" class="flex-1 py-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600">Island Line</button>
+            <button onclick="switchLine('south')" id="tab-south" class="flex-1 py-3 text-sm font-bold border-b-2 border-transparent text-gray-400">South Island</button>
+        </div>
+
+        <!-- Station List -->
+        <div class="flex-1 overflow-y-auto custom-scroll p-4 space-y-2" id="stationList">
+            <!-- Stations injected here -->
+        </div>
+
+        <!-- Footer Stats -->
+        <div class="p-4 bg-gray-50 border-t text-xs text-gray-500 flex justify-between">
+            <span>Active Trains: <span id="trainCount" class="font-bold text-slate-800">0</span></span>
+            <span>System: <span class="text-green-600 font-bold">ONLINE</span></span>
+        </div>
+    </div>
+
+    <!-- Station Editor Overlay (The "Dwell Time Panel") -->
+    <div id="editorPanel" class="fixed inset-0 bg-black/50 z-[2000] hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+                <h3 id="editorTitle" class="font-bold text-lg">Edit Station</h3>
+                <button onclick="closeEditor()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Dwell Time (seconds)</label>
+                    <input type="range" id="editDwell" min="1" max="60" class="w-full">
+                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>1s</span>
+                        <span id="valDwell" class="font-bold text-blue-600 text-sm">30s</span>
+                        <span>60s</span>
+                    </div>
+                </div>
+                <div id="travelTimeContainer">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Travel Time to Next (seconds)</label>
+                    <input type="range" id="editTravel" min="5" max="120" class="w-full">
+                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>5s</span>
+                        <span id="valTravel" class="font-bold text-blue-600 text-sm">30s</span>
+                        <span>120s</span>
+                    </div>
+                </div>
+                <button onclick="saveStationSettings()" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold hover:bg-slate-800 transition-colors">
+                    Apply Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // --- DATA ---
+        const DATA = {
+            island: {
+                color: '#0071ce',
+                spawnRate: 20,
+                stations: [
+                    { id: 'is1', name: "Kennedy Town", lat: 22.2815, lng: 114.1288, dwell: 5, travel: 10 },
+                    { id: 'is2', name: "HKU", lat: 22.2845, lng: 114.1378, dwell: 5, travel: 12 },
+                    { id: 'is3', name: "Sai Ying Pun", lat: 22.2861, lng: 114.1430, dwell: 5, travel: 10 },
+                    { id: 'is4', name: "Central", lat: 22.2819, lng: 114.1581, dwell: 8, travel: 8 },
+                    { id: 'is5', name: "Admiralty", lat: 22.2795, lng: 114.1645, dwell: 10, travel: 10 },
+                    { id: 'is6', name: "Wan Chai", lat: 22.2777, lng: 114.1731, dwell: 5, travel: 10 },
+                    { id: 'is7', name: "Causeway Bay", lat: 22.2807, lng: 114.1851, dwell: 6, travel: 15 },
+                    { id: 'is8', name: "Quarry Bay", lat: 22.2847, lng: 114.2106, dwell: 6, travel: 12 },
+                    { id: 'is9', name: "Chai Wan", lat: 22.2647, lng: 114.2367, dwell: 10, travel: 0 }
+                ]
+            },
+            south: {
+                color: '#b5bd00',
+                spawnRate: 35,
+                stations: [
+                    { id: 'sl1', name: "Admiralty", lat: 22.2795, lng: 114.1645, dwell: 10, travel: 20 },
+                    { id: 'sl2', name: "Ocean Park", lat: 22.2477, lng: 114.1758, dwell: 6, travel: 15 },
+                    { id: 'sl3', name: "Wong Chuk Hang", lat: 22.2489, lng: 114.1687, dwell: 5, travel: 12 },
+                    { id: 'sl4', name: "Lei Tung", lat: 22.2427, lng: 114.1567, dwell: 5, travel: 10 },
+                    { id: 'sl5', name: "South Horizons", lat: 22.2435, lng: 114.1487, dwell: 8, travel: 0 }
+                ]
+            }
+        };
+
+        // --- STATE ---
+        let activeLine = 'island';
+        let isPaused = false;
+        let simSpeed = 1;
+        let trains = [];
+        let tickCounter = 0;
+        let spawnCounters = { island: 0, south: 0 };
+        let editingStation = null;
+
+        // --- INITIALIZE MAP ---
+        const map = L.map('map', {
+            zoomControl: false
+        }).setView([22.27, 114.17], 13);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '©OpenStreetMap'
+        }).addTo(map);
+
+        // Draw Tracks
+        Object.keys(DATA).forEach(key => {
+            const line = DATA[key];
+            const coords = line.stations.map(s => [s.lat, s.lng]);
+            L.polyline(coords, { color: line.color, weight: 6, opacity: 0.6 }).addTo(map);
+            
+            line.stations.forEach(s => {
+                L.circleMarker([s.lat, s.lng], {
+                    radius: 5,
+                    fillColor: 'white',
+                    color: line.color,
+                    weight: 3,
+                    fillOpacity: 1
+                }).addTo(map).bindTooltip(s.name, { permanent: false, direction: 'top' });
+            });
+        });
+
+        // --- SIMULATION ENGINE ---
+        function update() {
+            if (isPaused) return;
+
+            tickCounter++;
+
+            // 1. Handle Spawning
+            Object.keys(DATA).forEach(lineId => {
+                spawnCounters[lineId]++;
+                if (spawnCounters[lineId] >= DATA[lineId].spawnRate) {
+                    spawnCounters[lineId] = 0;
+                    spawnTrain(lineId);
+                }
+            });
+
+            // 2. Update Trains
+            trains = trains.filter(train => {
+                const line = DATA[train.lineId];
+                const currentStation = line.stations[train.stationIdx];
+
+                if (train.status === 'DWELLING') {
+                    train.timer++;
+                    if (train.timer >= currentStation.dwell) {
+                        if (train.stationIdx >= line.stations.length - 1) {
+                            map.removeLayer(train.marker);
+                            return false; // Remove train
+                        }
+                        train.status = 'MOVING';
+                        train.timer = 0;
+                    }
+                } else {
+                    train.timer++;
+                    const nextStation = line.stations[train.stationIdx + 1];
+                    const progress = train.timer / currentStation.travel;
+                    
+                    // Interpolate position
+                    const newLat = currentStation.lat + (nextStation.lat - currentStation.lat) * progress;
+                    const newLng = currentStation.lng + (nextStation.lng - currentStation.lng) * progress;
+                    train.marker.setLatLng([newLat, newLng]);
+
+                    if (train.timer >= currentStation.travel) {
+                        train.status = 'DWELLING';
+                        train.timer = 0;
+                        train.stationIdx++;
+                        train.marker.setLatLng([nextStation.lat, nextStation.lng]);
+                    }
+                }
+                return true;
+            });
+
+            document.getElementById('trainCount').innerText = trains.length;
+            
+            setTimeout(update, 1000 / simSpeed);
+        }
+
+        function spawnTrain(lineId) {
+            const line = DATA[lineId];
+            const start = line.stations[0];
+            const icon = L.divIcon({
+                className: 'custom-train-icon',
+                html: `<div style="color:${line.color}">T</div>`,
+                iconSize: [20, 20]
+            });
+
+            const marker = L.marker([start.lat, start.lng], { icon }).addTo(map);
+            trains.push({
+                lineId,
+                stationIdx: 0,
+                status: 'DWELLING',
+                timer: 0,
+                marker
+            });
+        }
+
+        // --- UI FUNCTIONS ---
+        function renderStationList() {
+            const container = document.getElementById('stationList');
+            container.innerHTML = '';
+            const line = DATA[activeLine];
+
+            line.stations.forEach((s, idx) => {
+                const div = document.createElement('div');
+                div.className = "p-3 bg-white border rounded-lg shadow-sm hover:border-blue-300 transition-all cursor-pointer group";
+                div.onclick = () => openEditor(activeLine, idx);
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="text-sm font-bold text-gray-800">${s.name}</div>
+                            <div class="text-[10px] text-gray-400 uppercase">Dwell: ${s.dwell}s | Travel: ${s.travel}s</div>
+                        </div>
+                        <div class="opacity-0 group-hover:opacity-100 text-blue-600 text-xs font-bold">EDIT</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function switchLine(lineId) {
+            activeLine = lineId;
+            document.getElementById('tab-island').className = `flex-1 py-3 text-sm font-bold border-b-2 ${lineId === 'island' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400'}`;
+            document.getElementById('tab-south').className = `flex-1 py-3 text-sm font-bold border-b-2 ${lineId === 'south' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400'}`;
+            renderStationList();
+        }
+
+        function togglePlay() {
+            isPaused = !isPaused;
+            document.getElementById('playPauseBtn').innerHTML = isPaused ? '<span>Resume</span>' : '<span>Pause</span>';
+            document.getElementById('playPauseBtn').className = isPaused ? 'bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors w-full justify-center font-bold' : 'bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors w-full justify-center font-bold';
+            if (!isPaused) update();
+        }
+
+        function updateSpeed() {
+            simSpeed = parseFloat(document.getElementById('simSpeed').value);
+        }
+
+        // --- EDITOR PANEL LOGIC ---
+        function openEditor(lineId, idx) {
+            editingStation = { lineId, idx };
+            const station = DATA[lineId].stations[idx];
+            
+            document.getElementById('editorTitle').innerText = station.name;
+            document.getElementById('editDwell').value = station.dwell;
+            document.getElementById('valDwell').innerText = station.dwell + 's';
+            
+            // Hide travel time for terminus
+            if (idx === DATA[lineId].stations.length - 1) {
+                document.getElementById('travelTimeContainer').classList.add('hidden');
+            } else {
+                document.getElementById('travelTimeContainer').classList.remove('hidden');
+                document.getElementById('editTravel').value = station.travel;
+                document.getElementById('valTravel').innerText = station.travel + 's';
+            }
+
+            document.getElementById('editorPanel').classList.remove('hidden');
+        }
+
+        function closeEditor() {
+            document.getElementById('editorPanel').classList.add('hidden');
+            editingStation = null;
+        }
+
+        function saveStationSettings() {
+            if (!editingStation) return;
+            const { lineId, idx } = editingStation;
+            
+            DATA[lineId].stations[idx].dwell = parseInt(document.getElementById('editDwell').value);
+            if (idx < DATA[lineId].stations.length - 1) {
+                DATA[lineId].stations[idx].travel = parseInt(document.getElementById('editTravel').value);
+            }
+            
+            renderStationList();
+            closeEditor();
+        }
+
+        // Listeners for slider labels
+        document.getElementById('editDwell').oninput = (e) => document.getElementById('valDwell').innerText = e.target.value + 's';
+        document.getElementById('editTravel').oninput = (e) => document.getElementById('valTravel').innerText = e.target.value + 's';
+
+        // Start
+        renderStationList();
+        update();
+    </script>
+</body>
+</html>
+
