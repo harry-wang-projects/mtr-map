@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MTR Network Simulator</title>
+    <title>MTR Network Simulator - Round Trip Logic</title>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.tailwindcss.com"></script>
@@ -18,48 +18,45 @@
             justify-content: center;
             font-weight: bold;
             font-size: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
         }
-        /* Custom scrollbar for sidebar */
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-        
-        .panel-hidden { transform: translateX(-100%); transition: transform 0.3s ease; }
-        .panel-visible { transform: translateX(0); transition: transform 0.3s ease; }
     </style>
 </head>
 <body class="bg-gray-100 overflow-hidden">
 
     <!-- Sidebar UI -->
-    <div id="sidebar" class="absolute top-0 left-0 h-full w-80 bg-white shadow-2xl z-[1000] flex flex-col transition-transform duration-300">
+    <div id="sidebar" class="absolute top-0 left-0 h-full w-80 bg-white shadow-2xl z-[1000] flex flex-col">
         <!-- Header -->
-        <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
-            <div>
-                <h1 class="text-lg font-bold">MTR Simulator</h1>
-                <p class="text-xs text-slate-400">Network Control Center</p>
-            </div>
-            <button onclick="toggleSidebar()" class="md:hidden p-1 hover:bg-slate-700 rounded">
-                ✕
-            </button>
+        <div class="p-4 bg-slate-900 text-white">
+            <h1 class="text-lg font-bold">MTR Control Center</h1>
+            <p class="text-xs text-slate-400">Round-Trip Simulation Mode</p>
         </div>
 
         <!-- Global Controls -->
         <div class="p-4 border-b space-y-4 bg-slate-50">
-            <div class="flex items-center justify-between">
-                <button id="playPauseBtn" onclick="togglePlay()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors w-full justify-center font-bold">
-                    <span>Pause</span>
+            <div class="flex items-center justify-between gap-2">
+                <button id="playPauseBtn" onclick="togglePlay()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex-1 font-bold transition-colors">
+                    Pause
+                </button>
+                <button onclick="resetSimulation()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold transition-colors">
+                    Reset
                 </button>
             </div>
             
             <div class="space-y-1">
-                <label class="text-xs font-bold text-gray-500 uppercase">Simulation Speed</label>
-                <select id="simSpeed" onchange="updateSpeed()" class="w-full p-2 border rounded-md text-sm">
-                    <option value="0.5">0.5x (Slow)</option>
-                    <option value="1" selected>1.0x (Normal)</option>
-                    <option value="2">2.0x (Fast)</option>
-                    <option value="5">5.0x (Turbo)</option>
-                </select>
+                <label class="text-xs font-bold text-gray-500 uppercase flex justify-between">
+                    Ticks Per Second
+                    <span id="speedVal" class="text-blue-600">5</span>
+                </label>
+                <input type="range" id="simSpeed" min="1" max="60" value="5" oninput="updateSpeed()" class="w-full">
+            </div>
+
+            <div id="spawnStatus" class="text-[10px] font-bold py-1 px-2 rounded bg-green-100 text-green-700 text-center">
+                SPAWNING ACTIVE
             </div>
         </div>
 
@@ -75,36 +72,38 @@
         </div>
 
         <!-- Footer Stats -->
-        <div class="p-4 bg-gray-50 border-t text-xs text-gray-500 flex justify-between">
-            <span>Active Trains: <span id="trainCount" class="font-bold text-slate-800">0</span></span>
-            <span>System: <span class="text-green-600 font-bold">ONLINE</span></span>
+        <div class="p-4 bg-gray-50 border-t text-xs text-gray-500 flex flex-col gap-1">
+            <div class="flex justify-between">
+                <span>Active Trains: <span id="trainCount" class="font-bold text-slate-800">0</span></span>
+                <span>System: <span class="text-green-600 font-bold">ONLINE</span></span>
+            </div>
         </div>
     </div>
 
-    <!-- Station Editor Overlay (The "Dwell Time Panel") -->
+    <!-- Station Editor Overlay -->
     <div id="editorPanel" class="fixed inset-0 bg-black/50 z-[2000] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
             <div class="p-4 border-b flex justify-between items-center bg-gray-50">
                 <h3 id="editorTitle" class="font-bold text-lg">Edit Station</h3>
-                <button onclick="closeEditor()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                <button onclick="closeEditor()" class="text-gray-400 hover:text-gray-600 text-2xl px-2">&times;</button>
             </div>
             <div class="p-6 space-y-6">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Dwell Time (seconds)</label>
-                    <input type="range" id="editDwell" min="1" max="60" class="w-full">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Dwell Time (ticks)</label>
+                    <input type="range" id="editDwell" min="1" max="100" class="w-full">
                     <div class="flex justify-between text-xs text-gray-400 mt-1">
-                        <span>1s</span>
-                        <span id="valDwell" class="font-bold text-blue-600 text-sm">30s</span>
-                        <span>60s</span>
+                        <span>1t</span>
+                        <span id="valDwell" class="font-bold text-blue-600 text-sm">30t</span>
+                        <span>100t</span>
                     </div>
                 </div>
                 <div id="travelTimeContainer">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Travel Time to Next (seconds)</label>
-                    <input type="range" id="editTravel" min="5" max="120" class="w-full">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Travel Time to Next (ticks)</label>
+                    <input type="range" id="editTravel" min="10" max="300" class="w-full">
                     <div class="flex justify-between text-xs text-gray-400 mt-1">
-                        <span>5s</span>
-                        <span id="valTravel" class="font-bold text-blue-600 text-sm">30s</span>
-                        <span>120s</span>
+                        <span>10t</span>
+                        <span id="valTravel" class="font-bold text-blue-600 text-sm">90t</span>
+                        <span>300t</span>
                     </div>
                 </div>
                 <button onclick="saveStationSettings()" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold hover:bg-slate-800 transition-colors">
@@ -121,67 +120,73 @@
     
     <script>
         // --- DATA ---
+        // Default travel times set to 90 ticks
         const DATA = {
             island: {
                 color: '#0071ce',
-                spawnRate: 20,
+                spawnInterval: 150, // ticks between spawns
                 stations: [
-                    { id: 'is1', name: "Kennedy Town", lat: 22.2815, lng: 114.1288, dwell: 5, travel: 10 },
-                    { id: 'is2', name: "HKU", lat: 22.2845, lng: 114.1378, dwell: 5, travel: 12 },
-                    { id: 'is3', name: "Sai Ying Pun", lat: 22.2861, lng: 114.1430, dwell: 5, travel: 10 },
-                    { id: 'is4', name: "Central", lat: 22.2819, lng: 114.1581, dwell: 8, travel: 8 },
-                    { id: 'is5', name: "Admiralty", lat: 22.2795, lng: 114.1645, dwell: 10, travel: 10 },
-                    { id: 'is6', name: "Wan Chai", lat: 22.2777, lng: 114.1731, dwell: 5, travel: 10 },
-                    { id: 'is7', name: "Causeway Bay", lat: 22.2807, lng: 114.1851, dwell: 6, travel: 15 },
-                    { id: 'is8', name: "Quarry Bay", lat: 22.2847, lng: 114.2106, dwell: 6, travel: 12 },
-                    { id: 'is9', name: "Chai Wan", lat: 22.2647, lng: 114.2367, dwell: 10, travel: 0 }
+                    {name:'Kennedy Town',      lat:22.2810, lng:114.1289,dwell: 20, travel: 90 },
+                    {name:'HKU',               lat:22.2840, lng:114.1350,dwell: 20, travel: 90 },
+                    {name:'Sai Ying Pun',      lat:22.2860, lng:114.1430,dwell: 20, travel: 90 },
+                    {name:'Sheung Wan',        lat:22.2870, lng:114.1510,dwell: 20, travel: 90 },
+                    {name:'Central',           lat:22.2820, lng:114.1580,dwell: 20, travel: 90 },
+                    {name:'Admiralty',         lat:22.2790, lng:114.1650,dwell: 20, travel: 90 },
+                    {name:'Wan Chai',          lat:22.2770, lng:114.1730,dwell: 20, travel: 90 },
+                    {name:'Causeway Bay',      lat:22.2800, lng:114.1850,dwell: 20, travel: 90 },
+                    {name:'Tin Hau',           lat:22.2820, lng:114.1920,dwell: 20, travel: 90 },
+                    {name:'Fortress Hill',     lat:22.2880, lng:114.1940,dwell: 20, travel: 90 },
+                    {name:'North Point',       lat:22.2910, lng:114.2000,dwell: 20, travel: 90 },
+                    {name:'Quarry Bay',        lat:22.2890, lng:114.2120,dwell: 20, travel: 90 },
+                    {name:'Tai Koo',           lat:22.2850, lng:114.2170,dwell: 20, travel: 90 },
+                    {name:'Sai Wan Ho',        lat:22.2810, lng:114.2230,dwell: 20, travel: 90 },
+                    {name:'Shau Kei Wan',      lat:22.2790, lng:114.2290,dwell: 20, travel: 90 },
+                    {name:'Heng Fa Chuen',     lat:22.2770, lng:114.2390,dwell: 20, travel: 135 },
+                    {name:'Chai Wan',          lat:22.2650, lng:114.2370,dwell: 20, travel: 0 }
                 ]
             },
             south: {
                 color: '#b5bd00',
-                spawnRate: 35,
+                spawnInterval: 200,
                 stations: [
-                    { id: 'sl1', name: "Admiralty", lat: 22.2795, lng: 114.1645, dwell: 10, travel: 20 },
-                    { id: 'sl2', name: "Ocean Park", lat: 22.2477, lng: 114.1758, dwell: 6, travel: 15 },
-                    { id: 'sl3', name: "Wong Chuk Hang", lat: 22.2489, lng: 114.1687, dwell: 5, travel: 12 },
-                    { id: 'sl4', name: "Lei Tung", lat: 22.2427, lng: 114.1567, dwell: 5, travel: 10 },
-                    { id: 'sl5', name: "South Horizons", lat: 22.2435, lng: 114.1487, dwell: 8, travel: 0 }
+                    { id: 'sl1', name: "Admiralty", lat: 22.2795, lng: 114.1645, dwell: 30, travel: 150 },
+                    { id: 'sl2', name: "Ocean Park", lat: 22.2477, lng: 114.1758, dwell: 20, travel: 90 },
+                    { id: 'sl3', name: "Wong Chuk Hang", lat: 22.2489, lng: 114.1687, dwell: 20, travel: 90 },
+                    { id: 'sl4', name: "Lei Tung", lat: 22.2427, lng: 114.1567, dwell: 20, travel: 90 },
+                    { id: 'sl5', name: "South Horizons", lat: 22.2435, lng: 114.1487, dwell: 40, travel: 0 }
                 ]
             }
         };
-
+        /* ---- sane defaults for every line ---- */
+        Object.keys(DATA).forEach(code=>{
+            const st = LINES[code].stations;
+            LINES[code].running = Array(st.length-1).fill(90); // seconds
+            LINES[code].dwell   = Array(st.length).fill(25);   // seconds
+        });
         // --- STATE ---
         let activeLine = 'island';
         let isPaused = false;
-        let simSpeed = 1;
+        let ticksPerSecond = 5;
         let trains = [];
-        let tickCounter = 0;
         let spawnCounters = { island: 0, south: 0 };
+        let stopSpawning = false;
         let editingStation = null;
 
         // --- INITIALIZE MAP ---
-        const map = L.map('map', {
-            zoomControl: false
-        }).setView([22.27, 114.17], 13);
-
+        const map = L.map('map', { zoomControl: false }).setView([22.27, 114.17], 13);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '©OpenStreetMap'
         }).addTo(map);
 
-        // Draw Tracks
+        // Draw static tracks and station markers
         Object.keys(DATA).forEach(key => {
             const line = DATA[key];
             const coords = line.stations.map(s => [s.lat, s.lng]);
-            L.polyline(coords, { color: line.color, weight: 6, opacity: 0.6 }).addTo(map);
-            
+            L.polyline(coords, { color: line.color, weight: 6, opacity: 0.4 }).addTo(map);
             line.stations.forEach(s => {
                 L.circleMarker([s.lat, s.lng], {
-                    radius: 5,
-                    fillColor: 'white',
-                    color: line.color,
-                    weight: 3,
-                    fillOpacity: 1
-                }).addTo(map).bindTooltip(s.name, { permanent: false, direction: 'top' });
+                    radius: 4, fillColor: 'white', color: line.color, weight: 2, fillOpacity: 1
+                }).addTo(map).bindTooltip(s.name, { direction: 'top', offset: [0,-5] });
             });
         });
 
@@ -189,55 +194,70 @@
         function update() {
             if (isPaused) return;
 
-            tickCounter++;
+            // 1. Spawning Logic
+            if (!stopSpawning) {
+                Object.keys(DATA).forEach(lineId => {
+                    spawnCounters[lineId]++;
+                    if (spawnCounters[lineId] >= DATA[lineId].spawnInterval) {
+                        spawnCounters[lineId] = 0;
+                        spawnTrain(lineId);
+                    }
+                });
+            } else {
+                document.getElementById('spawnStatus').innerText = "SPAWNING STOPPED (Round Trip Completed)";
+                document.getElementById('spawnStatus').className = "text-[10px] font-bold py-1 px-2 rounded bg-red-100 text-red-700 text-center";
+            }
 
-            // 1. Handle Spawning
-            Object.keys(DATA).forEach(lineId => {
-                spawnCounters[lineId]++;
-                if (spawnCounters[lineId] >= DATA[lineId].spawnRate) {
-                    spawnCounters[lineId] = 0;
-                    spawnTrain(lineId);
-                }
-            });
-
-            // 2. Update Trains
-            trains = trains.filter(train => {
+            // 2. Train Movement Logic
+            trains.forEach(train => {
                 const line = DATA[train.lineId];
                 const currentStation = line.stations[train.stationIdx];
 
                 if (train.status === 'DWELLING') {
                     train.timer++;
                     if (train.timer >= currentStation.dwell) {
-                        if (train.stationIdx >= line.stations.length - 1) {
-                            map.removeLayer(train.marker);
-                            return false; // Remove train
+                        // Check if we need to turn back
+                        if (train.direction === 1 && train.stationIdx === line.stations.length - 1) {
+                            train.direction = -1; // Reverse to backward
+                        } else if (train.direction === -1 && train.stationIdx === 0) {
+                            // Completed full round trip!
+                            train.direction = 1; 
+                            stopSpawning = true; // Stop spawning new trains
                         }
+                        
                         train.status = 'MOVING';
                         train.timer = 0;
                     }
-                } else {
+                } else if (train.status === 'MOVING') {
                     train.timer++;
-                    const nextStation = line.stations[train.stationIdx + 1];
-                    const progress = train.timer / currentStation.travel;
+                    
+                    // Determine target station based on direction
+                    const nextStationIdx = train.stationIdx + train.direction;
+                    const nextStation = line.stations[nextStationIdx];
+                    
+                    // Travel time is defined by the "outbound" station's travel property
+                    const travelTime = train.direction === 1 
+                        ? line.stations[train.stationIdx].travel 
+                        : line.stations[nextStationIdx].travel;
+
+                    const progress = train.timer / travelTime;
                     
                     // Interpolate position
                     const newLat = currentStation.lat + (nextStation.lat - currentStation.lat) * progress;
                     const newLng = currentStation.lng + (nextStation.lng - currentStation.lng) * progress;
                     train.marker.setLatLng([newLat, newLng]);
 
-                    if (train.timer >= currentStation.travel) {
+                    if (train.timer >= travelTime) {
                         train.status = 'DWELLING';
                         train.timer = 0;
-                        train.stationIdx++;
+                        train.stationIdx = nextStationIdx;
                         train.marker.setLatLng([nextStation.lat, nextStation.lng]);
                     }
                 }
-                return true;
             });
 
             document.getElementById('trainCount').innerText = trains.length;
-            
-            setTimeout(update, 1000 / simSpeed);
+            setTimeout(update, 1000 / ticksPerSecond);
         }
 
         function spawnTrain(lineId) {
@@ -245,8 +265,8 @@
             const start = line.stations[0];
             const icon = L.divIcon({
                 className: 'custom-train-icon',
-                html: `<div style="color:${line.color}">T</div>`,
-                iconSize: [20, 20]
+                html: `<div style="color:${line.color}">${lineId === 'island' ? 'I' : 'S'}</div>`,
+                iconSize: [22, 22]
             });
 
             const marker = L.marker([start.lat, start.lng], { icon }).addTo(map);
@@ -254,12 +274,45 @@
                 lineId,
                 stationIdx: 0,
                 status: 'DWELLING',
+                direction: 1, // 1 for forward, -1 for backward
                 timer: 0,
                 marker
             });
         }
 
-        // --- UI FUNCTIONS ---
+        // --- UI CONTROLS ---
+        function updateSpeed() {
+            ticksPerSecond = parseInt(document.getElementById('simSpeed').value);
+            document.getElementById('speedVal').innerText = ticksPerSecond;
+        }
+
+        function togglePlay() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('playPauseBtn');
+            btn.innerText = isPaused ? 'Resume' : 'Pause';
+            btn.className = isPaused 
+                ? 'bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex-1 font-bold transition-colors' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex-1 font-bold transition-colors';
+            if (!isPaused) update();
+        }
+
+        function resetSimulation() {
+            trains.forEach(t => map.removeLayer(t.marker));
+            trains = [];
+            stopSpawning = false;
+            spawnCounters = { island: 0, south: 0 };
+            document.getElementById('spawnStatus').innerText = "SPAWNING ACTIVE";
+            document.getElementById('spawnStatus').className = "text-[10px] font-bold py-1 px-2 rounded bg-green-100 text-green-700 text-center";
+            renderStationList();
+        }
+
+        function switchLine(lineId) {
+            activeLine = lineId;
+            document.getElementById('tab-island').className = `flex-1 py-3 text-sm font-bold border-b-2 ${lineId === 'island' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400'}`;
+            document.getElementById('tab-south').className = `flex-1 py-3 text-sm font-bold border-b-2 ${lineId === 'south' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400'}`;
+            renderStationList();
+        }
+
         function renderStationList() {
             const container = document.getElementById('stationList');
             container.innerHTML = '';
@@ -273,7 +326,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <div class="text-sm font-bold text-gray-800">${s.name}</div>
-                            <div class="text-[10px] text-gray-400 uppercase">Dwell: ${s.dwell}s | Travel: ${s.travel}s</div>
+                            <div class="text-[10px] text-gray-400 uppercase">Dwell: ${s.dwell}t | Travel: ${s.travel || 'N/A'}t</div>
                         </div>
                         <div class="opacity-0 group-hover:opacity-100 text-blue-600 text-xs font-bold">EDIT</div>
                     </div>
@@ -282,40 +335,21 @@
             });
         }
 
-        function switchLine(lineId) {
-            activeLine = lineId;
-            document.getElementById('tab-island').className = `flex-1 py-3 text-sm font-bold border-b-2 ${lineId === 'island' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400'}`;
-            document.getElementById('tab-south').className = `flex-1 py-3 text-sm font-bold border-b-2 ${lineId === 'south' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-400'}`;
-            renderStationList();
-        }
-
-        function togglePlay() {
-            isPaused = !isPaused;
-            document.getElementById('playPauseBtn').innerHTML = isPaused ? '<span>Resume</span>' : '<span>Pause</span>';
-            document.getElementById('playPauseBtn').className = isPaused ? 'bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors w-full justify-center font-bold' : 'bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors w-full justify-center font-bold';
-            if (!isPaused) update();
-        }
-
-        function updateSpeed() {
-            simSpeed = parseFloat(document.getElementById('simSpeed').value);
-        }
-
-        // --- EDITOR PANEL LOGIC ---
+        // --- EDITOR LOGIC ---
         function openEditor(lineId, idx) {
             editingStation = { lineId, idx };
             const station = DATA[lineId].stations[idx];
             
             document.getElementById('editorTitle').innerText = station.name;
             document.getElementById('editDwell').value = station.dwell;
-            document.getElementById('valDwell').innerText = station.dwell + 's';
+            document.getElementById('valDwell').innerText = station.dwell + 't';
             
-            // Hide travel time for terminus
             if (idx === DATA[lineId].stations.length - 1) {
                 document.getElementById('travelTimeContainer').classList.add('hidden');
             } else {
                 document.getElementById('travelTimeContainer').classList.remove('hidden');
                 document.getElementById('editTravel').value = station.travel;
-                document.getElementById('valTravel').innerText = station.travel + 's';
+                document.getElementById('valTravel').innerText = station.travel + 't';
             }
 
             document.getElementById('editorPanel').classList.remove('hidden');
@@ -339,14 +373,13 @@
             closeEditor();
         }
 
-        // Listeners for slider labels
-        document.getElementById('editDwell').oninput = (e) => document.getElementById('valDwell').innerText = e.target.value + 's';
-        document.getElementById('editTravel').oninput = (e) => document.getElementById('valTravel').innerText = e.target.value + 's';
+        // Slider listeners
+        document.getElementById('editDwell').oninput = (e) => document.getElementById('valDwell').innerText = e.target.value + 't';
+        document.getElementById('editTravel').oninput = (e) => document.getElementById('valTravel').innerText = e.target.value + 't';
 
-        // Start
+        // Init
         renderStationList();
         update();
     </script>
 </body>
 </html>
-
