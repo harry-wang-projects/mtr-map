@@ -2,28 +2,28 @@
 
 
 /* =========  CONFIGURATION  ============================================= */
+//run = seconds from station i to station i + 1
+//dwell = seconds stopped at station i
 const stations = [
-  {name:"Kennedy Town", lat:22.2810, lng:114.1289},
-  {name:"HKU", lat:22.2840, lng:114.1350},
-  {name:"Sai Ying Pun", lat:22.2860, lng:114.1430},
-  {name:"Sheung Wan", lat:22.2870, lng:114.1510},
-  {name:"Central", lat:22.2820, lng:114.1580},
-  {name:"Admiralty", lat:22.2790, lng:114.1650},
-  {name:"Wan Chai", lat:22.2770, lng:114.1730},
-  {name:"Causeway Bay", lat:22.2800, lng:114.1850},
-  {name:"Tin Hau", lat:22.2820, lng:114.1920},
-  {name:"Fortress Hill", lat:22.2880, lng:114.1940},
-  {name:"North Point", lat:22.2910, lng:114.2000},
-  {name:"Quarry Bay", lat:22.2890, lng:114.2120},
-  {name:"Tai Koo", lat:22.2850, lng:114.2170},
-  {name:"Sai Wan Ho", lat:22.2810, lng:114.2230},
-  {name:"Shau Kei Wan", lat:22.2790, lng:114.2290},
-  {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390},
-  {name:"Chai Wan", lat:22.2650, lng:114.2370}
+  {name:"Kennedy Town", lat:22.2810, lng:114.1289, run:90, dwell:25},
+  {name:"HKU", lat:22.2840, lng:114.1350, run:90, dwell:25},
+  {name:"Sai Ying Pun", lat:22.2860, lng:114.1430, run:90, dwell:25},
+  {name:"Sheung Wan", lat:22.2870, lng:114.1510, run:90, dwell:25},
+  {name:"Central", lat:22.2820, lng:114.1580, run:90, dwell:25},
+  {name:"Admiralty", lat:22.2790, lng:114.1650, run:90, dwell:25},
+  {name:"Wan Chai", lat:22.2770, lng:114.1730, run:90, dwell:25},
+  {name:"Causeway Bay", lat:22.2800, lng:114.1850, run:90, dwell:25},
+  {name:"Tin Hau", lat:22.2820, lng:114.1920, run:90, dwell:25},
+  {name:"Fortress Hill", lat:22.2880, lng:114.1940, run:90, dwell:25},
+  {name:"North Point", lat:22.2910, lng:114.2000, run:90, dwell:25},
+  {name:"Quarry Bay", lat:22.2890, lng:114.2120, run:90, dwell:25},
+  {name:"Tai Koo", lat:22.2850, lng:114.2170, run:90, dwell:25},
+  {name:"Sai Wan Ho", lat:22.2810, lng:114.2230, run:90, dwell:25},
+  {name:"Shau Kei Wan", lat:22.2790, lng:114.2290, run:90, dwell:25},
+  {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390, run:135, dwell:25},
+  {name:"Chai Wan", lat:22.2650, lng:114.2370, run:90, dwell:25}
 ];
 
-let RUNNING = [];          // running[i] = seconds from station i → i+1
-let DWELL   = [];          // dwell[i]   = seconds stopped at station i
 let SPAWN_EVERY = 120;     // ticks
 /* =========  END CONFIG  ================================================ */
 
@@ -87,7 +87,7 @@ class Train {
     const A = stations[this.idx];
     const B = stations[this.idx + this.dir];
     if (!B) return [A.lat, A.lng]; // terminus
-    const f = this.segmentProgress / RUNNING[this.dir ===1?this.idx:(this.idx-1)];
+    const f = this.segmentProgress / stations[this.dir ===1?this.idx:(this.idx-1)].run;
     return [
       A.lat + (B.lat - A.lat)*f,
       A.lng + (B.lng - A.lng)*f
@@ -95,8 +95,8 @@ class Train {
   }
   step(){ // advance by 1 tick
     //when direction = 1, it is idx. When direction = -1, it is idx - 1.
-    const leg = RUNNING[this.dir===1?this.idx:(this.idx - 1)];
-    const dwell = DWELL[(this.dir===1?this.idx:this.idx+1)]; // station ahead when moving
+    const leg = stations[this.dir===1?this.idx:(this.idx - 1)].run;
+    const dwell = stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
     if (this.segmentProgress < leg){               // still running
       this.segmentProgress++;
     } else {                                       // arrived
@@ -144,9 +144,6 @@ class Train {
 
 /* -------------------- time-table builder ------------------------------ */
 function buildTables(){
-  const defaultRun = 90, defaultDwell = 25;
-  RUNNING = Array(stations.length-1).fill(defaultRun);
-  DWELL   = Array(stations.length).fill(defaultDwell);
   const wrap = (arr, title) => {
     const tbl = document.createElement('table');
     tbl.innerHTML = `<caption>${title}</caption>` +
@@ -157,6 +154,13 @@ function buildTables(){
   };
   const div = document.getElementById('timeTables');
   div.innerHTML = '';
+  //turn station run into a list
+  let RUNNING = [];
+  let DWELL = [];
+  for(var i = 0; i < stations.length; i++){
+    RUNNING[i] = stations[i].run;
+    DWELL[i] = stations[i].dwell;
+  }
   div.appendChild(wrap(RUNNING, 'Running'));
   div.appendChild(wrap(DWELL, 'Dwell'));
 }
@@ -166,10 +170,10 @@ buildTables();
 document.getElementById('applyBtn').onclick = () => {
   // read running times
   document.querySelectorAll('input[data-array="Running"]').forEach(ip=>{
-    RUNNING[ip.dataset.idx] = +ip.value;
+    stations[ip.dataset.idx].run = +ip.value;
   });
   document.querySelectorAll('input[data-array="Dwell"]').forEach(ip=>{
-    DWELL[ip.dataset.idx] = +ip.value;
+    stations[ip.dataset.idx].dwell = +ip.value;
   });
   SPAWN_EVERY = +document.getElementById('spawnEvery').value;
   restart();

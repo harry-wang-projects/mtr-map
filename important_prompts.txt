@@ -1,0 +1,5 @@
+I want to make an moving map tracking the trains on Hong Kong's MTR system. To start, plot out the stations of the MTR's island line using dots and connect them with lines.
+
+Plot it on a real map with correct coordinates. No need to label the station names. For now, don't make a difference between the interchange statinos and regular stations.
+
+Next, I'm gonna add a moving train system. To do this, I'm gonna use "ticks" to simulate time, with each "tick" representing one second in real life. Every fixed amount of time, a train should spawn from one end of the line and travel across to the other side. The amount of time spent at each point (time between stations and time stopping at a station)should be editable by me. Once the train at the front goes to the other end and comes back, the trains should stop spawning and should keep moving around the line.
