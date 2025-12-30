@@ -159,9 +159,9 @@
         };
         /* ---- sane defaults for every line ---- */
         Object.keys(DATA).forEach(code=>{
-            const st = LINES[code].stations;
-            LINES[code].running = Array(st.length-1).fill(90); // seconds
-            LINES[code].dwell   = Array(st.length).fill(25);   // seconds
+            const st = DATA[code].stations;
+            DATA[code].running = Array(st.length-1).fill(90); // seconds
+            DATA[code].dwell   = Array(st.length).fill(25);   // seconds
         });
         // --- STATE ---
         let activeLine = 'island';
