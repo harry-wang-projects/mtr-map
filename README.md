@@ -16,3 +16,6 @@ Steps:
 - Adding acceleration/deceleration (can watch online videos of MTR trains to get an idea of the time needed to accelerate/decelerate)
 - Simulating trains during off-peak hours
 5. Add other modes of transport, e.g. light rail, buses, trams, ferries
+
+Notes:
+Could add a "time offset" parameter to branches of lines to sync trains on a line with different destinations.

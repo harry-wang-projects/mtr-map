@@ -76,16 +76,25 @@
                 <input id="tickRate" type="range" min="1" max="120" value="30" step="1">
                 <span id="tickRateLbl">30</span> ticks / real sec
             </label>
+            <div id="lineToggle" style="margin:10px 0;font-size:14px;">
+                <b>Show lines:</b>
+                <label><input type="checkbox" data-line="ISL" checked> Island</label>
+                <label><input type="checkbox" data-line="SIL" checked> South Island</label>
+            </div>
         </div>     
 
         <details style="margin-bottom:15px;">
             <summary style="cursor:pointer;color:#0860a8;">Edit running / dwell times (seconds)</summary>
             <div id="timeTables" style="display:flex;gap:20px;margin-top:10px;"></div>
         </details>
+        <details>
+            <summary style="cursor:pointer;color:#0860a8;">Edit running / dwell times per line</summary>
+            <div id="perLineTables" style="display:flex;gap:20px;margin-top:10px;"></div>
+        </details>
         <div id="map"></div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="mtr_claude.js"></script>
+    <script src="mtr_kimi.js"></script>
 </body>
 </html>
