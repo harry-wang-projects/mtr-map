@@ -62,31 +62,41 @@ class Train {
     this.startDir = direction;   // remember original direction
     this.id   = 'T' + Math.floor(Math.random()*1e6);
     this.dir  = direction;
+    //idx is the station it started from. 
+    //If the direction = 1, then it is the smaller numbered station.
+    //If the direction = 0, then it is the larger numbered station.
+    //If it is stopped, then it is the current station.
     this.idx  = direction===1 ? 0 : stations.length-1; // start at terminus
     this.segmentProgress = 0; // seconds into current leg
+    
+    //doesn't look good. Need to add an image. iconSize doesn't do anything
     this.marker = L.marker(this.latlng(), {
       icon: L.divIcon({
         html:`<div style="
           background:#0860a8;
-          width:14px;height:14px;border-radius:50%;
-          border:2px solid #fff;box-shadow:0 0 4px #0006;"></div>`,
-        iconSize:[14,14], iconAnchor:[7,7]
+          width:20px;height:20px;border-radius:50%;
+          border:2px solid #fff;"></div>  `,
+        iconSize:[0,0], iconAnchor:[10,10]
       })
     }).addTo(map);
+    //better if I'm only using a circle
+    /*this.marker = L.circleMarker(this.latlng(), {radius:7, color:'#fff',
+    weight:2, fillColor:'#0860a8', fillOpacity:1}).addTo(map);*/
   }
   latlng(){
     const A = stations[this.idx];
     const B = stations[this.idx + this.dir];
     if (!B) return [A.lat, A.lng]; // terminus
-    const f = this.segmentProgress / RUNNING[this.idx];
+    const f = this.segmentProgress / RUNNING[this.dir ===1?this.idx:(this.idx-1)];
     return [
       A.lat + (B.lat - A.lat)*f,
       A.lng + (B.lng - A.lng)*f
     ];
   }
   step(){ // advance by 1 tick
-    const leg = RUNNING[this.idx];
-    const dwell = DWELL[this.idx + (this.dir===1?0:1)]; // station ahead when moving
+    //when direction = 1, it is idx. When direction = -1, it is idx - 1.
+    const leg = RUNNING[this.dir===1?this.idx:(this.idx - 1)];
+    const dwell = DWELL[(this.dir===1?this.idx:this.idx+1)]; // station ahead when moving
     if (this.segmentProgress < leg){               // still running
       this.segmentProgress++;
     } else {                                       // arrived
@@ -110,7 +120,13 @@ class Train {
         console.log(this.dir === this.startDir);
         console.log(this.idx === (this.startDir===1?0:stations.length-1));
         if (this.dir === this.startDir){
-          if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
+          if (!firstTrainFinished){ 
+            firstTrainFinished = true; 
+            spawnEnabled=false; 
+            //delete the last train as 2 trains will look close together.
+            trains[trains.length-1].marker.remove();
+            trains.pop();
+          }
         }
         /*
         if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
@@ -173,6 +189,7 @@ function restart(){
 function simulate(){
   tick++;
   if (spawnEnabled && tick % SPAWN_EVERY === 0){
+    //direction = 1
     trains.push(new Train(1));
   }
   trains.forEach(t=>t.step());

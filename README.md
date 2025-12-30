@@ -18,15 +18,17 @@ Todo (other):
 - Find the optimal length of 1 tick (not sure if 1 tick = 1 second can peform well).
 - Make it easy to show/hide the stations and the toggle the size of the trains/stations.
 - Make a config file (json/csv/javascript?) storing data for each line. New lines should be able to be added solely based on data in the file.
+- Make an editor for the line data files.
 
 2. Make branches and special schedules possible.
 - The TKO Line and East Rail Line have branches which require additional programming. Make branches (essentially new lines with the same color?)
 - For the Kwun Tong Line and Tung Chung Line, some trains terminate at stops that aren't the terminus during peak hours (the branch system could also work).
-3. Make it possible for routes to have checkpoints (i.e. allowing for the line routes to be more precise). Will help for segments such as Tsing Yi -> Airport.
+3. Make it possible for routes to have checkpoints (i.e. allowing for the line routes to be more precise). Will help for segments such as Tsing Yi -> Airport. Could simply make them stations where trains don't stop.
 4. Add additional functions related to realism, such as:
 - Keeping trains a certain distance apart (tricky on branch lines where branches take different amounts of time)
-- Making sure trains crossing the Tsing Ma Bridge are a certain distance apart (need to synchronize trains on the Tung Chung Line and Airport Express)
-- Adding acceleration/deceleration (can watch online videos of MTR trains to get an idea of the time needed to accelerate/decelerate)
+- Making sure that trains crossing the Tsing Ma Bridge are a certain distance apart (need to synchronize trains on the Tung Chung Line and Airport Express)
+- Adding acceleration/deceleration (can watch online videos of MTR trains to get an idea of the time needed to accelerate/decelerate) Edit: Found the speeds. The acceleration is 1 ms^-2. For normal trains, the max speed is 80 km/h (22.2 ms^-1). For fast trains, the max speed is (36.1 ms^-1)
+    - Change the progress model from time to distance-based. Set the distance between stations instead of the time taken.
 - Simulating trains during off-peak hours
 - Support for loop lines (useful for metro systems in different places)
 5. Add other modes of transport, e.g. light rail, buses, trams, ferries
