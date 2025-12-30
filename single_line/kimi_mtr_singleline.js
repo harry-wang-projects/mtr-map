@@ -2,28 +2,28 @@
 
 
 /* =========  CONFIGURATION  ============================================= */
+//run = seconds from station i to station i + 1
+//dwell = seconds stopped at station i
 const stations = [
-  {name:"Kennedy Town", lat:22.2810, lng:114.1289},
-  {name:"HKU", lat:22.2840, lng:114.1350},
-  {name:"Sai Ying Pun", lat:22.2860, lng:114.1430},
-  {name:"Sheung Wan", lat:22.2870, lng:114.1510},
-  {name:"Central", lat:22.2820, lng:114.1580},
-  {name:"Admiralty", lat:22.2790, lng:114.1650},
-  {name:"Wan Chai", lat:22.2770, lng:114.1730},
-  {name:"Causeway Bay", lat:22.2800, lng:114.1850},
-  {name:"Tin Hau", lat:22.2820, lng:114.1920},
-  {name:"Fortress Hill", lat:22.2880, lng:114.1940},
-  {name:"North Point", lat:22.2910, lng:114.2000},
-  {name:"Quarry Bay", lat:22.2890, lng:114.2120},
-  {name:"Tai Koo", lat:22.2850, lng:114.2170},
-  {name:"Sai Wan Ho", lat:22.2810, lng:114.2230},
-  {name:"Shau Kei Wan", lat:22.2790, lng:114.2290},
-  {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390},
-  {name:"Chai Wan", lat:22.2650, lng:114.2370}
+  {name:"Kennedy Town", lat:22.2810, lng:114.1289, run:90, dwell:25},
+  {name:"HKU", lat:22.2840, lng:114.1350, run:90, dwell:25},
+  {name:"Sai Ying Pun", lat:22.2860, lng:114.1430, run:90, dwell:25},
+  {name:"Sheung Wan", lat:22.2870, lng:114.1510, run:90, dwell:25},
+  {name:"Central", lat:22.2820, lng:114.1580, run:90, dwell:25},
+  {name:"Admiralty", lat:22.2790, lng:114.1650, run:90, dwell:25},
+  {name:"Wan Chai", lat:22.2770, lng:114.1730, run:90, dwell:25},
+  {name:"Causeway Bay", lat:22.2800, lng:114.1850, run:90, dwell:25},
+  {name:"Tin Hau", lat:22.2820, lng:114.1920, run:90, dwell:25},
+  {name:"Fortress Hill", lat:22.2880, lng:114.1940, run:90, dwell:25},
+  {name:"North Point", lat:22.2910, lng:114.2000, run:90, dwell:25},
+  {name:"Quarry Bay", lat:22.2890, lng:114.2120, run:90, dwell:25},
+  {name:"Tai Koo", lat:22.2850, lng:114.2170, run:90, dwell:25},
+  {name:"Sai Wan Ho", lat:22.2810, lng:114.2230, run:90, dwell:25},
+  {name:"Shau Kei Wan", lat:22.2790, lng:114.2290, run:90, dwell:25},
+  {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390, run:135, dwell:25},
+  {name:"Chai Wan", lat:22.2650, lng:114.2370, run:90, dwell:25}
 ];
 
-let RUNNING = [];          // running[i] = seconds from station i → i+1
-let DWELL   = [];          // dwell[i]   = seconds stopped at station i
 let SPAWN_EVERY = 120;     // ticks
 /* =========  END CONFIG  ================================================ */
 
@@ -62,75 +62,90 @@ class Train {
     this.startDir = direction;   // remember original direction
     this.id   = 'T' + Math.floor(Math.random()*1e6);
     this.dir  = direction;
+    //idx is the station it started from. 
+    //If the direction = 1, then it is the smaller numbered station.
+    //If the direction = 0, then it is the larger numbered station.
+    //If it is stopped, then it is the current station.
     this.idx  = direction===1 ? 0 : stations.length-1; // start at terminus
     this.segmentProgress = 0; // seconds into current leg
+    //whether the train is moving/dwelling. It should start moving.
+    this.movingstate = 1;
+    
+    //doesn't look good. Need to add an image. iconSize doesn't do anything
     this.marker = L.marker(this.latlng(), {
       icon: L.divIcon({
         html:`<div style="
           background:#0860a8;
-          width:14px;height:14px;border-radius:50%;
-          border:2px solid #fff;box-shadow:0 0 4px #0006;"></div>`,
-        iconSize:[14,14], iconAnchor:[7,7]
+          width:20px;height:20px;border-radius:50%;
+          border:2px solid #fff;"></div>  `,
+        iconSize:[0,0], iconAnchor:[10,10]
       })
     }).addTo(map);
+    //better if I'm only using a circle
+    /*this.marker = L.circleMarker(this.latlng(), {radius:7, color:'#fff',
+    weight:2, fillColor:'#0860a8', fillOpacity:1}).addTo(map);*/
   }
   latlng(){
     const A = stations[this.idx];
     const B = stations[this.idx + this.dir];
     if (!B) return [A.lat, A.lng]; // terminus
-    const f = this.segmentProgress / RUNNING[this.idx];
+    const f = this.segmentProgress / stations[this.dir ===1?this.idx:(this.idx-1)].run;
     return [
       A.lat + (B.lat - A.lat)*f,
       A.lng + (B.lng - A.lng)*f
     ];
   }
   step(){ // advance by 1 tick
-    const leg = RUNNING[this.idx];
-    const dwell = DWELL[this.idx + (this.dir===1?0:1)]; // station ahead when moving
-    if (this.segmentProgress < leg){               // still running
-      this.segmentProgress++;
-    } else {                                       // arrived
-      if (tick - this.arrivalTick < dwell) return; // dwelling
-      // leave station
-      this.idx += this.dir;
-      this.segmentProgress = 0;
-      this.arrivalTick = tick;
-      // turnaround at termini
-      // ---------- turn-around at termini ----------
-      if (this.idx === 0 || this.idx === stations.length-1){
-        this.dir *= -1;                 // reverse
-        if(this.idx === stations.length-1){
-          this.idx += 0;           // step one station INTO the new direction
-        }else{
+    //when direction = 1, it is idx. When direction = -1, it is idx - 1.
+    const leg = stations[this.dir===1?this.idx:(this.idx - 1)].run;
+    const dwell = stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
+    if(this.movingstate == 1){
+      if (this.segmentProgress < leg){               // still running
+        this.segmentProgress++;
+      } else {                                       // arrived
+        if (tick - this.arrivalTick < dwell) return; // dwelling
+        // leave station
+        this.idx += this.dir;
+        this.segmentProgress = 0;
+        this.arrivalTick = tick;
+        // turnaround at termini
+        // ---------- turn-around at termini ----------
+        if (this.idx === 0 || this.idx === stations.length-1){
+          this.dir *= -1;                 // reverse
+          if(this.idx === stations.length-1){
+            this.idx += 0;           // step one station INTO the new direction
+          }else{
+          }
+          this.segmentProgress = 0;       // start fresh leg
+          this.arrivalTick = tick;        // mark arrival for dwell calculation
+          // -- loop-completion logic (see #2) --
+          if (this.dir === this.startDir){
+            if (!firstTrainFinished){ 
+              firstTrainFinished = true; 
+              spawnEnabled=false; 
+              //delete the last train as 2 trains will look close together.
+              trains[trains.length-1].marker.remove();
+              trains.pop();
+            }
+          }
+          /*
+          if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
+            if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
+          }
+          */
         }
-        this.segmentProgress = 0;       // start fresh leg
-        this.arrivalTick = tick;        // mark arrival for dwell calculation
-        // -- loop-completion logic (see #2) --
-        console.log("nana");
-        console.log(this.dir === this.startDir);
-        console.log(this.idx === (this.startDir===1?0:stations.length-1));
-        if (this.dir === this.startDir){
-          if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
-        }
-        /*
-        if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
-          if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
-        }
-        */
-       
-        
       }
+      //no need to do every time?
+      this.marker.setLatLng(this.latlng());
+    }else{
+      //dwelling
     }
-    this.marker.setLatLng(this.latlng());
   }
   remove(){ map.removeLayer(this.marker); }
 }
 
 /* -------------------- time-table builder ------------------------------ */
 function buildTables(){
-  const defaultRun = 90, defaultDwell = 25;
-  RUNNING = Array(stations.length-1).fill(defaultRun);
-  DWELL   = Array(stations.length).fill(defaultDwell);
   const wrap = (arr, title) => {
     const tbl = document.createElement('table');
     tbl.innerHTML = `<caption>${title}</caption>` +
@@ -141,6 +156,13 @@ function buildTables(){
   };
   const div = document.getElementById('timeTables');
   div.innerHTML = '';
+  //turn station run into a list
+  let RUNNING = [];
+  let DWELL = [];
+  for(var i = 0; i < stations.length; i++){
+    RUNNING[i] = stations[i].run;
+    DWELL[i] = stations[i].dwell;
+  }
   div.appendChild(wrap(RUNNING, 'Running'));
   div.appendChild(wrap(DWELL, 'Dwell'));
 }
@@ -150,10 +172,10 @@ buildTables();
 document.getElementById('applyBtn').onclick = () => {
   // read running times
   document.querySelectorAll('input[data-array="Running"]').forEach(ip=>{
-    RUNNING[ip.dataset.idx] = +ip.value;
+    stations[ip.dataset.idx].run = +ip.value;
   });
   document.querySelectorAll('input[data-array="Dwell"]').forEach(ip=>{
-    DWELL[ip.dataset.idx] = +ip.value;
+    stations[ip.dataset.idx].dwell = +ip.value;
   });
   SPAWN_EVERY = +document.getElementById('spawnEvery').value;
   restart();
@@ -173,6 +195,7 @@ function restart(){
 function simulate(){
   tick++;
   if (spawnEnabled && tick % SPAWN_EVERY === 0){
+    //direction = 1
     trains.push(new Train(1));
   }
   trains.forEach(t=>t.step());

@@ -68,6 +68,8 @@ class Train {
     //If it is stopped, then it is the current station.
     this.idx  = direction===1 ? 0 : stations.length-1; // start at terminus
     this.segmentProgress = 0; // seconds into current leg
+    //whether the train is moving/dwelling. It should start moving.
+    this.movingstate = 1;
     
     //doesn't look good. Need to add an image. iconSize doesn't do anything
     this.marker = L.marker(this.latlng(), {
@@ -97,47 +99,47 @@ class Train {
     //when direction = 1, it is idx. When direction = -1, it is idx - 1.
     const leg = stations[this.dir===1?this.idx:(this.idx - 1)].run;
     const dwell = stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
-    if (this.segmentProgress < leg){               // still running
-      this.segmentProgress++;
-    } else {                                       // arrived
-      if (tick - this.arrivalTick < dwell) return; // dwelling
-      // leave station
-      this.idx += this.dir;
-      this.segmentProgress = 0;
-      this.arrivalTick = tick;
-      // turnaround at termini
-      // ---------- turn-around at termini ----------
-      if (this.idx === 0 || this.idx === stations.length-1){
-        this.dir *= -1;                 // reverse
-        if(this.idx === stations.length-1){
-          this.idx += 0;           // step one station INTO the new direction
-        }else{
-        }
-        this.segmentProgress = 0;       // start fresh leg
-        this.arrivalTick = tick;        // mark arrival for dwell calculation
-        // -- loop-completion logic (see #2) --
-        console.log("nana");
-        console.log(this.dir === this.startDir);
-        console.log(this.idx === (this.startDir===1?0:stations.length-1));
-        if (this.dir === this.startDir){
-          if (!firstTrainFinished){ 
-            firstTrainFinished = true; 
-            spawnEnabled=false; 
-            //delete the last train as 2 trains will look close together.
-            trains[trains.length-1].marker.remove();
-            trains.pop();
+    if(this.movingstate == 1){
+      if (this.segmentProgress < leg){               // still running
+        this.segmentProgress++;
+      } else {                                       // arrived
+        if (tick - this.arrivalTick < dwell) return; // dwelling
+        // leave station
+        this.idx += this.dir;
+        this.segmentProgress = 0;
+        this.arrivalTick = tick;
+        // turnaround at termini
+        // ---------- turn-around at termini ----------
+        if (this.idx === 0 || this.idx === stations.length-1){
+          this.dir *= -1;                 // reverse
+          if(this.idx === stations.length-1){
+            this.idx += 0;           // step one station INTO the new direction
+          }else{
           }
+          this.segmentProgress = 0;       // start fresh leg
+          this.arrivalTick = tick;        // mark arrival for dwell calculation
+          // -- loop-completion logic (see #2) --
+          if (this.dir === this.startDir){
+            if (!firstTrainFinished){ 
+              firstTrainFinished = true; 
+              spawnEnabled=false; 
+              //delete the last train as 2 trains will look close together.
+              trains[trains.length-1].marker.remove();
+              trains.pop();
+            }
+          }
+          /*
+          if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
+            if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
+          }
+          */
         }
-        /*
-        if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
-          if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
-        }
-        */
-       
-        
       }
+      //no need to do every time?
+      this.marker.setLatLng(this.latlng());
+    }else{
+      //dwelling
     }
-    this.marker.setLatLng(this.latlng());
   }
   remove(){ map.removeLayer(this.marker); }
 }
