@@ -5,26 +5,27 @@
 //run = seconds from station i to station i + 1
 //dwell = seconds stopped at station i
 const stations = [
-  {name:"Kennedy Town", lat:22.2810, lng:114.1289, run:90, dwell:25},
-  {name:"HKU", lat:22.2840, lng:114.1350, run:90, dwell:25},
-  {name:"Sai Ying Pun", lat:22.2860, lng:114.1430, run:90, dwell:25},
-  {name:"Sheung Wan", lat:22.2870, lng:114.1510, run:90, dwell:25},
-  {name:"Central", lat:22.2820, lng:114.1580, run:90, dwell:25},
-  {name:"Admiralty", lat:22.2790, lng:114.1650, run:90, dwell:25},
-  {name:"Wan Chai", lat:22.2770, lng:114.1730, run:90, dwell:25},
-  {name:"Causeway Bay", lat:22.2800, lng:114.1850, run:90, dwell:25},
-  {name:"Tin Hau", lat:22.2820, lng:114.1920, run:90, dwell:25},
-  {name:"Fortress Hill", lat:22.2880, lng:114.1940, run:90, dwell:25},
-  {name:"North Point", lat:22.2910, lng:114.2000, run:90, dwell:25},
-  {name:"Quarry Bay", lat:22.2890, lng:114.2120, run:90, dwell:25},
-  {name:"Tai Koo", lat:22.2850, lng:114.2170, run:90, dwell:25},
-  {name:"Sai Wan Ho", lat:22.2810, lng:114.2230, run:90, dwell:25},
-  {name:"Shau Kei Wan", lat:22.2790, lng:114.2290, run:90, dwell:25},
-  {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390, run:135, dwell:25},
-  {name:"Chai Wan", lat:22.2650, lng:114.2370, run:90, dwell:25}
+  {name:"Kennedy Town", lat:22.2810, lng:114.1289, run:80, dwell:120},
+  {name:"HKU", lat:22.2840, lng:114.1350, run:80, dwell:30},
+  {name:"Sai Ying Pun", lat:22.2860, lng:114.1430, run:90, dwell:30},
+  {name:"Sheung Wan", lat:22.2870, lng:114.1510, run:80, dwell:30},
+  {name:"Central", lat:22.2820, lng:114.1580, run:80, dwell:30},
+  {name:"Admiralty", lat:22.2790, lng:114.1650, run:80, dwell:30},
+  {name:"Wan Chai", lat:22.2770, lng:114.1730, run:80, dwell:30},
+  {name:"Causeway Bay", lat:22.2800, lng:114.1850, run:80, dwell:30},
+  {name:"Tin Hau", lat:22.2820, lng:114.1920, run:80, dwell:30},
+  {name:"Fortress Hill", lat:22.2880, lng:114.1940, run:80, dwell:30},
+  {name:"North Point", lat:22.2910, lng:114.2000, run:80, dwell:30},
+  {name:"Quarry Bay", lat:22.2890, lng:114.2120, run:80, dwell:30},
+  {name:"Tai Koo", lat:22.2850, lng:114.2170, run:80, dwell:30},
+  {name:"Sai Wan Ho", lat:22.2810, lng:114.2230, run:80, dwell:30},
+  {name:"Shau Kei Wan", lat:22.2790, lng:114.2290, run:80, dwell:30},
+  {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390, run:135, dwell:30},
+  {name:"Chai Wan", lat:22.2650, lng:114.2370, run:1, dwell:120}
 ];
 
 let SPAWN_EVERY = 120;     // ticks
+let line_color = "#0860a8";
 /* =========  END CONFIG  ================================================ */
 
 /* ---------- map setup (your old code) --------------------------------- */
@@ -35,11 +36,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 /* draw static line */
 const lineCoords = stations.map(s=>[s.lat, s.lng]);
-L.polyline(lineCoords, {color:'#0860a8', weight:2}).addTo(map);
+L.polyline(lineCoords, {color:line_color, weight:2}).addTo(map);
 
 stations.forEach(s=>{
   L.circleMarker([s.lat, s.lng], {radius:3, color:'#fff',
-    weight:2, fillColor:'#0860a8', fillOpacity:1}).addTo(map);
+    weight:2, fillColor:line_color, fillOpacity:1}).addTo(map);
 });
 
 map.fitBounds(L.latLngBounds(lineCoords), {padding:[50,50]});
@@ -75,7 +76,7 @@ class Train {
     this.marker = L.marker(this.latlng(), {
       icon: L.divIcon({
         html:`<div style="
-          background:#0860a8;
+          background:${line_color};
           width:20px;height:20px;border-radius:50%;
           border:2px solid #fff;"></div>  `,
         iconSize:[0,0], iconAnchor:[10,10]
@@ -83,7 +84,7 @@ class Train {
     }).addTo(map);
     //better if I'm only using a circle
     /*this.marker = L.circleMarker(this.latlng(), {radius:7, color:'#fff',
-    weight:2, fillColor:'#0860a8', fillOpacity:1}).addTo(map);*/
+    weight:2, fillColor:line_color, fillOpacity:1}).addTo(map);*/
   }
   latlng(){
     const A = stations[this.idx];
