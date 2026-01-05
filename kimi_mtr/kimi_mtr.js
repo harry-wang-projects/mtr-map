@@ -6,6 +6,7 @@
 //dwell = seconds stopped at station i
 var lines = [
   {
+    line_id: 0,
     name: "Island Line",
     SPAWN_EVERY: 114,
     line_color: "#0860a8",
@@ -30,6 +31,7 @@ var lines = [
     ]
   },
   {
+    line_id: 1,
     name: "South Island Line",
     SPAWN_EVERY: 198,
     line_color: "#bac429",
@@ -37,7 +39,7 @@ var lines = [
     {name:"Admiralty", lat:22.2790, lng:114.1650, run:270, dwell:120},
     {name:"Ocean Park", lat:22.2486, lng:114.1742, run:90, dwell:30},
     {name:"Wong Chuk Hang", lat:22.2481, lng:114.1681, run:90, dwell:30},
-    {name:"Lei Tung", lat:22.2422, lng:114.1651, run:90, dwell:30},
+    {name:"Lei Tung", lat:22.2422, lng:114.1561, run:90, dwell:30},
     {name:"South Horizons", lat:22.2425, lng:114.1492, run:90, dwell:120},
     ]
   },
@@ -48,11 +50,16 @@ var lines = [
 /* ---------- map setup (your old code) --------------------------------- */
 const map = L.map('map').setView([22.28, 114.18], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution:'© OSM', maxZoom:19
+  attribution:'© OSM', maxZoom:19, opacity: 0.8
 }).addTo(map);
 
 /* draw static line */
 for(var i = 0; i < lines.length; i++){
+  //top display thing
+  line_span = document.createElement('span');
+  line_span.setAttribute("id", `line${i}`)
+  document.getElementById('status').appendChild(line_span);
+
   const lineCoords = lines[i].stations.map(s=>[s.lat, s.lng]);
   L.polyline(lineCoords, {color:lines[i].line_color, weight:2}).addTo(map);
 
@@ -63,7 +70,10 @@ for(var i = 0; i < lines.length; i++){
 
   //set variables that they all have
   lines[i].trains = [];
+  lines[i].spawnEnabled = true
+  lines[i].firstTrainFinished = false;
 
+  //draw
   map.fitBounds(L.latLngBounds(lineCoords), {padding:[50,50]});
 }
 
@@ -74,13 +84,14 @@ for(var i = 0; i < lines.length; i++){
 /* ---------------------------------------------------------------------- */
 
 /* =====================  SIMULATION  =================================== */
-const trains = [];          // active train objects
+//const trains = [];          // active train objects
 let tick = 0;               // global time in seconds
-let spawnEnabled = true;    // becomes false once first train finishes lap
-let firstTrainFinished = false;
+//let spawnEnabled = true;    // becomes false once first train finishes lap
+//let firstTrainFinished = false;
 
 class Train {
-  constructor(direction){   // +1 = towards Chai Wan, -1 = towards K-Town
+  constructor(line_id, direction){   // +1 = towards Chai Wan, -1 = towards K-Town
+    this.line_id = line_id;
     this.startDir = direction;   // remember original direction
     this.id   = 'T' + Math.floor(Math.random()*1e6);
     this.dir  = direction;
@@ -88,7 +99,7 @@ class Train {
     //If the direction = 1, then it is the smaller numbered station.
     //If the direction = 0, then it is the larger numbered station.
     //If it is stopped, then it is the current station.
-    this.idx  = direction===1 ? 0 : stations.length-1; // start at terminus
+    this.idx  = direction===1 ? 0 : lines[this.line_id].stations.length-1; // start at terminus - can be just 0
     this.segmentProgress = 0; // seconds into current leg
     //whether the train is moving/dwelling. It should start moving.
     this.movingstate = 1;
@@ -98,7 +109,7 @@ class Train {
     this.marker = L.marker(this.latlng(), {
       icon: L.divIcon({
         html:`<div style="
-          background:${line_color};
+          background:${lines[this.line_id].line_color};
           width:20px;height:20px;border-radius:50%;
           border:2px solid #fff;"></div>  `,
         iconSize:[0,0], iconAnchor:[10,10]
@@ -109,10 +120,10 @@ class Train {
     weight:2, fillColor:line_color, fillOpacity:1}).addTo(map);*/
   }
   latlng(){
-    const A = stations[this.idx];
-    const B = stations[this.idx + this.dir];
+    const A = lines[this.line_id].stations[this.idx];
+    const B = lines[this.line_id].stations[this.idx + this.dir];
     if (!B) return [A.lat, A.lng]; // terminus
-    const f = this.segmentProgress / stations[this.dir ===1?this.idx:(this.idx-1)].run;
+    const f = this.segmentProgress / lines[this.line_id].stations[this.dir ===1?this.idx:(this.idx-1)].run;
     return [
       A.lat + (B.lat - A.lat)*f,
       A.lng + (B.lng - A.lng)*f
@@ -120,8 +131,8 @@ class Train {
   }
   step(){ // advance by 1 tick
     //when direction = 1, it is idx. When direction = -1, it is idx - 1.
-    const leg = stations[this.dir===1?this.idx:(this.idx - 1)].run;
-    const dwell = stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
+    const leg = lines[this.line_id].stations[this.dir===1?this.idx:(this.idx - 1)].run;
+    const dwell = lines[this.line_id].stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
     if(this.movingstate == 1){
       if (this.segmentProgress < leg){               // still running
         this.segmentProgress++;
@@ -133,9 +144,9 @@ class Train {
         this.arrivalTick = tick;
         // turnaround at termini
         // ---------- turn-around at termini ----------
-        if (this.idx === 0 || this.idx === stations.length-1){
+        if (this.idx === 0 || this.idx === lines[this.line_id].stations.length-1){
           this.dir *= -1;                 // reverse
-          if(this.idx === stations.length-1){
+          if(this.idx === lines[this.line_id].stations.length-1){
             this.idx += 0;           // step one station INTO the new direction
           }else{
           }
@@ -143,16 +154,16 @@ class Train {
           this.arrivalTick = tick;        // mark arrival for dwell calculation
           // -- loop-completion logic (see #2) --
           if (this.dir === this.startDir){
-            if (!firstTrainFinished){ 
-              firstTrainFinished = true; 
-              spawnEnabled=false; 
+            if (!lines[this.line_id].firstTrainFinished){ 
+              lines[this.line_id].firstTrainFinished = true; 
+              lines[this.line_id].spawnEnabled=false; 
               //delete the last train as 2 trains will look close together.
-              trains[trains.length-1].marker.remove();
-              trains.pop();
+              lines[this.line_id].trains[lines[this.line_id].trains.length-1].marker.remove();
+              lines[this.line_id].trains.pop();
             }
           }
           /*
-          if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
+          if (this.dir === -1 && this.idx === lines[this.line_id].stations.length-1){ // finished CCW loop
             if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
           }
           */
@@ -176,28 +187,32 @@ class Train {
 
 /* -------------------- time-table builder ------------------------------ */
 function buildTables(){
-  const wrap = (arr, title) => {
-    const tbl = document.createElement('table');
-    tbl.innerHTML = `<caption>${title}</caption>` +
-      arr.map((v,i)=>`<tr><td>${stations[i].name||'leg '+i}</td>
-        <td><input data-array="${title}" data-idx="${i}" type="number"
-                   min="5" max="600" value="${v}" style="width:60px;"></td></tr>`).join('');
-    return tbl;
-  };
-  const div = document.getElementById('timeTables');
-  div.innerHTML = '';
-  //turn station run into a list
-  let RUNNING = [];
-  let DWELL = [];
-  for(var i = 0; i < stations.length; i++){
-    RUNNING[i] = stations[i].run;
-    DWELL[i] = stations[i].dwell;
+  for(var j = 0; j < lines.length; j++){
+    const wrap = (arr, title) => {
+      const tbl = document.createElement('table');
+      tbl.innerHTML = `<caption>${title}</caption>` +
+        arr.map((v,i)=>`<tr><td>${lines[0].stations[i].name||'leg '+i}</td>
+          <td><input data-array="${title}" data-idx="${i}" type="number"
+                     min="5" max="600" value="${v}" style="width:60px;"></td></tr>`).join('');
+      return tbl;
+    };
+    const div = document.createElement("div");
+    div.innerHTML = '';
+    //turn station run into a list
+    let RUNNING = [];
+    let DWELL = [];
+    for(var i = 0; i < lines[j].stations.length; i++){
+      RUNNING[i] = lines[j].stations[i].run;
+      DWELL[i] = lines[j].stations[i].dwell;
+    }
+    div.appendChild(wrap(RUNNING, 'Running'));
+    div.appendChild(wrap(DWELL, 'Dwell'));
+    document.getElementById('timeTables').appendChild(div);
   }
-  div.appendChild(wrap(RUNNING, 'Running'));
-  div.appendChild(wrap(DWELL, 'Dwell'));
 }
 buildTables();
 
+//TODO: Make these buttons work for many lines in the future
 /* -------------------- apply button ----------------------------------- */
 document.getElementById('applyBtn').onclick = () => {
   // read running times
@@ -210,12 +225,15 @@ document.getElementById('applyBtn').onclick = () => {
   SPAWN_EVERY = +document.getElementById('spawnEvery').value;
   restart();
 };
+
 function restart(){
-  trains.forEach(t=>t.remove());
-  trains.length = 0;
-  tick = 0;
-  spawnEnabled = true;
-  firstTrainFinished = false;
+  for(var i = 0; i < lines.length; i++){
+    lines[i].trains.forEach(t=>t.remove());
+    lines[i].trains.length = 0;
+    tick = 0;
+    lines[i].spawnEnabled = true;
+    lines[i].firstTrainFinished = false;
+  }
 }
 
 /* -------------------- main loop --------------------------------------- */
@@ -224,13 +242,15 @@ function restart(){
 /* ---------- simulation step ---------- */
 function simulate(){
   tick++;
-  if (spawnEnabled && tick % SPAWN_EVERY === 0){
-    //direction = 1
-    trains.push(new Train(1));
+  for(var i = 0; i < lines.length; i++){
+    if (lines[i].spawnEnabled && tick % lines[i].SPAWN_EVERY === 0){
+      //direction = 1
+      lines[i].trains.push(new Train(i, 1));
+    }
+    lines[i].trains.forEach(t=>t.step());
+    line_span = document.getElementById(`line${i}`);
+    line_span.textContent = `${lines[i].name} Tick ${tick} | Trains ${lines[i].trains.length} | Spawning ${lines[i].spawnEnabled?'ON':'OFF'}`;
   }
-  trains.forEach(t=>t.step());
-  document.getElementById('status').textContent =
-    `Tick ${tick} | Trains ${trains.length} | Spawning ${spawnEnabled?'ON':'OFF'}`;
 }
 
 /* ---------- configurable clock ---------- */
