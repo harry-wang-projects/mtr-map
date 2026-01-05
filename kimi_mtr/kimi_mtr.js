@@ -176,10 +176,6 @@ class Train {
         // ---------- turn-around at termini ----------
         if (this.idx === 0 || this.idx === lines[this.line_id].stations.length-1){
           this.dir *= -1;                 // reverse
-          if(this.idx === lines[this.line_id].stations.length-1){
-            this.idx += 0;           // step one station INTO the new direction
-          }else{
-          }
           //this.arrivalTick = tick;        // mark arrival for dwell calculation
           // -- loop-completion logic (see #2) --
           if (this.dir === this.startDir){
@@ -284,17 +280,22 @@ function simulate(){
     refreshcoords = 1;
   }
 
+  //do the important stuff first so that they don't get hindered
+  for(let i = 0; i < lines.length; i++){
+    //such as train spawn control
+    if (lines[i].spawnEnabled && tick - lines[i].lastspawn >= lines[i].SPAWN_EVERY){
+      lines[i].lastspawn = tick;
+      //direction = 1
+      lines[i].trains.push(new Train(i, 1));
+    }
+  }
+
   for(let i = 0; i < lines.length; i++){
     let trainsstring = "";
     for(let j = 0; j < lines[i].trains.length; j++){
       trainsstring += lines[i].trains[j].visitedstations.toString() + " "
     }
 
-    if (lines[i].spawnEnabled && tick - lines[i].lastspawn >= lines[i].SPAWN_EVERY){
-      lines[i].lastspawn = tick;
-      //direction = 1
-      lines[i].trains.push(new Train(i, 1));
-    }
     lines[i].trains.forEach(t=>t.step());
     line_span = document.getElementById(`line${i}`);
     line_span.textContent = `${lines[i].name} Trains ${lines[i].trains.length} | Spawning ${lines[i].spawnEnabled?'ON':'OFF'} ${trainsstring}`;
