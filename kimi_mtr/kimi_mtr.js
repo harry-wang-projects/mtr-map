@@ -1,11 +1,15 @@
+//some variables
+//seconds in one tick
+let TICK_TIME = 1;
+
 //map here
 
-var accel_func = [0.0002380952381,0.0009523809524,0.002142857143,0.00380952381,0.005952380952,0.008571428571,0.01166666667,0.01523809524,0.01928571429,0.02380952381,0.02880952381,0.03428571429,0.04023809524,0.04666666667,0.05357142857,0.06095238095,0.06880952381,0.07714285714,0.08595238095,0.09523809524,0.105,0.1152380952,0.125952381,0.1371428571,0.1488095238,0.160952381,0.1735714286,0.1866666667,0.2002380952,0.2142857143,0.2285714286,0.2428571429,0.2571428571,0.2714285714,0.2857142857,0.3, 0.3142857143,0.3285714286,0.3428571429,0.3571428571,0.3714285714,0.3857142857,0.4,0.4142857143,0.4285714286,0.4428571429,0.4571428571,0.4714285714,0.4857142857,0.5,0.5142857143,0.5285714286,0.5428571429,0.5571428571,0.5714285714,0.5857142857,0.6,0.6142857143,0.6285714286,0.6428571429,0.6571428571,0.6714285714,0.6857142857,0.7,0.7142857143,0.7285714286,0.7428571429,0.7571428571,0.7714285714,0.7857142857,0.7997619048,0.8133333333,0.8264285714,0.839047619,0.8511904762,0.8628571429,0.874047619,0.8847619048,0.895,0.9047619048,0.914047619,0.9228571429,0.9311904762,0.939047619,0.9464285714,0.9533333333,0.9597619048,0.9657142857,0.9711904762,0.9761904762,0.9807142857,0.9847619048,0.9883333333,0.9914285714,0.994047619,0.9961904762,0.9978571429,0.999047619,0.9997619048,1]
+let accel_func = [0.0002380952381,0.0009523809524,0.002142857143,0.00380952381,0.005952380952,0.008571428571,0.01166666667,0.01523809524,0.01928571429,0.02380952381,0.02880952381,0.03428571429,0.04023809524,0.04666666667,0.05357142857,0.06095238095,0.06880952381,0.07714285714,0.08595238095,0.09523809524,0.105,0.1152380952,0.125952381,0.1371428571,0.1488095238,0.160952381,0.1735714286,0.1866666667,0.2002380952,0.2142857143,0.2285714286,0.2428571429,0.2571428571,0.2714285714,0.2857142857,0.3, 0.3142857143,0.3285714286,0.3428571429,0.3571428571,0.3714285714,0.3857142857,0.4,0.4142857143,0.4285714286,0.4428571429,0.4571428571,0.4714285714,0.4857142857,0.5,0.5142857143,0.5285714286,0.5428571429,0.5571428571,0.5714285714,0.5857142857,0.6,0.6142857143,0.6285714286,0.6428571429,0.6571428571,0.6714285714,0.6857142857,0.7,0.7142857143,0.7285714286,0.7428571429,0.7571428571,0.7714285714,0.7857142857,0.7997619048,0.8133333333,0.8264285714,0.839047619,0.8511904762,0.8628571429,0.874047619,0.8847619048,0.895,0.9047619048,0.914047619,0.9228571429,0.9311904762,0.939047619,0.9464285714,0.9533333333,0.9597619048,0.9657142857,0.9711904762,0.9761904762,0.9807142857,0.9847619048,0.9883333333,0.9914285714,0.994047619,0.9961904762,0.9978571429,0.999047619,0.9997619048,1]
 
 /* =========  CONFIGURATION  ============================================= */
 //run = seconds from station i to station i + 1
 //dwell = seconds stopped at station i
-var lines = [
+let lines = [
   {
     line_id: 0,
     name: "Island Line",
@@ -65,7 +69,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 /* draw static line */
-for(var i = 0; i < lines.length; i++){
+for(let i = 0; i < lines.length; i++){
   //top display thing
   line_span = document.createElement('span');
   line_span.setAttribute("id", `line${i}`)
@@ -136,8 +140,8 @@ class Train {
     const B = lines[this.line_id].stations[this.idx + this.dir];
     if (!B) return [A.lat, A.lng]; // terminus
     const time_progress = this.segmentProgress / lines[this.line_id].stations[this.dir ===1?this.idx:(this.idx-1)].run;
-    var prog_floor = Math.floor(time_progress * 100)
-    var prog_ceil = Math.floor(time_progress * 100) + 1
+    let prog_floor = Math.floor(time_progress * 100)
+    let prog_ceil = Math.floor(time_progress * 100) + 1
     const f = accel_func[prog_floor] + (accel_func[prog_ceil] - accel_func[prog_floor]) * (time_progress * 100 - prog_floor); 
     return [
       A.lat + (B.lat - A.lat)*f,
@@ -213,7 +217,7 @@ class Train {
 
 /* -------------------- time-table builder ------------------------------ */
 function buildTables(){
-  for(var j = 0; j < lines.length; j++){
+  for(let j = 0; j < lines.length; j++){
     const wrap = (arr, title) => {
       const tbl = document.createElement('table');
       tbl.innerHTML = `<caption>${title}</caption>` +
@@ -227,7 +231,7 @@ function buildTables(){
     //turn station run into a list
     let RUNNING = [];
     let DWELL = [];
-    for(var i = 0; i < lines[j].stations.length; i++){
+    for(let i = 0; i < lines[j].stations.length; i++){
       RUNNING[i] = lines[j].stations[i].run;
       DWELL[i] = lines[j].stations[i].dwell;
     }
@@ -242,7 +246,7 @@ buildTables();
 
 
 function restart(){
-  for(var i = 0; i < lines.length; i++){
+  for(let i = 0; i < lines.length; i++){
     lines[i].trains.forEach(t=>t.remove());
     lines[i].trains.length = 0;
     tick = 0;
@@ -257,7 +261,7 @@ function restart(){
 /* ---------- simulation step ---------- */
 function simulate(){
   tick++;
-  for(var i = 0; i < lines.length; i++){
+  for(let i = 0; i < lines.length; i++){
     if (lines[i].spawnEnabled && tick % lines[i].SPAWN_EVERY === 0){
       //direction = 1
       lines[i].trains.push(new Train(i, 1));
@@ -271,8 +275,6 @@ function simulate(){
 
 /* ---------- configurable clock ---------- */
 let TICK_RATE = 30;          // sim ticks per real second
-//seconds in one tick
-let TICK_TIME = 1;
 let SIM_MS    = 1000 / TICK_RATE;
 let clockId   = null;
 
