@@ -4,28 +4,45 @@
 /* =========  CONFIGURATION  ============================================= */
 //run = seconds from station i to station i + 1
 //dwell = seconds stopped at station i
-const stations = [
-  {name:"Kennedy Town", lat:22.2810, lng:114.1289, run:80, dwell:120},
-  {name:"HKU", lat:22.2840, lng:114.1350, run:80, dwell:30},
-  {name:"Sai Ying Pun", lat:22.2860, lng:114.1430, run:90, dwell:30},
-  {name:"Sheung Wan", lat:22.2870, lng:114.1510, run:80, dwell:30},
-  {name:"Central", lat:22.2820, lng:114.1580, run:80, dwell:30},
-  {name:"Admiralty", lat:22.2790, lng:114.1650, run:80, dwell:30},
-  {name:"Wan Chai", lat:22.2770, lng:114.1730, run:80, dwell:30},
-  {name:"Causeway Bay", lat:22.2800, lng:114.1850, run:70, dwell:30},
-  {name:"Tin Hau", lat:22.2820, lng:114.1920, run:80, dwell:30},
-  {name:"Fortress Hill", lat:22.2880, lng:114.1940, run:80, dwell:30},
-  {name:"North Point", lat:22.2910, lng:114.2000, run:80, dwell:30},
-  {name:"Quarry Bay", lat:22.2890, lng:114.2120, run:80, dwell:30},
-  {name:"Tai Koo", lat:22.2850, lng:114.2170, run:80, dwell:30},
-  {name:"Sai Wan Ho", lat:22.2810, lng:114.2230, run:80, dwell:30},
-  {name:"Shau Kei Wan", lat:22.2790, lng:114.2290, run:80, dwell:30},
-  {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390, run:120, dwell:30},
-  {name:"Chai Wan", lat:22.2650, lng:114.2370, run:1, dwell:120}
+var lines = [
+  {
+    name: "Island Line",
+    SPAWN_EVERY: 114,
+    line_color: "#0860a8",
+    stations:[
+    {name:"Kennedy Town", lat:22.2810, lng:114.1289, run:80, dwell:120},
+    {name:"HKU", lat:22.2840, lng:114.1350, run:80, dwell:30},
+    {name:"Sai Ying Pun", lat:22.2860, lng:114.1430, run:90, dwell:30},
+    {name:"Sheung Wan", lat:22.2870, lng:114.1510, run:80, dwell:30},
+    {name:"Central", lat:22.2820, lng:114.1580, run:80, dwell:30},
+    {name:"Admiralty", lat:22.2790, lng:114.1650, run:80, dwell:30},
+    {name:"Wan Chai", lat:22.2770, lng:114.1730, run:80, dwell:30},
+    {name:"Causeway Bay", lat:22.2800, lng:114.1850, run:70, dwell:30},
+    {name:"Tin Hau", lat:22.2820, lng:114.1920, run:80, dwell:30},
+    {name:"Fortress Hill", lat:22.2880, lng:114.1940, run:80, dwell:30},
+    {name:"North Point", lat:22.2910, lng:114.2000, run:80, dwell:30},
+    {name:"Quarry Bay", lat:22.2890, lng:114.2120, run:80, dwell:30},
+    {name:"Tai Koo", lat:22.2850, lng:114.2170, run:80, dwell:30},
+    {name:"Sai Wan Ho", lat:22.2810, lng:114.2230, run:80, dwell:30},
+    {name:"Shau Kei Wan", lat:22.2790, lng:114.2290, run:80, dwell:30},
+    {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390, run:120, dwell:30},
+    {name:"Chai Wan", lat:22.2650, lng:114.2370, run:1, dwell:120}
+    ]
+  },
+  {
+    name: "South Island Line",
+    SPAWN_EVERY: 198,
+    line_color: "#bac429",
+    stations:[
+    {name:"Admiralty", lat:22.2790, lng:114.1650, run:270, dwell:120},
+    {name:"Ocean Park", lat:22.2486, lng:114.1742, run:90, dwell:30},
+    {name:"Wong Chuk Hang", lat:22.2481, lng:114.1681, run:90, dwell:30},
+    {name:"Lei Tung", lat:22.2422, lng:114.1651, run:90, dwell:30},
+    {name:"South Horizons", lat:22.2425, lng:114.1492, run:90, dwell:120},
+    ]
+  },
 ];
 
-let SPAWN_EVERY = 120;     // ticks
-let line_color = "#0860a8";
 /* =========  END CONFIG  ================================================ */
 
 /* ---------- map setup (your old code) --------------------------------- */
@@ -35,16 +52,20 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 /* draw static line */
-const lineCoords = stations.map(s=>[s.lat, s.lng]);
-L.polyline(lineCoords, {color:line_color, weight:2}).addTo(map);
+for(var i = 0; i < lines.length; i++){
+  const lineCoords = lines[i].stations.map(s=>[s.lat, s.lng]);
+  L.polyline(lineCoords, {color:lines[i].line_color, weight:2}).addTo(map);
 
-stations.forEach(s=>{
-  L.circleMarker([s.lat, s.lng], {radius:3, color:'#fff',
-    weight:2, fillColor:line_color, fillOpacity:1}).addTo(map);
-});
+  lines[i].stations.forEach(s=>{
+    L.circleMarker([s.lat, s.lng], {radius:3, color:'#fff',
+      weight:2, fillColor:lines[i].line_color, fillOpacity:1}).addTo(map);
+  });
 
-map.fitBounds(L.latLngBounds(lineCoords), {padding:[50,50]});
+  //set variables that they all have
+  lines[i].trains = [];
 
+  map.fitBounds(L.latLngBounds(lineCoords), {padding:[50,50]});
+}
 
 
 //train simulation here
