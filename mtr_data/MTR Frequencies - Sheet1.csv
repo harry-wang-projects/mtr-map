@@ -1,0 +1,44 @@
+"Weekdays
+Morning Peak Hours
+(based on minutes)","Weekdays
+Evening Peak Hours
+(based on minutes)","Weekdays
+Non-peak Hours
+(based on minutes)*","Saturdays
+(based on minutes)*","Sundays and Public Holidays
+(based on minutes)*",
+Island Line,1.9,2.1,3.6-5,2.8-5,3.6-5
+Tsuen Wan Line,2.1,2.1,3.5-5,2.2-4.2,3.1-5
+Kwun Tong Line,,,,,
+Tiu Keng Leng-Ho Man Tin,2.1,2.3,3.5-5,2.5-5,3.1-5
+Ho Man Tin-Whampoa,4.2,4.6,3.5-5,4.2-6.2,5-6.2
+Tseung Kwan O Line,,,,,
+North Point-Tseung Kwan O,2.2,2.2,-,"2.2-2.5
+(For 07:00-10:15 only)",-
+North Point-Po Lam,2.5 / 4,2.5 / 4,4.5-6,2.5-5,4.5-6
+North Point-LOHAS Park,6.7,6.7,-,"6.7
+(For 07:00-10:15 only)",-
+Tiu Keng Leng-LOHAS Park,-,-,9-14,8.2-10,9-14
+South Island Line,3.3,3.3,5-7.5,4-7.5,4.5-7.5
+Tung Chung Line,,,,,
+Hong Kong-Tsing Yi,3-4,3-5,7-10,6.5-10,6.5-10
+Hong Kong-Tung Chung,6-8,4-9,7-10,6.5-10,6.5-10
+Disneyland Resort Line~,5,5,10,5-10,5-10
+Tuen Ma Line,2.7-3,3.2-3.5,6-7,4.7-7.3,6-7.3
+East Rail Line,,,,,
+Admiralty-Sheung Shui,2.7-5.5,3.2,4-8,3.8-8,3.8-8
+Admiralty-Lo Wu,3-7,3.2-6.3,4-10,4-10,4-10
+Admiralty-Lok Ma Chau,9-14,6.3-10,8-14,8-14,8-14
+Airport Express,10,10,10,10,10
+Light Rail,,,,,
+Route 505,6-10,7-12,10-18,6-18,6-17
+Route 507,6-9,7-10,9-21,7-16,8-17
+Route 610,8-11,8-12,9-17,8-17,7-17
+Route 614,15-18,16-18,15-23,13-23,14-23
+Route 614P,8-14,8-13,11-18,8-23,14-22
+Route 615,15-19,16-19,15-24,13-24,14-25
+Route 615P,8-14,8-13,11-18,8-19,14-23
+Route 705,5-7,4-6,6-12,5-12,6-12
+Route 706,5-7,4-7,6-12,5-12,6-12
+Route 751#,7-11,7-11,8-15,7-17,7-17
+Route 761P,5-8,5-8,7-15,5-15,6-15

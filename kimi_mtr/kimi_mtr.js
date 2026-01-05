@@ -12,7 +12,7 @@ const stations = [
   {name:"Central", lat:22.2820, lng:114.1580, run:80, dwell:30},
   {name:"Admiralty", lat:22.2790, lng:114.1650, run:80, dwell:30},
   {name:"Wan Chai", lat:22.2770, lng:114.1730, run:80, dwell:30},
-  {name:"Causeway Bay", lat:22.2800, lng:114.1850, run:80, dwell:30},
+  {name:"Causeway Bay", lat:22.2800, lng:114.1850, run:70, dwell:30},
   {name:"Tin Hau", lat:22.2820, lng:114.1920, run:80, dwell:30},
   {name:"Fortress Hill", lat:22.2880, lng:114.1940, run:80, dwell:30},
   {name:"North Point", lat:22.2910, lng:114.2000, run:80, dwell:30},
@@ -20,7 +20,7 @@ const stations = [
   {name:"Tai Koo", lat:22.2850, lng:114.2170, run:80, dwell:30},
   {name:"Sai Wan Ho", lat:22.2810, lng:114.2230, run:80, dwell:30},
   {name:"Shau Kei Wan", lat:22.2790, lng:114.2290, run:80, dwell:30},
-  {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390, run:135, dwell:30},
+  {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390, run:120, dwell:30},
   {name:"Chai Wan", lat:22.2650, lng:114.2370, run:1, dwell:120}
 ];
 
@@ -71,6 +71,7 @@ class Train {
     this.segmentProgress = 0; // seconds into current leg
     //whether the train is moving/dwelling. It should start moving.
     this.movingstate = 1;
+    this.dwellProgress= 0; //seconds into dwell
     
     //doesn't look good. Need to add an image. iconSize doesn't do anything
     this.marker = L.marker(this.latlng(), {
@@ -134,12 +135,19 @@ class Train {
             if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
           }
           */
+
         }
+        this.movingstate = 0;
+        this.dwellProgress = 0;
       }
       //no need to do every time?
       this.marker.setLatLng(this.latlng());
     }else{
       //dwelling
+      this.dwellProgress++;
+      if(this.dwellProgress >= dwell){
+        this.movingstate = 1;
+      }
     }
   }
   remove(){ map.removeLayer(this.marker); }
