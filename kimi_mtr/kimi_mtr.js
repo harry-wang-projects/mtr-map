@@ -1,6 +1,6 @@
 //some variables
 //seconds in one tick
-let TICK_TIME = 1;
+let TICK_LENGTH = 1;
 
 //map here
 
@@ -88,6 +88,7 @@ for(let i = 0; i < lines.length; i++){
   lines[i].trains = [];
   lines[i].spawnEnabled = true
   lines[i].firstTrainFinished = false;
+  lines[i].lastspawn = 0;
 
   //draw
   map.fitBounds(L.latLngBounds(lineCoords), {padding:[50,50]});
@@ -102,6 +103,9 @@ for(let i = 0; i < lines.length; i++){
 /* =====================  SIMULATION  =================================== */
 //const trains = [];          // active train objects
 let tick = 0;               // global time in seconds
+let actual_tick = 0;       //how many ticks actually happened
+let refreshcoords = 0; //whether or not to update coordinates on the map
+let lastrefresh = 0; //last time it refreshed
 //let spawnEnabled = true;    // becomes false once first train finishes lap
 //let firstTrainFinished = false;
 
@@ -120,6 +124,8 @@ class Train {
     //whether the train is moving/dwelling. It should start moving.
     this.movingstate = 1;
     this.dwellProgress= 0; //seconds into dwell
+    //when it last refreshed
+    this.lastrefresh 
     
     //doesn't look good. Need to add an image. iconSize doesn't do anything
     this.marker = L.marker(this.latlng(), {
@@ -154,12 +160,11 @@ class Train {
     const dwell = lines[this.line_id].stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
     if(this.movingstate == 1){
       if (this.segmentProgress < leg){               // still running
-        this.segmentProgress++;
+        this.segmentProgress+=TICK_LENGTH;
       } else {                                       // arrived
         //if (tick - this.arrivalTick < dwell) return; // dwelling
         // leave station
         this.idx += this.dir;
-        this.segmentProgress = 0;
         //this.arrivalTick = tick;
         // turnaround at termini
         // ---------- turn-around at termini ----------
@@ -169,7 +174,6 @@ class Train {
             this.idx += 0;           // step one station INTO the new direction
           }else{
           }
-          this.segmentProgress = 0;       // start fresh leg
           //this.arrivalTick = tick;        // mark arrival for dwell calculation
           // -- loop-completion logic (see #2) --
           if (this.dir === this.startDir){
@@ -191,15 +195,14 @@ class Train {
 
         }
         this.movingstate = 0;
-        this.dwellProgress = 0;
+        this.dwellProgress = this.segmentProgress - leg;
+        this.segmentProgress = 0;
       }
       //reduce refresh rate as it shouldn't exceed 60 fps
-      if(tick % Math.ceil(TICK_RATE / 60) == 0){
-        this.marker.setLatLng(this.latlng());
-      }
+      this.marker.setLatLng(this.latlng());
     }else{
       //dwelling
-      this.dwellProgress++;
+      this.dwellProgress+=TICK_LENGTH;
       if(this.dwellProgress >= dwell){
         this.movingstate = 1;
         // -- loop-completion logic (see #2) --
@@ -209,6 +212,7 @@ class Train {
           lines[this.line_id].trains[lines[this.line_id].trains.length-1].marker.remove();
           lines[this.line_id].trains.pop();
         }
+        this.segmentProgress = this.dwellProgress - dwell;
       }
     }
   }
@@ -260,9 +264,11 @@ function restart(){
 
 /* ---------- simulation step ---------- */
 function simulate(){
-  tick++;
+  tick+=TICK_LENGTH;
+  actual_tick++;
   for(let i = 0; i < lines.length; i++){
-    if (lines[i].spawnEnabled && tick % lines[i].SPAWN_EVERY === 0){
+    if (lines[i].spawnEnabled && tick - lines[i].lastspawn >= lines[i].SPAWN_EVERY){
+      lines[i].lastspawn = tick;
       //direction = 1
       lines[i].trains.push(new Train(i, 1));
     }
@@ -270,7 +276,12 @@ function simulate(){
     line_span = document.getElementById(`line${i}`);
     line_span.textContent = `${lines[i].name} Trains ${lines[i].trains.length} | Spawning ${lines[i].spawnEnabled?'ON':'OFF'}`;
   }
-  document.getElementById("tickdisplay").textContent = `Tick ${tick}`;
+  refreshcoords = 0;
+  if(tick - lastrefresh > TICK_RATE / 60){
+    lastrefresh = tick;
+    refreshcoords = 1;
+  }
+  document.getElementById("tickdisplay").textContent = `Tick ${tick} (actually ${actual_tick})`;
 }
 
 /* ---------- configurable clock ---------- */
@@ -290,8 +301,8 @@ document.getElementById('tickRate').addEventListener('input', e=>{
 });
 
 document.getElementById('tickTime').addEventListener('input', e=>{
-  TICK_RATE = +e.target.value;
-  document.getElementById('tickTimeLbl').textContent = TICK_RATE;
+  TICK_LENGTH = +e.target.value;
+  document.getElementById('tickTimeLbl').textContent = TICK_LENGTH;
   startClock();
 });
 
