@@ -69,13 +69,20 @@
         <h1>MTR Island Line</h1>
         <div class="subtitle">Real-time tracking map</div>
         <div id="controls" style="margin-bottom:15px;font-size:14px;">
-            <label>Spawn every <input id="spawnEvery" type="number" value="120" min="10" max="600" style="width:60px;"> s</label>
-            <button id="applyBtn">Apply & Restart</button>
-            <span id="status"></span>
+            <span id="tickdisplay"></span>
+            <br>
             <label>Simulation speed
-                <input id="tickRate" type="range" min="1" max="120" value="30" step="1">
+                <input id="tickRate" type="range" min="1" max="180" value="30" step="1">
                 <span id="tickRateLbl">30</span> ticks / real sec
             </label>
+            <br>
+            <label>Tick Resolution
+                <input id="tickTime" type="range" min="1" max="30" value="30" step="1">
+                <span id="tickTimeLbl">30</span> seconds per tick
+            </label>
+            <br>
+            <br>
+            <span id="status"></span>
         </div>     
 
         <details style="margin-bottom:15px;">

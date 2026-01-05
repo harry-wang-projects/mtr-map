@@ -70,6 +70,7 @@ for(var i = 0; i < lines.length; i++){
   line_span = document.createElement('span');
   line_span.setAttribute("id", `line${i}`)
   document.getElementById('status').appendChild(line_span);
+  document.getElementById('status').appendChild(document.createElement("br"));
 
   const lineCoords = lines[i].stations.map(s=>[s.lat, s.lng]);
   L.polyline(lineCoords, {color:lines[i].line_color, weight:2}).addTo(map);
@@ -135,10 +136,9 @@ class Train {
     const B = lines[this.line_id].stations[this.idx + this.dir];
     if (!B) return [A.lat, A.lng]; // terminus
     const time_progress = this.segmentProgress / lines[this.line_id].stations[this.dir ===1?this.idx:(this.idx-1)].run;
-    var floor = Math.floor(time_progress * 100)
-    var ceil = Math.floor(time_progress * 100) + 1
-    var f;
-    f = accel_func[floor] + (accel_func[ceil] - accel_func[floor]) * (time_progress * 100 - floor); 
+    var prog_floor = Math.floor(time_progress * 100)
+    var prog_ceil = Math.floor(time_progress * 100) + 1
+    const f = accel_func[prog_floor] + (accel_func[prog_ceil] - accel_func[prog_floor]) * (time_progress * 100 - prog_floor); 
     return [
       A.lat + (B.lat - A.lat)*f,
       A.lng + (B.lng - A.lng)*f
@@ -152,11 +152,11 @@ class Train {
       if (this.segmentProgress < leg){               // still running
         this.segmentProgress++;
       } else {                                       // arrived
-        if (tick - this.arrivalTick < dwell) return; // dwelling
+        //if (tick - this.arrivalTick < dwell) return; // dwelling
         // leave station
         this.idx += this.dir;
         this.segmentProgress = 0;
-        this.arrivalTick = tick;
+        //this.arrivalTick = tick;
         // turnaround at termini
         // ---------- turn-around at termini ----------
         if (this.idx === 0 || this.idx === lines[this.line_id].stations.length-1){
@@ -166,7 +166,7 @@ class Train {
           }else{
           }
           this.segmentProgress = 0;       // start fresh leg
-          this.arrivalTick = tick;        // mark arrival for dwell calculation
+          //this.arrivalTick = tick;        // mark arrival for dwell calculation
           // -- loop-completion logic (see #2) --
           if (this.dir === this.startDir){
             if (!lines[this.line_id].firstTrainFinished){ 
@@ -189,8 +189,10 @@ class Train {
         this.movingstate = 0;
         this.dwellProgress = 0;
       }
-      //no need to do every time?
-      this.marker.setLatLng(this.latlng());
+      //reduce refresh rate as it shouldn't exceed 60 fps
+      if(tick % Math.ceil(TICK_RATE / 60) == 0){
+        this.marker.setLatLng(this.latlng());
+      }
     }else{
       //dwelling
       this.dwellProgress++;
@@ -237,18 +239,7 @@ function buildTables(){
 buildTables();
 
 //TODO: Make these buttons work for many lines in the future
-/* -------------------- apply button ----------------------------------- */
-document.getElementById('applyBtn').onclick = () => {
-  // read running times
-  document.querySelectorAll('input[data-array="Running"]').forEach(ip=>{
-    stations[ip.dataset.idx].run = +ip.value;
-  });
-  document.querySelectorAll('input[data-array="Dwell"]').forEach(ip=>{
-    stations[ip.dataset.idx].dwell = +ip.value;
-  });
-  SPAWN_EVERY = +document.getElementById('spawnEvery').value;
-  restart();
-};
+
 
 function restart(){
   for(var i = 0; i < lines.length; i++){
@@ -273,12 +264,15 @@ function simulate(){
     }
     lines[i].trains.forEach(t=>t.step());
     line_span = document.getElementById(`line${i}`);
-    line_span.textContent = `${lines[i].name} Tick ${tick} | Trains ${lines[i].trains.length} | Spawning ${lines[i].spawnEnabled?'ON':'OFF'}`;
+    line_span.textContent = `${lines[i].name} Trains ${lines[i].trains.length} | Spawning ${lines[i].spawnEnabled?'ON':'OFF'}`;
   }
+  document.getElementById("tickdisplay").textContent = `Tick ${tick}`;
 }
 
 /* ---------- configurable clock ---------- */
 let TICK_RATE = 30;          // sim ticks per real second
+//seconds in one tick
+let TICK_TIME = 1;
 let SIM_MS    = 1000 / TICK_RATE;
 let clockId   = null;
 
@@ -290,6 +284,12 @@ function startClock(){
 document.getElementById('tickRate').addEventListener('input', e=>{
   TICK_RATE = +e.target.value;
   document.getElementById('tickRateLbl').textContent = TICK_RATE;
+  startClock();
+});
+
+document.getElementById('tickTime').addEventListener('input', e=>{
+  TICK_RATE = +e.target.value;
+  document.getElementById('tickTimeLbl').textContent = TICK_RATE;
   startClock();
 });
 
