@@ -106,6 +106,9 @@ let tick = 0;               // global time in seconds
 let actual_tick = 0;       //how many ticks actually happened
 let refreshcoords = 0; //whether or not to update coordinates on the map
 let lastrefresh = 0; //last time it refreshed
+
+
+let finishedticks = 0; //seeing how many ticks actually finished
 //let spawnEnabled = true;    // becomes false once first train finishes lap
 //let firstTrainFinished = false;
 
@@ -202,7 +205,9 @@ class Train {
         this.segmentProgress = 0;
       }
       //reduce refresh rate as it shouldn't exceed 60 fps
-      this.marker.setLatLng(this.latlng());
+      if(refreshcoords == 1){
+        this.marker.setLatLng(this.latlng());
+      }
     }else{
       //dwelling
       this.dwellProgress+=TICK_LENGTH;
@@ -268,8 +273,17 @@ function restart(){
 
 /* ---------- simulation step ---------- */
 function simulate(){
+
   tick+=TICK_LENGTH;
   actual_tick++;
+
+  //refresh coordinates
+  refreshcoords = 0;
+  if(tick - lastrefresh > TICK_RATE / 30){
+    lastrefresh = tick;
+    refreshcoords = 1;
+  }
+
   for(let i = 0; i < lines.length; i++){
     let trainsstring = "";
     for(let j = 0; j < lines[i].trains.length; j++){
@@ -285,12 +299,8 @@ function simulate(){
     line_span = document.getElementById(`line${i}`);
     line_span.textContent = `${lines[i].name} Trains ${lines[i].trains.length} | Spawning ${lines[i].spawnEnabled?'ON':'OFF'} ${trainsstring}`;
   }
-  refreshcoords = 0;
-  if(tick - lastrefresh > TICK_RATE / 60){
-    lastrefresh = tick;
-    refreshcoords = 1;
-  }
-  document.getElementById("tickdisplay").textContent = `Tick ${tick} (actually ${actual_tick})`;
+  document.getElementById("tickdisplay").textContent = `Tick ${tick} (actually ${actual_tick}) - finished: ${finishedticks}`;
+  finishedticks+= 1;
 }
 
 /* ---------- configurable clock ---------- */
