@@ -43,6 +43,16 @@ var lines = [
     {name:"South Horizons", lat:22.2425, lng:114.1492, run:90, dwell:120},
     ]
   },
+  {
+    line_id: 2,
+    name: "Disneyland Resort Line",
+    SPAWN_EVERY: 300,
+    line_color: "#f173ac",
+    stations:[
+    {name:"Sunny Bay", lat:22.3317, lng:114.0289, run:210, dwell:90},
+    {name:"Disneyland Resort", lat:22.3156, lng:114.0450, run:90, dwell:90},
+    ]
+  },
 ];
 
 /* =========  END CONFIG  ================================================ */
@@ -156,10 +166,12 @@ class Train {
           if (this.dir === this.startDir){
             if (!lines[this.line_id].firstTrainFinished){ 
               lines[this.line_id].firstTrainFinished = true; 
+              /*
               lines[this.line_id].spawnEnabled=false; 
               //delete the last train as 2 trains will look close together.
               lines[this.line_id].trains[lines[this.line_id].trains.length-1].marker.remove();
               lines[this.line_id].trains.pop();
+              */
             }
           }
           /*
@@ -179,6 +191,13 @@ class Train {
       this.dwellProgress++;
       if(this.dwellProgress >= dwell){
         this.movingstate = 1;
+        // -- loop-completion logic (see #2) --
+        if (lines[this.line_id].firstTrainFinished && lines[this.line_id].spawnEnabled){
+          lines[this.line_id].spawnEnabled=false; 
+          //delete the last train as 2 trains will look close together.
+          lines[this.line_id].trains[lines[this.line_id].trains.length-1].marker.remove();
+          lines[this.line_id].trains.pop();
+        }
       }
     }
   }
