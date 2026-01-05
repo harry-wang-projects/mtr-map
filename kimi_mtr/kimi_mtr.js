@@ -125,7 +125,10 @@ class Train {
     this.movingstate = 1;
     this.dwellProgress= 0; //seconds into dwell
     //when it last refreshed
-    this.lastrefresh 
+    this.lastrefresh = 0;
+
+    //how many stations it went to. Used for debugging.
+    this.visitedstations = 0;
     
     //doesn't look good. Need to add an image. iconSize doesn't do anything
     this.marker = L.marker(this.latlng(), {
@@ -204,6 +207,7 @@ class Train {
       //dwelling
       this.dwellProgress+=TICK_LENGTH;
       if(this.dwellProgress >= dwell){
+        this.visitedstations++;
         this.movingstate = 1;
         // -- loop-completion logic (see #2) --
         if (lines[this.line_id].firstTrainFinished && lines[this.line_id].spawnEnabled){
@@ -267,6 +271,11 @@ function simulate(){
   tick+=TICK_LENGTH;
   actual_tick++;
   for(let i = 0; i < lines.length; i++){
+    let trainsstring = "";
+    for(let j = 0; j < lines[i].trains.length; j++){
+      trainsstring += lines[i].trains[j].visitedstations.toString() + " "
+    }
+
     if (lines[i].spawnEnabled && tick - lines[i].lastspawn >= lines[i].SPAWN_EVERY){
       lines[i].lastspawn = tick;
       //direction = 1
@@ -274,7 +283,7 @@ function simulate(){
     }
     lines[i].trains.forEach(t=>t.step());
     line_span = document.getElementById(`line${i}`);
-    line_span.textContent = `${lines[i].name} Trains ${lines[i].trains.length} | Spawning ${lines[i].spawnEnabled?'ON':'OFF'}`;
+    line_span.textContent = `${lines[i].name} Trains ${lines[i].trains.length} | Spawning ${lines[i].spawnEnabled?'ON':'OFF'} ${trainsstring}`;
   }
   refreshcoords = 0;
   if(tick - lastrefresh > TICK_RATE / 60){
