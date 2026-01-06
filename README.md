@@ -36,3 +36,11 @@ Todo (other):
 
 Notes:
 Could add a "time offset" parameter to branches of lines to sync trains on a line with different destinations.
+
+January 5 update:
+Due to bad performance, major overhauls are needed. From now on, the generation of the animation and the playing of the animation will be separate. I will generate an array storing the coordinates of each train every second to make the animation playing faster. Other things to consider:
+- Start with all the trains. Space them apart by the frequency and calculate where they should be.
+- Stop using classes and calculate the position of each train directly.
+- Keep the time-based model for good performance. The speed-based model might be slow.
+- For the train coordinates, simply record the coordinates for each line for the first x seconds, where x is the number of seconds per train. When playing, repeating it works.
+- If the performance still isn't good enough, consider using another language. (could be caused by a limitation of browsers or leaflet js.)
