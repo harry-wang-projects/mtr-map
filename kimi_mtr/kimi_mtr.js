@@ -58,6 +58,45 @@ let lines = [
     {name:"Disneyland Resort", lat:22.3156, lng:114.0450, run:90, dwell:90},
     ]
   },
+  {
+    line_id: 3,
+    name: "Tseung Kwan O line",
+    SPAWN_EVERY: 132,
+    line_color: "#7d499d",
+    stations:[
+    {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
+    {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
+    {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+    {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
+    {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:90, dwell:30},
+    {name:"Hang Hau", lat:22.3156, lng:114.2644, run:90, dwell:30},
+    {name:"Po Lam", lat:22.3225, lng:114.2581, run:90, dwell:90},
+    ]
+  },
+  {
+    line_id: 4,
+    name: "Tsuen Wan Line",
+    SPAWN_EVERY: 126,
+    line_color: "#ed1d24",
+    stations:[
+    {name:"Central", lat:22.2819, lng:114.1575, run:90, dwell:90},
+    {name:"Admiralty", lat:22.2789, lng:114.1647, run:150, dwell:30},
+    {name:"Tsim Sha Tsui", lat:22.2972, lng:114.1722, run:150, dwell:30},
+    {name:"Jordan", lat:22.3050, lng:114.1717, run:90, dwell:30},
+    {name:"Yau Ma Tei", lat:22.3128, lng:114.1708, run:90, dwell:30},
+    {name:"Mong Kok", lat:22.3192, lng:114.1694, run:90, dwell:30},
+    {name:"Prince Edward", lat:22.3244, lng:114.1683, run:90, dwell:30},
+    {name:"Sham Shui Po", lat:22.3308, lng:114.1622, run:90, dwell:30},
+    {name:"Cheung Sha Wan", lat:22.3353, lng:114.1564, run:90, dwell:30},
+    {name:"Lai Chi Kok", lat:22.3372, lng:114.1483, run:90, dwell:30},
+    {name:"Mei Foo", lat:22.3381, lng:114.1375, run:90, dwell:30},
+    {name:"Lai King", lat:22.3483, lng:114.1261, run:90, dwell:30},
+    {name:"Kuai Fong", lat:22.3569, lng:114.1278, run:90, dwell:30},
+    {name:"Kuai Hing", lat:22.3633, lng:114.1311, run:90, dwell:30},
+    {name:"Tai Wo Hau", lat:22.3708, lng:114.1250, run:90, dwell:30},
+    {name:"Tsuen Wan", lat:22.3736, lng:114.1178, run:120, dwell:90},
+    ]
+  },
 ];
 
 /* =========  END CONFIG  ================================================ */
