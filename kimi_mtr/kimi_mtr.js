@@ -153,11 +153,24 @@ class Train {
   }
   latlng(){
     const A = lines[this.line_id].stations[this.idx];
+    if (!A) {
+      console.error(`Invalid station index ${this.idx} for line ${this.line_id}`);
+      return [22.28, 114.18]; // Default fallback position
+    }
     const B = lines[this.line_id].stations[this.idx + this.dir];
     if (!B) return [A.lat, A.lng]; // terminus
-    const time_progress = this.segmentProgress / lines[this.line_id].stations[this.dir ===1?this.idx:(this.idx-1)].run;
-    let prog_floor = Math.floor(time_progress * 100)
-    let prog_ceil = Math.floor(time_progress * 100) + 1
+    
+    const stationIdx = this.dir === 1 ? this.idx : (this.idx - 1);
+    const runTime = lines[this.line_id].stations[stationIdx]?.run;
+    if (!runTime || runTime === 0) {
+      return [A.lat, A.lng]; // Fallback if run time is invalid
+    }
+    
+    const time_progress = this.segmentProgress / runTime;
+    let prog_floor = Math.floor(time_progress * 100);
+    let prog_ceil = Math.min(Math.floor(time_progress * 100) + 1, accel_func.length - 1);
+    prog_floor = Math.max(0, Math.min(prog_floor, accel_func.length - 1));
+    
     const f = accel_func[prog_floor] + (accel_func[prog_ceil] - accel_func[prog_floor]) * (time_progress * 100 - prog_floor); 
     return [
       A.lat + (B.lat - A.lat)*f,
@@ -205,7 +218,7 @@ class Train {
         this.segmentProgress = 0;
       }
       //reduce refresh rate as it shouldn't exceed 60 fps
-      if(refreshcoords == 1){
+      if(refreshcoords == 1 && this.marker){
         this.marker.setLatLng(this.latlng());
       }
     }else{
@@ -218,7 +231,10 @@ class Train {
         if (lines[this.line_id].firstTrainFinished && lines[this.line_id].spawnEnabled){
           lines[this.line_id].spawnEnabled=false; 
           //delete the last train as 2 trains will look close together.
-          lines[this.line_id].trains[lines[this.line_id].trains.length-1].marker.remove();
+          const lastTrain = lines[this.line_id].trains[lines[this.line_id].trains.length-1];
+          if(lastTrain && lastTrain.marker){
+            lastTrain.marker.remove();
+          }
           lines[this.line_id].trains.pop();
         }
         this.segmentProgress = this.dwellProgress - dwell;
@@ -280,7 +296,7 @@ function clearPlaybackMarkers(){
 
 /* -------------------- GENERATION STAGE -------------------------------- */
 function generateAnimation(durationSeconds, onProgress = null){
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     console.log(`Starting generation for ${durationSeconds} seconds...`);
     isGenerating = true;
     animationData = [];
@@ -302,72 +318,93 @@ function generateAnimation(durationSeconds, onProgress = null){
     const CHUNK_SIZE = 100; // Process 100 seconds at a time to avoid blocking
     
     function processChunk(){
-      const endSecond = Math.min(currentSecond + CHUNK_SIZE, durationSeconds);
-      
-      for(let second = currentSecond; second < endSecond; second++){
-        // Advance simulation by 1 second
-        tick = second;
+      try {
+        const endSecond = Math.min(currentSecond + CHUNK_SIZE, durationSeconds);
         
-        // Spawn trains
-        for(let i = 0; i < lines.length; i++){
-          if (lines[i].spawnEnabled && tick - lines[i].lastspawn >= lines[i].SPAWN_EVERY){
-            lines[i].lastspawn = tick;
-            lines[i].trains.push(new Train(i, 1, false)); // Don't create markers during generation
+        for(let second = currentSecond; second < endSecond; second++){
+          // Advance simulation by 1 second
+          tick = second;
+          
+          // Spawn trains
+          for(let i = 0; i < lines.length; i++){
+            if (lines[i].spawnEnabled && tick - lines[i].lastspawn >= lines[i].SPAWN_EVERY){
+              lines[i].lastspawn = tick;
+              lines[i].trains.push(new Train(i, 1, false)); // Don't create markers during generation
+            }
           }
-        }
-        
-        // Step all trains
-        for(let i = 0; i < lines.length; i++){
-          lines[i].trains.forEach(t => t.step());
-        }
-        
-        // Store positions for this second
-        for(let i = 0; i < lines.length; i++){
-          for(let j = 0; j < lines[i].trains.length; j++){
-            const train = lines[i].trains[j];
-            const pos = train.latlng();
-            animationData[second].push({
-              train_id: train.id,
-              line_id: train.line_id,
-              lat: pos[0],
-              lng: pos[1]
+          
+          // Step all trains
+          for(let i = 0; i < lines.length; i++){
+            lines[i].trains.forEach(t => {
+              try {
+                t.step();
+              } catch(e) {
+                console.error(`Error stepping train ${t.id} at second ${second}:`, e);
+              }
             });
           }
-        }
-      }
-      
-      currentSecond = endSecond;
-      
-      // Report progress
-      if(onProgress){
-        onProgress(currentSecond, durationSeconds);
-      }
-      
-      // Continue with next chunk or finish
-      if(currentSecond < durationSeconds){
-        // Use setTimeout to allow UI to update
-        setTimeout(processChunk, 0);
-      } else {
-        // Store final state
-        for(let i = 0; i < lines.length; i++){
-          for(let j = 0; j < lines[i].trains.length; j++){
-            const train = lines[i].trains[j];
-            const pos = train.latlng();
-            animationData[durationSeconds].push({
-              train_id: train.id,
-              line_id: train.line_id,
-              lat: pos[0],
-              lng: pos[1]
-            });
+          
+          // Store positions for this second
+          for(let i = 0; i < lines.length; i++){
+            for(let j = 0; j < lines[i].trains.length; j++){
+              const train = lines[i].trains[j];
+              try {
+                const pos = train.latlng();
+                animationData[second].push({
+                  train_id: train.id,
+                  line_id: train.line_id,
+                  lat: pos[0],
+                  lng: pos[1]
+                });
+              } catch(e) {
+                console.error(`Error getting position for train ${train.id} at second ${second}:`, e);
+              }
+            }
           }
         }
         
-        // Restore original TICK_LENGTH
-        TICK_LENGTH = originalTickLength;
+        currentSecond = endSecond;
         
+        // Report progress
+        if(onProgress){
+          onProgress(currentSecond, durationSeconds);
+        }
+        
+        // Continue with next chunk or finish
+        if(currentSecond < durationSeconds){
+          // Use requestAnimationFrame for better performance and UI responsiveness
+          requestAnimationFrame(processChunk);
+        } else {
+          // Store final state
+          for(let i = 0; i < lines.length; i++){
+            for(let j = 0; j < lines[i].trains.length; j++){
+              const train = lines[i].trains[j];
+              try {
+                const pos = train.latlng();
+                animationData[durationSeconds].push({
+                  train_id: train.id,
+                  line_id: train.line_id,
+                  lat: pos[0],
+                  lng: pos[1]
+                });
+              } catch(e) {
+                console.error(`Error getting final position for train ${train.id}:`, e);
+              }
+            }
+          }
+          
+          // Restore original TICK_LENGTH
+          TICK_LENGTH = originalTickLength;
+          
+          isGenerating = false;
+          console.log(`Generation complete! Generated ${animationData.length} seconds of data.`);
+          resolve(animationData);
+        }
+      } catch(e) {
+        console.error('Error in processChunk:', e);
         isGenerating = false;
-        console.log(`Generation complete! Generated ${animationData.length} seconds of data.`);
-        resolve(animationData);
+        TICK_LENGTH = originalTickLength;
+        reject(e);
       }
     }
     
@@ -418,19 +455,53 @@ function playAnimationFrame(time){
 }
 
 let playbackIntervalId = null;
+let currentPlaybackSpeed = 1;
 
-function startPlayback(playbackSpeed = 1){
-  if(isPlaying) return;
+function startPlayback(playbackSpeed = 1, resetTime = true){
+  if(isPlaying && resetTime) return; // Don't restart if already playing and not resetting
   if(!animationData || animationData.length === 0){
     alert("Please generate animation data first!");
     return;
   }
   
+  // If already playing and just changing speed, update the interval
+  if(isPlaying && !resetTime){
+    updatePlaybackSpeed(playbackSpeed);
+    return;
+  }
+  
   isPlaying = true;
-  currentPlaybackTime = 0;
+  currentPlaybackSpeed = playbackSpeed;
+  if(resetTime){
+    currentPlaybackTime = 0;
+  }
   
   // Play at specified speed (frames per second)
   const frameInterval = 1000 / playbackSpeed; // milliseconds between frames
+  
+  playbackIntervalId = setInterval(() => {
+    playAnimationFrame(currentPlaybackTime);
+    currentPlaybackTime++;
+    
+    if(currentPlaybackTime >= animationData.length){
+      stopPlayback();
+    }
+  }, frameInterval);
+}
+
+function updatePlaybackSpeed(newSpeed){
+  if(!isPlaying) return;
+  
+  currentPlaybackSpeed = newSpeed;
+  
+  // Clear existing interval
+  if(playbackIntervalId){
+    clearInterval(playbackIntervalId);
+    playbackIntervalId = null;
+  }
+  
+  // Start new interval with new speed
+  const frameInterval = 1000 / newSpeed; // milliseconds between frames
   
   playbackIntervalId = setInterval(() => {
     playAnimationFrame(currentPlaybackTime);
@@ -463,7 +534,7 @@ function resumePlayback(playbackSpeed = 1){
   if(currentPlaybackTime >= animationData.length){
     currentPlaybackTime = 0;
   }
-  startPlayback(playbackSpeed);
+  startPlayback(playbackSpeed, false); // Don't reset time when resuming
 }
 
 /* -------------------- OLD SIMULATION (kept for reference) ------------- */
@@ -572,8 +643,8 @@ document.getElementById('playbackSpeed')?.addEventListener('input', e => {
   const speed = parseFloat(e.target.value);
   document.getElementById('playbackSpeedLbl').textContent = speed;
   if(isPlaying){
-    pausePlayback();
-    resumePlayback(speed);
+    // Update speed without resetting playback position
+    updatePlaybackSpeed(speed);
   }
 });
 
