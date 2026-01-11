@@ -101,19 +101,23 @@ for(let i = 0; i < lines.length; i++){
 /* ---------------------------------------------------------------------- */
 
 /* =====================  SIMULATION  =================================== */
-//const trains = [];          // active train objects
-let tick = 0;               // global time in seconds
+// Animation data structure: animationData[second] = [{train_id, line_id, lat, lng}, ...]
+let animationData = [];  // Pre-computed animation data
+let animationDuration = 3600; // Default: 1 hour in seconds
+let isGenerating = false;
+let isPlaying = false;
+let currentPlaybackTime = 0;
+let playbackMarkers = []; // Markers for playback mode
+
+let tick = 0;               // global time in seconds (used during generation)
 let actual_tick = 0;       //how many ticks actually happened
 let refreshcoords = 0; //whether or not to update coordinates on the map
 let lastrefresh = 0; //last time it refreshed
 
-
 let finishedticks = 0; //seeing how many ticks actually finished
-//let spawnEnabled = true;    // becomes false once first train finishes lap
-//let firstTrainFinished = false;
 
 class Train {
-  constructor(line_id, direction){   // +1 = towards Chai Wan, -1 = towards K-Town
+  constructor(line_id, direction, createMarker = true){   // +1 = towards Chai Wan, -1 = towards K-Town
     this.line_id = line_id;
     this.startDir = direction;   // remember original direction
     this.id   = 'T' + Math.floor(Math.random()*1e6);
@@ -133,19 +137,19 @@ class Train {
     //how many stations it went to. Used for debugging.
     this.visitedstations = 0;
     
-    //doesn't look good. Need to add an image. iconSize doesn't do anything
-    this.marker = L.marker(this.latlng(), {
-      icon: L.divIcon({
-        html:`<div style="
-          background:${lines[this.line_id].line_color};
-          width:20px;height:20px;border-radius:50%;
-          border:2px solid #fff;"></div>  `,
-        iconSize:[0,0], iconAnchor:[10,10]
-      })
-    }).addTo(map);
-    //better if I'm only using a circle
-    /*this.marker = L.circleMarker(this.latlng(), {radius:7, color:'#fff',
-    weight:2, fillColor:line_color, fillOpacity:1}).addTo(map);*/
+    // Only create marker if requested (not needed during generation)
+    this.marker = null;
+    if (createMarker) {
+      this.marker = L.marker(this.latlng(), {
+        icon: L.divIcon({
+          html:`<div style="
+            background:${lines[this.line_id].line_color};
+            width:20px;height:20px;border-radius:50%;
+            border:2px solid #fff;"></div>  `,
+          iconSize:[0,0], iconAnchor:[10,10]
+        })
+      }).addTo(map);
+    }
   }
   latlng(){
     const A = lines[this.line_id].stations[this.idx];
@@ -221,7 +225,11 @@ class Train {
       }
     }
   }
-  remove(){ map.removeLayer(this.marker); }
+  remove(){ 
+    if (this.marker) {
+      map.removeLayer(this.marker); 
+    }
+  }
 }
 
 /* -------------------- time-table builder ------------------------------ */
@@ -261,12 +269,204 @@ function restart(){
     tick = 0;
     lines[i].spawnEnabled = true;
     lines[i].firstTrainFinished = false;
+    lines[i].lastspawn = 0;
   }
 }
 
-/* -------------------- main loop --------------------------------------- */
+function clearPlaybackMarkers(){
+  playbackMarkers.forEach(m => map.removeLayer(m));
+  playbackMarkers = [];
+}
 
+/* -------------------- GENERATION STAGE -------------------------------- */
+function generateAnimation(durationSeconds, onProgress = null){
+  return new Promise((resolve) => {
+    console.log(`Starting generation for ${durationSeconds} seconds...`);
+    isGenerating = true;
+    animationData = [];
+    
+    // Reset simulation state
+    restart();
+    tick = 0;
+    
+    // Ensure TICK_LENGTH is 1 for generation (store original value)
+    const originalTickLength = TICK_LENGTH;
+    TICK_LENGTH = 1;
+    
+    // Initialize arrays for each second
+    for(let s = 0; s <= durationSeconds; s++){
+      animationData[s] = [];
+    }
+    
+    let currentSecond = 0;
+    const CHUNK_SIZE = 100; // Process 100 seconds at a time to avoid blocking
+    
+    function processChunk(){
+      const endSecond = Math.min(currentSecond + CHUNK_SIZE, durationSeconds);
+      
+      for(let second = currentSecond; second < endSecond; second++){
+        // Advance simulation by 1 second
+        tick = second;
+        
+        // Spawn trains
+        for(let i = 0; i < lines.length; i++){
+          if (lines[i].spawnEnabled && tick - lines[i].lastspawn >= lines[i].SPAWN_EVERY){
+            lines[i].lastspawn = tick;
+            lines[i].trains.push(new Train(i, 1, false)); // Don't create markers during generation
+          }
+        }
+        
+        // Step all trains
+        for(let i = 0; i < lines.length; i++){
+          lines[i].trains.forEach(t => t.step());
+        }
+        
+        // Store positions for this second
+        for(let i = 0; i < lines.length; i++){
+          for(let j = 0; j < lines[i].trains.length; j++){
+            const train = lines[i].trains[j];
+            const pos = train.latlng();
+            animationData[second].push({
+              train_id: train.id,
+              line_id: train.line_id,
+              lat: pos[0],
+              lng: pos[1]
+            });
+          }
+        }
+      }
+      
+      currentSecond = endSecond;
+      
+      // Report progress
+      if(onProgress){
+        onProgress(currentSecond, durationSeconds);
+      }
+      
+      // Continue with next chunk or finish
+      if(currentSecond < durationSeconds){
+        // Use setTimeout to allow UI to update
+        setTimeout(processChunk, 0);
+      } else {
+        // Store final state
+        for(let i = 0; i < lines.length; i++){
+          for(let j = 0; j < lines[i].trains.length; j++){
+            const train = lines[i].trains[j];
+            const pos = train.latlng();
+            animationData[durationSeconds].push({
+              train_id: train.id,
+              line_id: train.line_id,
+              lat: pos[0],
+              lng: pos[1]
+            });
+          }
+        }
+        
+        // Restore original TICK_LENGTH
+        TICK_LENGTH = originalTickLength;
+        
+        isGenerating = false;
+        console.log(`Generation complete! Generated ${animationData.length} seconds of data.`);
+        resolve(animationData);
+      }
+    }
+    
+    // Start processing
+    processChunk();
+  });
+}
 
+/* -------------------- PLAYBACK STAGE ----------------------------------- */
+function playAnimationFrame(time){
+  if(!animationData || animationData.length === 0){
+    console.warn("No animation data to play");
+    return;
+  }
+  
+  if(time >= animationData.length){
+    stopPlayback();
+    return;
+  }
+  
+  // Clear existing markers
+  clearPlaybackMarkers();
+  
+  // Create markers for all trains at this time
+  const frame = animationData[time] || [];
+  for(let i = 0; i < frame.length; i++){
+    const train = frame[i];
+    const marker = L.marker([train.lat, train.lng], {
+      icon: L.divIcon({
+        html:`<div style="
+          background:${lines[train.line_id].line_color};
+          width:20px;height:20px;border-radius:50%;
+          border:2px solid #fff;"></div>  `,
+        iconSize:[0,0], iconAnchor:[10,10]
+      })
+    }).addTo(map);
+    playbackMarkers.push(marker);
+  }
+  
+  // Update status display
+  for(let i = 0; i < lines.length; i++){
+    const lineTrains = frame.filter(t => t.line_id === i);
+    const line_span = document.getElementById(`line${i}`);
+    line_span.textContent = `${lines[i].name} Trains ${lineTrains.length}`;
+  }
+  
+  document.getElementById("tickdisplay").textContent = `Playback: ${time}s / ${animationData.length - 1}s`;
+}
+
+let playbackIntervalId = null;
+
+function startPlayback(playbackSpeed = 1){
+  if(isPlaying) return;
+  if(!animationData || animationData.length === 0){
+    alert("Please generate animation data first!");
+    return;
+  }
+  
+  isPlaying = true;
+  currentPlaybackTime = 0;
+  
+  // Play at specified speed (frames per second)
+  const frameInterval = 1000 / playbackSpeed; // milliseconds between frames
+  
+  playbackIntervalId = setInterval(() => {
+    playAnimationFrame(currentPlaybackTime);
+    currentPlaybackTime++;
+    
+    if(currentPlaybackTime >= animationData.length){
+      stopPlayback();
+    }
+  }, frameInterval);
+}
+
+function stopPlayback(){
+  if(playbackIntervalId){
+    clearInterval(playbackIntervalId);
+    playbackIntervalId = null;
+  }
+  isPlaying = false;
+}
+
+function pausePlayback(){
+  if(playbackIntervalId){
+    clearInterval(playbackIntervalId);
+    playbackIntervalId = null;
+  }
+  isPlaying = false;
+}
+
+function resumePlayback(playbackSpeed = 1){
+  if(isPlaying) return;
+  if(currentPlaybackTime >= animationData.length){
+    currentPlaybackTime = 0;
+  }
+  startPlayback(playbackSpeed);
+}
+
+/* -------------------- OLD SIMULATION (kept for reference) ------------- */
 /* ---------- simulation step ---------- */
 function simulate(){
 
@@ -304,7 +504,7 @@ function simulate(){
   finishedticks+= 1;
 }
 
-/* ---------- configurable clock ---------- */
+/* ---------- configurable clock (OLD - kept for reference) ---------- */
 let TICK_RATE = 30;          // sim ticks per real second
 let SIM_MS    = 1000 / TICK_RATE;
 let clockId   = null;
@@ -314,20 +514,84 @@ function startClock(){
   SIM_MS = 1000 / TICK_RATE;
   clockId = setInterval(simulate, SIM_MS);
 }
-document.getElementById('tickRate').addEventListener('input', e=>{
+
+/* ---------- UI Controls for Generation and Playback ---------- */
+// Generation controls
+document.getElementById('generateBtn')?.addEventListener('click', async () => {
+  const duration = parseInt(document.getElementById('animationDuration').value) || 3600;
+  const generateBtn = document.getElementById('generateBtn');
+  const statusDiv = document.getElementById('generationStatus');
+  
+  if(isGenerating){
+    return;
+  }
+  
+  generateBtn.disabled = true;
+  generateBtn.textContent = 'Generating...';
+  statusDiv.textContent = 'Starting generation...';
+  
+  try {
+    await generateAnimation(duration, (current, total) => {
+      statusDiv.textContent = `Generating... ${current}/${total} seconds (${Math.round(current/total*100)}%)`;
+    });
+    
+    generateBtn.disabled = false;
+    generateBtn.textContent = 'Generate Animation';
+    statusDiv.textContent = `Generation complete! ${animationData.length} seconds of data ready.`;
+    
+    // Enable playback controls
+    document.getElementById('playBtn').disabled = false;
+    document.getElementById('pauseBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = false;
+  } catch(e) {
+    console.error('Generation error:', e);
+    statusDiv.textContent = 'Generation failed: ' + e.message;
+    generateBtn.disabled = false;
+    generateBtn.textContent = 'Generate Animation';
+  }
+});
+
+// Playback controls
+document.getElementById('playBtn')?.addEventListener('click', () => {
+  const speed = parseFloat(document.getElementById('playbackSpeed').value) || 1;
+  startPlayback(speed);
+});
+
+document.getElementById('pauseBtn')?.addEventListener('click', () => {
+  pausePlayback();
+});
+
+document.getElementById('stopBtn')?.addEventListener('click', () => {
+  stopPlayback();
+  clearPlaybackMarkers();
+  currentPlaybackTime = 0;
+  document.getElementById("tickdisplay").textContent = 'Stopped';
+});
+
+document.getElementById('playbackSpeed')?.addEventListener('input', e => {
+  const speed = parseFloat(e.target.value);
+  document.getElementById('playbackSpeedLbl').textContent = speed;
+  if(isPlaying){
+    pausePlayback();
+    resumePlayback(speed);
+  }
+});
+
+// Old controls (kept for compatibility, but disabled by default)
+document.getElementById('tickRate')?.addEventListener('input', e=>{
   TICK_RATE = +e.target.value;
   document.getElementById('tickRateLbl').textContent = TICK_RATE;
-  startClock();
+  // startClock(); // Disabled - using new generation/playback system
 });
 
-document.getElementById('tickTime').addEventListener('input', e=>{
+document.getElementById('tickTime')?.addEventListener('input', e=>{
   TICK_LENGTH = +e.target.value;
   document.getElementById('tickTimeLbl').textContent = TICK_LENGTH;
-  startClock();
+  // startClock(); // Disabled - using new generation/playback system
 });
 
-/* ---------- initial kick-off ---------- */
+/* ---------- initial setup ---------- */
 restart();   // sets tick=0, clears trains, etc.
-startClock();
+// startClock(); // Disabled - using new generation/playback system
 /* ======================================================================= */
 /* ======================================================================= */
