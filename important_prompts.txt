@@ -6,3 +6,5 @@ Next, I'm gonna add a moving train system. To do this, I'm gonna use "ticks" to 
 
 Due to performance issues, I need a major overhaul. From now, the generation and playing of the animation will be seperate steps. In the generation stage, the code will generate an array storing the positions of each train every second for a fixed period of time. During the playing stage, the code will play the moving positions. 
 Also, since the amount of time needed to move/dwell at each stop is fixed, make it so that the trains spawn all in the beginning, spaced apart by x seconds where x is the train frequency. Make a function to calculate a train's position based on the time and offset and spawn the trains into their positions in the beginning. 
+
+Make it so that lines are composed of one or more branches. Each branch keeps the same color as the line. However, it can take a different route and a different frequency. It also spawns it's own trains. Finally, make it so that an "offset time" can be added to branches, so that they begin spawning trains earlier or later than other branches. For existing lines, make the current line the only branch.

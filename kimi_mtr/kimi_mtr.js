@@ -9,13 +9,18 @@ let accel_func = [0.0002380952381,0.0009523809524,0.002142857143,0.00380952381,0
 /* =========  CONFIGURATION  ============================================= */
 //run = seconds from station i to station i + 1
 //dwell = seconds stopped at station i
+// Lines are composed of branches. Each branch can have different routes, frequencies, and offset times.
 let lines = [
   {
     line_id: 0,
     name: "Island Line",
-    SPAWN_EVERY: 114,
     line_color: "#0860a8",
-    stations:[
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 114,
+        offset_time: 0, // seconds offset for when to start spawning
+        stations: [
     {name:"Kennedy Town", lat:22.2810, lng:114.1289, run:80, dwell:120},
     {name:"HKU", lat:22.2840, lng:114.1350, run:80, dwell:30},
     {name:"Sai Ying Pun", lat:22.2860, lng:114.1430, run:90, dwell:30},
@@ -33,68 +38,175 @@ let lines = [
     {name:"Shau Kei Wan", lat:22.2790, lng:114.2290, run:80, dwell:30},
     {name:"Heng Fa Chuen", lat:22.2770, lng:114.2390, run:120, dwell:30},
     {name:"Chai Wan", lat:22.2650, lng:114.2370, run:1, dwell:120}
+        ]
+      }
     ]
   },
   {
     line_id: 1,
     name: "South Island Line",
-    SPAWN_EVERY: 198,
     line_color: "#bac429",
-    stations:[
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 198,
+        offset_time: 0,
+        stations: [
     {name:"Admiralty", lat:22.2790, lng:114.1650, run:270, dwell:120},
     {name:"Ocean Park", lat:22.2486, lng:114.1742, run:90, dwell:30},
     {name:"Wong Chuk Hang", lat:22.2481, lng:114.1681, run:90, dwell:30},
     {name:"Lei Tung", lat:22.2422, lng:114.1561, run:90, dwell:30},
     {name:"South Horizons", lat:22.2425, lng:114.1492, run:90, dwell:120},
+        ]
+      }
     ]
   },
   {
     line_id: 2,
     name: "Disneyland Resort Line",
-    SPAWN_EVERY: 300,
     line_color: "#f173ac",
-    stations:[
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 300,
+        offset_time: 0,
+        stations: [
     {name:"Sunny Bay", lat:22.3317, lng:114.0289, run:210, dwell:90},
     {name:"Disneyland Resort", lat:22.3156, lng:114.0450, run:90, dwell:90},
+        ]
+      }
     ]
   },
   {
     line_id: 3,
     name: "Tseung Kwan O line",
-    SPAWN_EVERY: 132,
     line_color: "#7d499d",
-    stations:[
-    {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
-    {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
-    {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
-    {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
-    {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:90, dwell:30},
-    {name:"Hang Hau", lat:22.3156, lng:114.2644, run:90, dwell:30},
-    {name:"Po Lam", lat:22.3225, lng:114.2581, run:90, dwell:90},
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 396,
+        offset_time: 0,
+        stations: [
+          {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
+          {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
+          {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:90, dwell:30},
+          {name:"Hang Hau", lat:22.3156, lng:114.2644, run:90, dwell:30},
+          {name:"Po Lam", lat:22.3225, lng:114.2581, run:90, dwell:90},
+        ]
+      },
+      {
+        branch_id: 1,
+        SPAWN_EVERY: 396,
+        offset_time: 132,
+        stations: [
+          {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
+          {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
+          {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:90, dwell:30},
+          {name:"Hang Hau", lat:22.3156, lng:114.2644, run:90, dwell:30},
+          {name:"Po Lam", lat:22.3225, lng:114.2581, run:90, dwell:90},
+        ]
+      },
+      {
+        branch_id: 2,
+        SPAWN_EVERY: 396,
+        offset_time: 264,
+        stations: [
+          {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
+          {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
+          {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:90, dwell:30},
+          {name:"LOHAS Park", lat:22.2958, lng:114.2689, run:150, dwell:120},
+        ]
+      }
     ]
   },
   {
     line_id: 4,
     name: "Tsuen Wan Line",
-    SPAWN_EVERY: 126,
     line_color: "#ed1d24",
-    stations:[
-    {name:"Central", lat:22.2819, lng:114.1575, run:90, dwell:90},
-    {name:"Admiralty", lat:22.2789, lng:114.1647, run:150, dwell:30},
-    {name:"Tsim Sha Tsui", lat:22.2972, lng:114.1722, run:150, dwell:30},
-    {name:"Jordan", lat:22.3050, lng:114.1717, run:90, dwell:30},
-    {name:"Yau Ma Tei", lat:22.3128, lng:114.1708, run:90, dwell:30},
-    {name:"Mong Kok", lat:22.3192, lng:114.1694, run:90, dwell:30},
-    {name:"Prince Edward", lat:22.3244, lng:114.1683, run:90, dwell:30},
-    {name:"Sham Shui Po", lat:22.3308, lng:114.1622, run:90, dwell:30},
-    {name:"Cheung Sha Wan", lat:22.3353, lng:114.1564, run:90, dwell:30},
-    {name:"Lai Chi Kok", lat:22.3372, lng:114.1483, run:90, dwell:30},
-    {name:"Mei Foo", lat:22.3381, lng:114.1375, run:90, dwell:30},
-    {name:"Lai King", lat:22.3483, lng:114.1261, run:90, dwell:30},
-    {name:"Kuai Fong", lat:22.3569, lng:114.1278, run:90, dwell:30},
-    {name:"Kuai Hing", lat:22.3633, lng:114.1311, run:90, dwell:30},
-    {name:"Tai Wo Hau", lat:22.3708, lng:114.1250, run:90, dwell:30},
-    {name:"Tsuen Wan", lat:22.3736, lng:114.1178, run:120, dwell:90},
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 126,
+        offset_time: 0,
+        stations: [
+          {name:"Central", lat:22.2819, lng:114.1575, run:90, dwell:90},
+          {name:"Admiralty", lat:22.2789, lng:114.1647, run:150, dwell:30},
+          {name:"Tsim Sha Tsui", lat:22.2972, lng:114.1722, run:150, dwell:30},
+          {name:"Jordan", lat:22.3050, lng:114.1717, run:90, dwell:30},
+          {name:"Yau Ma Tei", lat:22.3128, lng:114.1708, run:90, dwell:30},
+          {name:"Mong Kok", lat:22.3192, lng:114.1694, run:90, dwell:30},
+          {name:"Prince Edward", lat:22.3244, lng:114.1683, run:90, dwell:30},
+          {name:"Sham Shui Po", lat:22.3308, lng:114.1622, run:90, dwell:30},
+          {name:"Cheung Sha Wan", lat:22.3353, lng:114.1564, run:90, dwell:30},
+          {name:"Lai Chi Kok", lat:22.3372, lng:114.1483, run:90, dwell:30},
+          {name:"Mei Foo", lat:22.3381, lng:114.1375, run:90, dwell:30},
+          {name:"Lai King", lat:22.3483, lng:114.1261, run:90, dwell:30},
+          {name:"Kuai Fong", lat:22.3569, lng:114.1278, run:90, dwell:30},
+          {name:"Kuai Hing", lat:22.3633, lng:114.1311, run:90, dwell:30},
+          {name:"Tai Wo Hau", lat:22.3708, lng:114.1250, run:90, dwell:30},
+          {name:"Tsuen Wan", lat:22.3736, lng:114.1178, run:120, dwell:90},
+        ]
+      }
+    ]
+  },
+  {
+    line_id: 5,
+    name: "Kwun Tong Line",
+    line_color: "#00ab4e",
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 252,
+        offset_time: 0,
+        stations: [
+          {name:"Whampoa", lat:22.3050, lng:114.1897, run:120, dwell:90},
+          {name:"Ho Man Tin", lat:22.3092, lng:114.1828, run:120, dwell:30},
+          {name:"Yau Ma Tei", lat:22.3128, lng:114.1708, run:90, dwell:30},
+          {name:"Mong Kok", lat:22.3192, lng:114.1694, run:90, dwell:30},
+          {name:"Prince Edward", lat:22.3244, lng:114.1683, run:90, dwell:30},
+          {name:"Shek Kip Mei", lat:22.3319, lng:114.1686, run:90, dwell:30},
+          {name:"Kowloon Tong", lat:22.3369, lng:114.1761, run:90, dwell:30},
+          {name:"Lok Fu", lat:22.3381, lng:114.1872, run:90, dwell:30},
+          {name:"Wong Tai Sin", lat:22.3417, lng:114.1939, run:90, dwell:30},
+          {name:"Diamond Hill", lat:22.3400, lng:114.2017, run:90, dwell:30},
+          {name:"Choi Hung", lat:22.3348, lng:114.2089, run:90, dwell:30},
+          {name:"Kowloon Bay", lat:22.3236, lng:114.2142, run:90, dwell:30},
+          {name:"Ngau Tau Kok", lat:22.3153, lng:114.2192, run:90, dwell:30},
+          {name:"Kwun Tong", lat:22.3122, lng:114.2264, run:90, dwell:30},
+          {name:"Lam Tin", lat:22.3067, lng:114.2331, run:90, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:90},
+        ]
+      },
+      {
+        branch_id: 1,
+        SPAWN_EVERY: 252,
+        offset_time: 0,
+        stations: [
+          {name:"Ho Man Tin", lat:22.3092, lng:114.1828, run:120, dwell:90},
+          {name:"Yau Ma Tei", lat:22.3128, lng:114.1708, run:90, dwell:30},
+          {name:"Mong Kok", lat:22.3192, lng:114.1694, run:90, dwell:30},
+          {name:"Prince Edward", lat:22.3244, lng:114.1683, run:90, dwell:30},
+          {name:"Shek Kip Mei", lat:22.3319, lng:114.1686, run:90, dwell:30},
+          {name:"Kowloon Tong", lat:22.3369, lng:114.1761, run:90, dwell:30},
+          {name:"Lok Fu", lat:22.3381, lng:114.1872, run:90, dwell:30},
+          {name:"Wong Tai Sin", lat:22.3417, lng:114.1939, run:90, dwell:30},
+          {name:"Diamond Hill", lat:22.3400, lng:114.2017, run:90, dwell:30},
+          {name:"Choi Hung", lat:22.3348, lng:114.2089, run:90, dwell:30},
+          {name:"Kowloon Bay", lat:22.3236, lng:114.2142, run:90, dwell:30},
+          {name:"Ngau Tau Kok", lat:22.3153, lng:114.2192, run:90, dwell:30},
+          {name:"Kwun Tong", lat:22.3122, lng:114.2264, run:90, dwell:30},
+          {name:"Lam Tin", lat:22.3067, lng:114.2331, run:90, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:90},
+        ]
+      }
     ]
   },
 ];
@@ -108,6 +220,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 /* draw static line */
+let allLineCoords = [];
 for(let i = 0; i < lines.length; i++){
   //top display thing
   line_span = document.createElement('span');
@@ -115,22 +228,30 @@ for(let i = 0; i < lines.length; i++){
   document.getElementById('status').appendChild(line_span);
   document.getElementById('status').appendChild(document.createElement("br"));
 
-  const lineCoords = lines[i].stations.map(s=>[s.lat, s.lng]);
-  L.polyline(lineCoords, {color:lines[i].line_color, weight:2}).addTo(map);
+  // Draw each branch
+  lines[i].branches = lines[i].branches || [];
+  for(let b = 0; b < lines[i].branches.length; b++){
+    const branch = lines[i].branches[b];
+    const branchCoords = branch.stations.map(s=>[s.lat, s.lng]);
+    L.polyline(branchCoords, {color:lines[i].line_color, weight:2}).addTo(map);
+    allLineCoords.push(...branchCoords);
 
-  lines[i].stations.forEach(s=>{
+    branch.stations.forEach(s=>{
     L.circleMarker([s.lat, s.lng], {radius:3, color:'#fff',
       weight:2, fillColor:lines[i].line_color, fillOpacity:1}).addTo(map);
   });
 
-  //set variables that they all have
-  lines[i].trains = [];
-  lines[i].spawnEnabled = true
-  lines[i].firstTrainFinished = false;
-  lines[i].lastspawn = 0;
+    //set variables for each branch
+    branch.trains = [];
+    branch.spawnEnabled = true;
+    branch.firstTrainFinished = false;
+    branch.lastspawn = 0;
+  }
 
   //draw
-  map.fitBounds(L.latLngBounds(lineCoords), {padding:[50,50]});
+  if(allLineCoords.length > 0){
+    map.fitBounds(L.latLngBounds(allLineCoords), {padding:[50,50]});
+  }
 }
 
 
@@ -142,7 +263,7 @@ for(let i = 0; i < lines.length; i++){
 /* =====================  SIMULATION  =================================== */
 // Animation data structure: animationData[second] = [{train_id, line_id, lat, lng}, ...]
 let animationData = [];  // Pre-computed animation data
-let animationDuration = 3600; // Default: 1 hour in seconds
+let animationDuration = 10000; // Default: 1 hour in seconds
 let isGenerating = false;
 let isPlaying = false;
 let currentPlaybackTime = 0;
@@ -156,16 +277,22 @@ let lastrefresh = 0; //last time it refreshed
 let finishedticks = 0; //seeing how many ticks actually finished
 
 class Train {
-  constructor(line_id, direction, createMarker = true){   // +1 = towards Chai Wan, -1 = towards K-Town
+  constructor(line_id, branch_id, direction, createMarker = true){   // +1 = forward, -1 = backward
     this.line_id = line_id;
+    this.branch_id = branch_id;
     this.startDir = direction;   // remember original direction
     this.id   = 'T' + Math.floor(Math.random()*1e6);
     this.dir  = direction;
+    
+    // Get the branch
+    const branch = lines[this.line_id].branches[this.branch_id];
+    const stations = branch.stations;
+    
     //idx is the station it started from. 
     //If the direction = 1, then it is the smaller numbered station.
-    //If the direction = 0, then it is the larger numbered station.
+    //If the direction = -1, then it is the larger numbered station.
     //If it is stopped, then it is the current station.
-    this.idx  = direction===1 ? 0 : lines[this.line_id].stations.length-1; // start at terminus - can be just 0
+    this.idx  = direction===1 ? 0 : stations.length-1; // start at terminus
     this.segmentProgress = 0; // seconds into current leg
     //whether the train is moving/dwelling. It should start moving.
     this.movingstate = 1;
@@ -179,28 +306,38 @@ class Train {
     // Only create marker if requested (not needed during generation)
     this.marker = null;
     if (createMarker) {
-      this.marker = L.marker(this.latlng(), {
-        icon: L.divIcon({
-          html:`<div style="
-            background:${lines[this.line_id].line_color};
-            width:20px;height:20px;border-radius:50%;
-            border:2px solid #fff;"></div>  `,
-          iconSize:[0,0], iconAnchor:[10,10]
-        })
-      }).addTo(map);
+    this.marker = L.marker(this.latlng(), {
+      icon: L.divIcon({
+        html:`<div style="
+          background:${lines[this.line_id].line_color};
+          width:20px;height:20px;border-radius:50%;
+          border:2px solid #fff;"></div>  `,
+        iconSize:[0,0], iconAnchor:[10,10]
+      })
+    }).addTo(map);
     }
   }
+  
+  getBranch(){
+    return lines[this.line_id].branches[this.branch_id];
+  }
+  
+  getStations(){
+    return this.getBranch().stations;
+  }
+  
   latlng(){
-    const A = lines[this.line_id].stations[this.idx];
+    const stations = this.getStations();
+    const A = stations[this.idx];
     if (!A) {
-      console.error(`Invalid station index ${this.idx} for line ${this.line_id}`);
+      console.error(`Invalid station index ${this.idx} for line ${this.line_id}, branch ${this.branch_id}`);
       return [22.28, 114.18]; // Default fallback position
     }
-    const B = lines[this.line_id].stations[this.idx + this.dir];
+    const B = stations[this.idx + this.dir];
     if (!B) return [A.lat, A.lng]; // terminus
     
     const stationIdx = this.dir === 1 ? this.idx : (this.idx - 1);
-    const runTime = lines[this.line_id].stations[stationIdx]?.run;
+    const runTime = stations[stationIdx]?.run;
     if (!runTime || runTime === 0) {
       return [A.lat, A.lng]; // Fallback if run time is invalid
     }
@@ -217,9 +354,12 @@ class Train {
     ];
   }
   step(){ // advance by 1 tick
+    const stations = this.getStations();
+    const branch = this.getBranch();
+    
     //when direction = 1, it is idx. When direction = -1, it is idx - 1.
-    const leg = lines[this.line_id].stations[this.dir===1?this.idx:(this.idx - 1)].run;
-    const dwell = lines[this.line_id].stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
+    const leg = stations[this.dir===1?this.idx:(this.idx - 1)].run;
+    const dwell = stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
     if(this.movingstate == 1){
       if (this.segmentProgress < leg){               // still running
         this.segmentProgress+=TICK_LENGTH;
@@ -230,23 +370,23 @@ class Train {
         //this.arrivalTick = tick;
         // turnaround at termini
         // ---------- turn-around at termini ----------
-        if (this.idx === 0 || this.idx === lines[this.line_id].stations.length-1){
+        if (this.idx === 0 || this.idx === stations.length-1){
           this.dir *= -1;                 // reverse
           //this.arrivalTick = tick;        // mark arrival for dwell calculation
           // -- loop-completion logic (see #2) --
           if (this.dir === this.startDir){
-            if (!lines[this.line_id].firstTrainFinished){ 
-              lines[this.line_id].firstTrainFinished = true; 
+            if (!branch.firstTrainFinished){ 
+              branch.firstTrainFinished = true; 
               /*
-              lines[this.line_id].spawnEnabled=false; 
+              branch.spawnEnabled=false; 
               //delete the last train as 2 trains will look close together.
-              lines[this.line_id].trains[lines[this.line_id].trains.length-1].marker.remove();
-              lines[this.line_id].trains.pop();
+              branch.trains[branch.trains.length-1].marker.remove();
+              branch.trains.pop();
               */
             }
           }
           /*
-          if (this.dir === -1 && this.idx === lines[this.line_id].stations.length-1){ // finished CCW loop
+          if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
             if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
           }
           */
@@ -267,14 +407,14 @@ class Train {
         this.visitedstations++;
         this.movingstate = 1;
         // -- loop-completion logic (see #2) --
-        if (lines[this.line_id].firstTrainFinished && lines[this.line_id].spawnEnabled){
-          lines[this.line_id].spawnEnabled=false; 
+        if (branch.firstTrainFinished && branch.spawnEnabled){
+          branch.spawnEnabled=false; 
           //delete the last train as 2 trains will look close together.
-          const lastTrain = lines[this.line_id].trains[lines[this.line_id].trains.length-1];
+          const lastTrain = branch.trains[branch.trains.length-1];
           if(lastTrain && lastTrain.marker){
             lastTrain.marker.remove();
           }
-          lines[this.line_id].trains.pop();
+          branch.trains.pop();
         }
         this.segmentProgress = this.dwellProgress - dwell;
       }
@@ -290,26 +430,30 @@ class Train {
 /* -------------------- time-table builder ------------------------------ */
 function buildTables(){
   for(let j = 0; j < lines.length; j++){
+    const line = lines[j];
+    for(let b = 0; b < line.branches.length; b++){
+      const branch = line.branches[b];
     const wrap = (arr, title) => {
       const tbl = document.createElement('table');
       tbl.innerHTML = `<caption>${title}</caption>` +
-        arr.map((v,i)=>`<tr><td>${lines[0].stations[i].name||'leg '+i}</td>
+          arr.map((v,i)=>`<tr><td>${branch.stations[i].name||'leg '+i}</td>
           <td><input data-array="${title}" data-idx="${i}" type="number"
                      min="5" max="600" value="${v}" style="width:60px;"></td></tr>`).join('');
       return tbl;
     };
     const div = document.createElement("div");
-    div.innerHTML = '';
+      div.innerHTML = `<strong>${line.name} - Branch ${b + 1}</strong>`;
     //turn station run into a list
     let RUNNING = [];
     let DWELL = [];
-    for(let i = 0; i < lines[j].stations.length; i++){
-      RUNNING[i] = lines[j].stations[i].run;
-      DWELL[i] = lines[j].stations[i].dwell;
+      for(let i = 0; i < branch.stations.length; i++){
+        RUNNING[i] = branch.stations[i].run;
+        DWELL[i] = branch.stations[i].dwell;
     }
     div.appendChild(wrap(RUNNING, 'Running'));
     div.appendChild(wrap(DWELL, 'Dwell'));
     document.getElementById('timeTables').appendChild(div);
+    }
   }
 }
 buildTables();
@@ -319,13 +463,17 @@ buildTables();
 
 function restart(){
   for(let i = 0; i < lines.length; i++){
-    lines[i].trains.forEach(t=>t.remove());
-    lines[i].trains.length = 0;
-    tick = 0;
-    lines[i].spawnEnabled = true;
-    lines[i].firstTrainFinished = false;
-    lines[i].lastspawn = 0;
+    const line = lines[i];
+    for(let b = 0; b < line.branches.length; b++){
+      const branch = line.branches[b];
+      branch.trains.forEach(t=>t.remove());
+      branch.trains.length = 0;
+      branch.spawnEnabled = true;
+      branch.firstTrainFinished = false;
+      branch.lastspawn = 0;
+    }
   }
+  tick = 0;
 }
 
 function clearPlaybackMarkers(){
@@ -364,39 +512,54 @@ function generateAnimation(durationSeconds, onProgress = null){
           // Advance simulation by 1 second
           tick = second;
           
-          // Spawn trains
+          // Spawn trains for each branch (with offset time)
           for(let i = 0; i < lines.length; i++){
-            if (lines[i].spawnEnabled && tick - lines[i].lastspawn >= lines[i].SPAWN_EVERY){
-              lines[i].lastspawn = tick;
-              lines[i].trains.push(new Train(i, 1, false)); // Don't create markers during generation
+            const line = lines[i];
+            for(let b = 0; b < line.branches.length; b++){
+              const branch = line.branches[b];
+              // Account for offset_time: only spawn if current time >= offset
+              const effectiveTime = tick - branch.offset_time;
+              if (effectiveTime >= 0 && branch.spawnEnabled && effectiveTime - branch.lastspawn >= branch.SPAWN_EVERY){
+                branch.lastspawn = effectiveTime;
+                branch.trains.push(new Train(i, b, 1, false)); // Don't create markers during generation
+              }
             }
           }
           
-          // Step all trains
+          // Step all trains from all branches
           for(let i = 0; i < lines.length; i++){
-            lines[i].trains.forEach(t => {
-              try {
-                t.step();
-              } catch(e) {
-                console.error(`Error stepping train ${t.id} at second ${second}:`, e);
-              }
-            });
+            const line = lines[i];
+            for(let b = 0; b < line.branches.length; b++){
+              const branch = line.branches[b];
+              branch.trains.forEach(t => {
+                try {
+                  t.step();
+                } catch(e) {
+                  console.error(`Error stepping train ${t.id} at second ${second}:`, e);
+                }
+              });
+            }
           }
           
           // Store positions for this second
           for(let i = 0; i < lines.length; i++){
-            for(let j = 0; j < lines[i].trains.length; j++){
-              const train = lines[i].trains[j];
-              try {
-                const pos = train.latlng();
-                animationData[second].push({
-                  train_id: train.id,
-                  line_id: train.line_id,
-                  lat: pos[0],
-                  lng: pos[1]
-                });
-              } catch(e) {
-                console.error(`Error getting position for train ${train.id} at second ${second}:`, e);
+            const line = lines[i];
+            for(let b = 0; b < line.branches.length; b++){
+              const branch = line.branches[b];
+              for(let j = 0; j < branch.trains.length; j++){
+                const train = branch.trains[j];
+                try {
+                  const pos = train.latlng();
+                  animationData[second].push({
+                    train_id: train.id,
+                    line_id: train.line_id,
+                    branch_id: train.branch_id,
+                    lat: pos[0],
+                    lng: pos[1]
+                  });
+                } catch(e) {
+                  console.error(`Error getting position for train ${train.id} at second ${second}:`, e);
+                }
               }
             }
           }
@@ -416,18 +579,23 @@ function generateAnimation(durationSeconds, onProgress = null){
         } else {
           // Store final state
           for(let i = 0; i < lines.length; i++){
-            for(let j = 0; j < lines[i].trains.length; j++){
-              const train = lines[i].trains[j];
-              try {
-                const pos = train.latlng();
-                animationData[durationSeconds].push({
-                  train_id: train.id,
-                  line_id: train.line_id,
-                  lat: pos[0],
-                  lng: pos[1]
-                });
-              } catch(e) {
-                console.error(`Error getting final position for train ${train.id}:`, e);
+            const line = lines[i];
+            for(let b = 0; b < line.branches.length; b++){
+              const branch = line.branches[b];
+              for(let j = 0; j < branch.trains.length; j++){
+                const train = branch.trains[j];
+                try {
+                  const pos = train.latlng();
+                  animationData[durationSeconds].push({
+                    train_id: train.id,
+                    line_id: train.line_id,
+                    branch_id: train.branch_id,
+                    lat: pos[0],
+                    lng: pos[1]
+                  });
+                } catch(e) {
+                  console.error(`Error getting final position for train ${train.id}:`, e);
+                }
               }
             }
           }
