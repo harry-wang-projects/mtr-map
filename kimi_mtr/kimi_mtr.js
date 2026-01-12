@@ -52,7 +52,7 @@ let lines = [
         SPAWN_EVERY: 198,
         offset_time: 0,
         stations: [
-    {name:"Admiralty", lat:22.2790, lng:114.1650, run:270, dwell:120},
+    {name:"Admiralty", lat:22.2790, lng:114.1650, run:270, dwell:120, checkpoints: [{lat:22.2748, lng:114.1629, progresss: 0.15}, {lat:22.2523, lng:114.1771, progresss: 0.9}]},
     {name:"Ocean Park", lat:22.2486, lng:114.1742, run:90, dwell:30},
     {name:"Wong Chuk Hang", lat:22.2481, lng:114.1681, run:90, dwell:30},
     {name:"Lei Tung", lat:22.2422, lng:114.1561, run:90, dwell:30},
@@ -71,7 +71,7 @@ let lines = [
         SPAWN_EVERY: 300,
         offset_time: 0,
         stations: [
-    {name:"Sunny Bay", lat:22.3317, lng:114.0289, run:210, dwell:90},
+    {name:"Sunny Bay", lat:22.3317, lng:114.0289, run:210, dwell:90, checkpoints: [{lat:22.3332, lng:114.0316, progresss: 0.1}, {lat:22.3306, lng:114.0355, progresss: 0.25}, {lat:22.3173, lng:114.0374, progresss: 0.8}]},
     {name:"Disneyland Resort", lat:22.3156, lng:114.0450, run:90, dwell:90},
         ]
       }
@@ -89,7 +89,7 @@ let lines = [
         stations: [
           {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
           {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
-          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
           {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
           {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:90, dwell:30},
           {name:"Hang Hau", lat:22.3156, lng:114.2644, run:90, dwell:30},
@@ -103,7 +103,7 @@ let lines = [
         stations: [
           {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
           {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
-          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
           {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
           {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:90, dwell:30},
           {name:"Hang Hau", lat:22.3156, lng:114.2644, run:90, dwell:30},
@@ -117,10 +117,10 @@ let lines = [
         stations: [
           {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
           {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
-          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
           {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
-          {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:90, dwell:30},
-          {name:"LOHAS Park", lat:22.2958, lng:114.2689, run:150, dwell:120},
+          {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:150, dwell:30,  checkpoints: [{lat:22.3105, lng:114.2689, progresss: 0.3}, {lat:22.3021, lng:114.2750, progresss: 0.7}]},
+          {name:"LOHAS Park", lat:22.2958, lng:114.2689, run:90, dwell:120},
         ]
       }
     ]
@@ -136,7 +136,7 @@ let lines = [
         offset_time: 0,
         stations: [
           {name:"Central", lat:22.2819, lng:114.1575, run:90, dwell:90},
-          {name:"Admiralty", lat:22.2789, lng:114.1647, run:150, dwell:30, checkpoints: [{lat:22.2798, lng:114.1701, progresss: 0.2}]},
+          {name:"Admiralty", lat:22.2789, lng:114.1647, run:150, dwell:30, checkpoints: [{lat:22.2832, lng:114.1713, progresss: 0.4}]},
           {name:"Tsim Sha Tsui", lat:22.2972, lng:114.1722, run:150, dwell:30},
           {name:"Jordan", lat:22.3050, lng:114.1717, run:90, dwell:30},
           {name:"Yau Ma Tei", lat:22.3128, lng:114.1708, run:90, dwell:30},
@@ -180,7 +180,7 @@ let lines = [
           {name:"Ngau Tau Kok", lat:22.3153, lng:114.2192, run:90, dwell:30},
           {name:"Kwun Tong", lat:22.3122, lng:114.2264, run:90, dwell:30},
           {name:"Lam Tin", lat:22.3067, lng:114.2331, run:90, dwell:30},
-          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
           {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:90},
         ]
       },
@@ -203,7 +203,7 @@ let lines = [
           {name:"Ngau Tau Kok", lat:22.3153, lng:114.2192, run:90, dwell:30},
           {name:"Kwun Tong", lat:22.3122, lng:114.2264, run:90, dwell:30},
           {name:"Lam Tin", lat:22.3067, lng:114.2331, run:90, dwell:30},
-          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
           {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:90},
         ]
       }
