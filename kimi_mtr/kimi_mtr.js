@@ -136,7 +136,7 @@ let lines = [
         offset_time: 0,
         stations: [
           {name:"Central", lat:22.2819, lng:114.1575, run:90, dwell:90},
-          {name:"Admiralty", lat:22.2789, lng:114.1647, run:150, dwell:30},
+          {name:"Admiralty", lat:22.2789, lng:114.1647, run:150, dwell:30, checkpoints: [{lat:22.2798, lng:114.1701, progresss: 0.2}]},
           {name:"Tsim Sha Tsui", lat:22.2972, lng:114.1722, run:150, dwell:30},
           {name:"Jordan", lat:22.3050, lng:114.1717, run:90, dwell:30},
           {name:"Yau Ma Tei", lat:22.3128, lng:114.1708, run:90, dwell:30},
@@ -232,14 +232,55 @@ for(let i = 0; i < lines.length; i++){
   lines[i].branches = lines[i].branches || [];
   for(let b = 0; b < lines[i].branches.length; b++){
     const branch = lines[i].branches[b];
-    const branchCoords = branch.stations.map(s=>[s.lat, s.lng]);
+    
+    // Build coordinates array including checkpoints
+    const branchCoords = [];
+    for(let s = 0; s < branch.stations.length; s++){
+      const station = branch.stations[s];
+      // Add station
+      branchCoords.push([station.lat, station.lng]);
+      
+      // Add checkpoints between this station and next (if going forward)
+      if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
+        // Sort checkpoints by progress (handle typo: progresss)
+        const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+          const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
+          const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
+          return progA - progB;
+        });
+        
+        sortedCheckpoints.forEach(cp => {
+          branchCoords.push([cp.lat, cp.lng]);
+        });
+      }
+    }
+    
     L.polyline(branchCoords, {color:lines[i].line_color, weight:2}).addTo(map);
     allLineCoords.push(...branchCoords);
 
     branch.stations.forEach(s=>{
-    L.circleMarker([s.lat, s.lng], {radius:3, color:'#fff',
-      weight:2, fillColor:lines[i].line_color, fillOpacity:1}).addTo(map);
-  });
+      // Draw station
+      L.circleMarker([s.lat, s.lng], {
+        radius: 3, 
+        color: '#fff',
+        weight: 2, 
+        fillColor: lines[i].line_color, 
+        fillOpacity: 1
+      }).addTo(map);
+      
+      // Draw checkpoints for this station (forward direction: between this station and next)
+      if(s.checkpoints && Array.isArray(s.checkpoints)){
+        s.checkpoints.forEach(cp => {
+          L.circleMarker([cp.lat, cp.lng], {
+            radius: 2, 
+            color: lines[i].line_color,
+            weight: 1, 
+            fillColor: lines[i].line_color, 
+            fillOpacity: 0.5
+          }).addTo(map);
+        });
+      }
+    });
 
     //set variables for each branch
     branch.trains = [];
@@ -342,12 +383,87 @@ class Train {
       return [A.lat, A.lng]; // Fallback if run time is invalid
     }
     
+    // Calculate progress using accel_func (between stations, not checkpoints)
     const time_progress = this.segmentProgress / runTime;
     let prog_floor = Math.floor(time_progress * 100);
     let prog_ceil = Math.min(Math.floor(time_progress * 100) + 1, accel_func.length - 1);
     prog_floor = Math.max(0, Math.min(prog_floor, accel_func.length - 1));
     
     const f = accel_func[prog_floor] + (accel_func[prog_ceil] - accel_func[prog_floor]) * (time_progress * 100 - prog_floor); 
+    
+    // Get checkpoints for the current segment
+    // Forward: station[i].checkpoints = checkpoints between station[i] and station[i+1]
+    // Backward: use checkpoints from station with lower id (station[i-1].checkpoints)
+    let checkpoints = [];
+    if(this.dir === 1){
+      // Forward: checkpoints are in the current station's array (between A and B)
+      checkpoints = (A.checkpoints || []).map(cp => ({
+        lat: cp.lat,
+        lng: cp.lng,
+        progress: cp.progress !== undefined ? cp.progress : (cp.progresss !== undefined ? cp.progresss : 0) // Handle typo
+      }));
+      // Sort by progress
+      checkpoints.sort((a, b) => a.progress - b.progress);
+    } else {
+      // Backward: use checkpoints from station with lower id (B, which is station[i-1])
+      // B's checkpoints are stored for forward direction (between B and A)
+      // So we reverse them and invert progress values
+      checkpoints = (B.checkpoints || []).map(cp => ({
+        lat: cp.lat,
+        lng: cp.lng,
+        progress: cp.progress !== undefined ? cp.progress : (cp.progresss !== undefined ? cp.progresss : 0) // Handle typo
+      }));
+      // Reverse the checkpoints array and invert progress values for backward direction
+      // Progress is in reverse: 0.2 forward becomes 0.8 backward
+      checkpoints = checkpoints.reverse().map(cp => ({
+        ...cp,
+        progress: 1 - cp.progress
+      }));
+    }
+    
+    // If there are checkpoints, find which segment we're in
+    if(checkpoints.length > 0){
+      // Find the checkpoint segment we're currently in
+      let prevPoint = {lat: A.lat, lng: A.lng, progress: 0};
+      let nextPoint = {lat: B.lat, lng: B.lng, progress: 1};
+      
+      // Find checkpoints before and after current progress
+      for(let i = 0; i < checkpoints.length; i++){
+        const cp = checkpoints[i];
+        if(cp.progress <= f){
+          prevPoint = cp;
+        }
+        if(cp.progress > f && nextPoint.progress === 1){
+          nextPoint = cp;
+          break;
+        }
+      }
+      
+      // If we're between checkpoints, interpolate between them
+      if(prevPoint.progress < f && f < nextPoint.progress){
+        const segmentProgress = (f - prevPoint.progress) / (nextPoint.progress - prevPoint.progress);
+        return [
+          prevPoint.lat + (nextPoint.lat - prevPoint.lat) * segmentProgress,
+          prevPoint.lng + (nextPoint.lng - prevPoint.lng) * segmentProgress
+        ];
+      } else if(f <= prevPoint.progress && prevPoint.progress > 0){
+        // Before first checkpoint, interpolate between station and first checkpoint
+        const segmentProgress = f / prevPoint.progress;
+        return [
+          A.lat + (prevPoint.lat - A.lat) * segmentProgress,
+          A.lng + (prevPoint.lng - A.lng) * segmentProgress
+        ];
+      } else if(f >= nextPoint.progress && nextPoint.progress < 1){
+        // After last checkpoint, interpolate between last checkpoint and station
+        const segmentProgress = (f - nextPoint.progress) / (1 - nextPoint.progress);
+        return [
+          nextPoint.lat + (B.lat - nextPoint.lat) * segmentProgress,
+          nextPoint.lng + (B.lng - nextPoint.lng) * segmentProgress
+        ];
+      }
+    }
+    
+    // No checkpoints or at exact checkpoint position, use standard interpolation
     return [
       A.lat + (B.lat - A.lat)*f,
       A.lng + (B.lng - A.lng)*f
