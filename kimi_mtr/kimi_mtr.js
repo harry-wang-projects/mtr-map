@@ -209,6 +209,60 @@ let lines = [
       }
     ]
   },
+  {
+    line_id: 6,
+    name: "Tung Chung Line",
+    line_color: "#f7943e",
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 360,
+        offset_time: 0,
+        stations: [
+          {name:"Hong Kong", lat:22.2852, lng:114.1581, run:150, dwell:90},
+          {name:"Kowloon", lat:22.3050, lng:114.1614, run:150, dwell:30},
+          {name:"Olympic", lat:22.3178, lng:114.1594, run:90, dwell:30},
+          {name:"Nam Cheong", lat:22.3267, lng:114.1533, run:240, dwell:30},
+          {name:"Lai King", lat:22.3483, lng:114.1261, run:90, dwell:30},
+          {name:"Tsing Yi", lat:22.3583, lng:114.1069, run:300, dwell:30},
+          {name:"Sunny Bay", lat:22.3317, lng:114.0289, run:360, dwell:30},
+          {name:"Tung Chung", lat:22.2892, lng:113.9417, run:90, dwell:90},
+        ]
+      },
+      {
+        branch_id: 1,
+        SPAWN_EVERY: 360,
+        offset_time: 180,
+        stations: [
+          {name:"Hong Kong", lat:22.2852, lng:114.1581, run:150, dwell:90},
+          {name:"Kowloon", lat:22.3050, lng:114.1614, run:150, dwell:30},
+          {name:"Olympic", lat:22.3178, lng:114.1594, run:90, dwell:30},
+          {name:"Nam Cheong", lat:22.3267, lng:114.1533, run:240, dwell:30},
+          {name:"Lai King", lat:22.3483, lng:114.1261, run:90, dwell:30},
+          {name:"Tsing Yi", lat:22.3583, lng:114.1069, run:300, dwell:90},
+        ]
+      }
+    ]
+  },
+  {
+    line_id: 6,
+    name: "Airport Express",
+    line_color: "#00888a",
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 600,
+        offset_time: 100,
+        stations: [
+          {name:"Hong Kong", lat:22.2852, lng:114.1581, run:150, dwell:90},
+          {name:"Kowloon", lat:22.3050, lng:114.1614, run:360, dwell:30, checkpoints: [{lat: 22.3178, lng: 114.1594, progress: 0.25}, {lat: 22.3267, lng: 114.1533, progress: 0.4}, {lat: 22.3483, lng: 114.1261, progress: 0.75}]},
+          {name:"Tsing Yi", lat:22.3583, lng:114.1069, run:720, dwell:30, checkpoints: [{lat: 22.3317, lng: 114.0289, progress:0.45}, {lat: 22.2901, lng: 113.9475, progress: 0.9}]},
+          {name:"Airport", lat:22.3161, lng:113.9367, run:45, dwell:30},
+          {name:"AsiaWorld-Expo", lat:22.3217, lng:113.9411, run:90, dwell:90},
+        ]
+      }
+    ]
+  },
 ];
 
 /* =========  END CONFIG  ================================================ */
@@ -304,7 +358,7 @@ for(let i = 0; i < lines.length; i++){
 /* =====================  SIMULATION  =================================== */
 // Animation data structure: animationData[second] = [{train_id, line_id, lat, lng}, ...]
 let animationData = [];  // Pre-computed animation data
-let animationDuration = 10000; // Default: 1 hour in seconds
+let animationDuration = 30000; // Default: 1 hour in seconds
 let isGenerating = false;
 let isPlaying = false;
 let currentPlaybackTime = 0;
