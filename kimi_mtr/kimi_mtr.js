@@ -378,6 +378,80 @@ let lines = [
 
 /* =========  END CONFIG  ================================================ */
 
+function reset_lines(){
+  // Draw each branch
+  document.getElementById('status').innerHTML = '';
+  for(let i = 0; i < lines.length; i++){
+
+  //top display thing
+  line_span = document.createElement('span');
+  line_span.setAttribute("id", `line${i}`)
+  document.getElementById('status').appendChild(line_span);
+  document.getElementById('status').appendChild(document.createElement("br"));
+
+  // Draw each branch
+  lines[i].branches = lines[i].branches || [];
+  for(let b = 0; b < lines[i].branches.length; b++){
+    const branch = lines[i].branches[b];
+    
+    // Build coordinates array including checkpoints
+    const branchCoords = [];
+    for(let s = 0; s < branch.stations.length; s++){
+      const station = branch.stations[s];
+      // Add station
+      branchCoords.push([station.lat, station.lng]);
+      
+      // Add checkpoints between this station and next (if going forward)
+      if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
+        // Sort checkpoints by progress (handle typo: progresss)
+        const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+          const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
+          const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
+          return progA - progB;
+        });
+        
+        sortedCheckpoints.forEach(cp => {
+          branchCoords.push([cp.lat, cp.lng]);
+        });
+      }
+    }
+    
+    L.polyline(branchCoords, {color:lines[i].line_color, weight:2}).addTo(map);
+    allLineCoords.push(...branchCoords);
+
+    branch.stations.forEach(s=>{
+      // Draw station
+      L.circleMarker([s.lat, s.lng], {
+        radius: 3, 
+        color: '#fff',
+        weight: 2, 
+        fillColor: lines[i].line_color, 
+        fillOpacity: 1
+      }).addTo(map);
+      
+      // Draw checkpoints for this station (forward direction: between this station and next)
+      if(s.checkpoints && Array.isArray(s.checkpoints)){
+        s.checkpoints.forEach(cp => {
+          L.circleMarker([cp.lat, cp.lng], {
+            radius: 2, 
+            color: lines[i].line_color,
+            weight: 1, 
+            fillColor: lines[i].line_color, 
+            fillOpacity: 0.5
+          }).addTo(map);
+        });
+      }
+    });
+
+    //set variables for each branch
+    branch.trains = [];
+    branch.spawnEnabled = true;
+    branch.firstTrainFinished = false;
+    branch.lastspawn = 0;
+  }
+}
+}
+
 /* ---------- map setup (your old code) --------------------------------- */
 const map = L.map('map').setView([22.28, 114.18], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -386,6 +460,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 /* draw static line */
 let allLineCoords = [];
+document.getElementById('status').innerHTML = '';
 for(let i = 0; i < lines.length; i++){
   //top display thing
   line_span = document.createElement('span');
@@ -743,6 +818,7 @@ buildTables();
 
 
 function restart(){
+  reset_lines();
   for(let i = 0; i < lines.length; i++){
     const line = lines[i];
     for(let b = 0; b < line.branches.length; b++){

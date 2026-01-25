@@ -691,3 +691,5 @@ let heavyrail_offpeak_hours = [
     ]
   },
 ];
+
+document.getElementById("systems-map").innerHTML = JSON.stringify(heavyrail_offpeak_hours);

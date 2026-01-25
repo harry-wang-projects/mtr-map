@@ -66,7 +66,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>MTR Island Line</h1>
+        <h1>MTR Subway Lines</h1>
         <div class="subtitle">Real-time tracking map</div>
         <div id="controls" style="margin-bottom:15px;font-size:14px;">
             <span id="tickdisplay"></span>
@@ -129,6 +129,26 @@
             <div id="timeTables" style="display:flex;gap:20px;margin-top:10px;"></div>
         </details>
         <div id="map"></div>
+
+
+    <div class="json-input-container">
+    <textarea id="jsonInput" style="width:90%;height:100px;margin-top:50px;" placeholder="Enter JSON here..."></textarea>
+    <button id="setJsonButton">Set JSON Variable</button>
+    </div>
+
+    <script>
+        document.getElementById('setJsonButton').addEventListener('click', function() {
+            try {
+                const jsonString = document.getElementById('jsonInput').value;
+                lines = JSON.parse(jsonString);
+                console.log(lines); // Here you can see the parsed JSON object in the console
+                // You can assign it to a variable if needed
+                // let myJsonVariable = jsonData;
+            } catch (error) {
+                alert('Invalid JSON: ' + error.message);
+            }
+        });
+    </script>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
