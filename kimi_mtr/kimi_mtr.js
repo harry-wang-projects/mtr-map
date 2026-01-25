@@ -723,10 +723,49 @@ function clearPlaybackMarkers(){
   playbackMarkers = [];
 }
 
+/* -------------------- Helper function to calculate when all spawning finishes ---- */
+function calculateSpawnCompletionTime(){
+  let maxSpawnTime = 0;
+  
+  for(let i = 0; i < lines.length; i++){
+    const line = lines[i];
+    for(let b = 0; b < line.branches.length; b++){
+      const branch = line.branches[b];
+      
+      // Calculate total journey time for one complete round trip
+      let totalJourneyTime = 0;
+      for(let s = 0; s < branch.stations.length; s++){
+        totalJourneyTime += branch.stations[s].run + branch.stations[s].dwell;
+      }
+      
+      // Time when first train completes journey = offset + journey time
+      const firstTrainCompletionTime = branch.offset_time + totalJourneyTime;
+      
+      maxSpawnTime = Math.max(maxSpawnTime, firstTrainCompletionTime);
+    }
+  }
+  
+  return maxSpawnTime;
+}
+
+/* -------------------- Helper function to check if all branches have stopped spawning ---- */
+function allBranchesStoppedSpawning(){
+  for(let i = 0; i < lines.length; i++){
+    const line = lines[i];
+    for(let b = 0; b < line.branches.length; b++){
+      const branch = line.branches[b];
+      if(branch.spawnEnabled){
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 /* -------------------- GENERATION STAGE -------------------------------- */
 function generateAnimation(durationSeconds, onProgress = null){
   return new Promise((resolve, reject) => {
-    console.log(`Starting generation for ${durationSeconds} seconds...`);
+    console.log(`Starting generation for ${durationSeconds} seconds after spawning completes...`);
     isGenerating = true;
     animationData = [];
     
@@ -738,17 +777,16 @@ function generateAnimation(durationSeconds, onProgress = null){
     const originalTickLength = TICK_LENGTH;
     TICK_LENGTH = 1;
     
-    // Initialize arrays for each second
-    for(let s = 0; s <= durationSeconds; s++){
-      animationData[s] = [];
-    }
-    
     let currentSecond = 0;
     const CHUNK_SIZE = 100; // Process 100 seconds at a time to avoid blocking
     
+    let spawnPhaseComplete = false;
+    let spawnEndTime = 0;
+    let totalDuration = 0; // Will be calculated after spawn phase
+    
     function processChunk(){
       try {
-        const endSecond = Math.min(currentSecond + CHUNK_SIZE, durationSeconds);
+        const endSecond = Math.min(currentSecond + CHUNK_SIZE, currentSecond + CHUNK_SIZE); // Process chunk
         
         for(let second = currentSecond; second < endSecond; second++){
           // Advance simulation by 1 second
@@ -783,7 +821,24 @@ function generateAnimation(durationSeconds, onProgress = null){
             }
           }
           
+          // Check if spawn phase is complete
+          if(!spawnPhaseComplete && allBranchesStoppedSpawning()){
+            spawnPhaseComplete = true;
+            spawnEndTime = tick;
+            totalDuration = spawnEndTime + durationSeconds;
+            console.log(`Spawn phase complete at ${spawnEndTime}s. Total generation: ${totalDuration}s`);
+            
+            // Initialize animation data array now that we know total duration
+            for(let s = 0; s <= totalDuration; s++){
+              animationData[s] = [];
+            }
+          }
+          
           // Store positions for this second
+          if(animationData[second] === undefined){
+            animationData[second] = [];
+          }
+          
           for(let i = 0; i < lines.length; i++){
             const line = lines[i];
             for(let b = 0; b < line.branches.length; b++){
@@ -805,17 +860,32 @@ function generateAnimation(durationSeconds, onProgress = null){
               }
             }
           }
+          
+          // Report progress
+          if(onProgress){
+            if(spawnPhaseComplete){
+              onProgress(second, totalDuration, spawnEndTime, true);
+            } else {
+              // During spawn phase, show which lines are still spawning
+              let spawningLines = [];
+              for(let i = 0; i < lines.length; i++){
+                const line = lines[i];
+                for(let b = 0; b < line.branches.length; b++){
+                  const branch = line.branches[b];
+                  if(branch.spawnEnabled){
+                    spawningLines.push(`${line.name} (Branch ${b+1})`);
+                  }
+                }
+              }
+              onProgress(second, null, null, false, spawningLines);
+            }
+          }
         }
         
         currentSecond = endSecond;
         
-        // Report progress
-        if(onProgress){
-          onProgress(currentSecond, durationSeconds);
-        }
-        
         // Continue with next chunk or finish
-        if(currentSecond < durationSeconds){
+        if(!spawnPhaseComplete || currentSecond < totalDuration){
           // Use requestAnimationFrame for better performance and UI responsiveness
           requestAnimationFrame(processChunk);
         } else {
@@ -828,13 +898,15 @@ function generateAnimation(durationSeconds, onProgress = null){
                 const train = branch.trains[j];
                 try {
                   const pos = train.latlng();
-                  animationData[durationSeconds].push({
-                    train_id: train.id,
-                    line_id: train.line_id,
-                    branch_id: train.branch_id,
-                    lat: pos[0],
-                    lng: pos[1]
-                  });
+                  if(animationData[totalDuration]){
+                    animationData[totalDuration].push({
+                      train_id: train.id,
+                      line_id: train.line_id,
+                      branch_id: train.branch_id,
+                      lat: pos[0],
+                      lng: pos[1]
+                    });
+                  }
                 } catch(e) {
                   console.error(`Error getting final position for train ${train.id}:`, e);
                 }
@@ -846,7 +918,7 @@ function generateAnimation(durationSeconds, onProgress = null){
           TICK_LENGTH = originalTickLength;
           
           isGenerating = false;
-          console.log(`Generation complete! Generated ${animationData.length} seconds of data.`);
+          console.log(`Generation complete! Generated ${animationData.length} seconds of data (${spawnEndTime}s spawn + ${durationSeconds}s animation).`);
           resolve(animationData);
         }
       } catch(e) {
@@ -1051,8 +1123,15 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
   statusDiv.textContent = 'Starting generation...';
   
   try {
-    await generateAnimation(duration, (current, total) => {
-      statusDiv.textContent = `Generating... ${current}/${total} seconds (${Math.round(current/total*100)}%)`;
+    await generateAnimation(duration, (current, total, spawnEndTime, isPostSpawn, spawningLines) => {
+      if(isPostSpawn){
+        // After spawn phase is complete
+        const progress = Math.round((current - spawnEndTime) / (total - spawnEndTime) * 100);
+        statusDiv.textContent = `Generating animation... ${current}/${total} seconds (${progress}% of animation phase)`;
+      } else {
+        // During spawn phase
+        statusDiv.textContent = `Waiting for all trains to spawn... ${current}s elapsed\nStill spawning: ${spawningLines.join(', ')}`;
+      }
     });
     
     generateBtn.disabled = false;
