@@ -762,6 +762,8 @@ function allBranchesStoppedSpawning(){
   return true;
 }
 
+let spawn_completed_time = 0;
+
 /* -------------------- GENERATION STAGE -------------------------------- */
 function generateAnimation(durationSeconds, onProgress = null){
   return new Promise((resolve, reject) => {
@@ -826,6 +828,7 @@ function generateAnimation(durationSeconds, onProgress = null){
             spawnPhaseComplete = true;
             spawnEndTime = tick;
             totalDuration = spawnEndTime + durationSeconds;
+            spawn_completed_time = spawnEndTime;
             console.log(`Spawn phase complete at ${spawnEndTime}s. Total generation: ${totalDuration}s`);
             
             // Initialize animation data array now that we know total duration
@@ -972,7 +975,7 @@ function playAnimationFrame(time){
     line_span.textContent = `${lines[i].name} Trains ${lineTrains.length}`;
   }
   
-  document.getElementById("tickdisplay").textContent = `Playback: ${time}s / ${animationData.length - 1}s`;
+  document.getElementById("tickdisplay").textContent = `Playback: ${time}s / ${animationData.length - 1}s ${spawn_completed_time}`;
 }
 
 let playbackIntervalId = null;
@@ -994,7 +997,7 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
   isPlaying = true;
   currentPlaybackSpeed = playbackSpeed;
   if(resetTime){
-    currentPlaybackTime = 0;
+    currentPlaybackTime;
   }
   
   // Play at specified speed (frames per second)
@@ -1025,7 +1028,7 @@ function updatePlaybackSpeed(newSpeed){
   const frameInterval = 1000 / newSpeed; // milliseconds between frames
   
   playbackIntervalId = setInterval(() => {
-    playAnimationFrame(currentPlaybackTime);
+    playAnimationFrame(currentPlaybackTime + spawn_completed_time);
     currentPlaybackTime++;
     
     if(currentPlaybackTime >= animationData.length){
@@ -1137,7 +1140,6 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
     generateBtn.disabled = false;
     generateBtn.textContent = 'Generate Animation';
     statusDiv.textContent = `Generation complete! ${animationData.length} seconds of data ready.`;
-    
     // Enable playback controls
     document.getElementById('playBtn').disabled = false;
     document.getElementById('pauseBtn').disabled = false;
