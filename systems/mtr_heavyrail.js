@@ -692,4 +692,73 @@ let heavyrail_offpeak_hours = [
   },
 ];
 
-document.getElementById("systems-map").innerHTML = JSON.stringify(heavyrail_offpeak_hours);
+let heavyrail_minimal = [
+  {
+    line_id: 2,
+    name: "Disneyland Resort Line",
+    line_color: "#f173ac",
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 300,
+        offset_time: 0,
+        stations: [
+    {name:"Sunny Bay", lat:22.3317, lng:114.0289, run:210, dwell:90, checkpoints: [{lat:22.3332, lng:114.0316, progresss: 0.1}, {lat:22.3306, lng:114.0355, progresss: 0.25}, {lat:22.3173, lng:114.0374, progresss: 0.8}]},
+    {name:"Disneyland Resort", lat:22.3156, lng:114.0450, run:90, dwell:90},
+        ]
+      }
+    ]
+  },
+  {
+    line_id: 3,
+    name: "Tseung Kwan O line",
+    line_color: "#7d499d",
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 396,
+        offset_time: 0,
+        stations: [
+          {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
+          {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
+          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
+          {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:90, dwell:30},
+          {name:"Hang Hau", lat:22.3156, lng:114.2644, run:90, dwell:30},
+          {name:"Po Lam", lat:22.3225, lng:114.2581, run:90, dwell:90},
+        ]
+      },
+      {
+        branch_id: 1,
+        SPAWN_EVERY: 396,
+        offset_time: 132,
+        stations: [
+          {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
+          {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
+          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
+          {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:90, dwell:30},
+          {name:"Hang Hau", lat:22.3156, lng:114.2644, run:90, dwell:30},
+          {name:"Po Lam", lat:22.3225, lng:114.2581, run:90, dwell:90},
+        ]
+      },
+      {
+        branch_id: 2,
+        SPAWN_EVERY: 396,
+        offset_time: 264,
+        stations: [
+          {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
+          {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
+          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
+          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
+          {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:150, dwell:30,  checkpoints: [{lat:22.3105, lng:114.2689, progresss: 0.3}, {lat:22.3021, lng:114.2750, progresss: 0.7}]},
+          {name:"LOHAS Park", lat:22.2958, lng:114.2689, run:90, dwell:120},
+        ]
+      }
+    ]
+  },
+  
+];
+
+
+document.getElementById("systems-map").innerHTML = JSON.stringify(heavyrail_minimal);
