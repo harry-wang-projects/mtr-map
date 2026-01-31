@@ -20,7 +20,7 @@
         }
         #app {
             display: grid;
-            grid-template-columns: 400px 1fr;
+            grid-template-columns: 700px 1fr;
             grid-template-rows: 1fr 1fr;
             height: 100vh;
             gap: 10px;
@@ -137,6 +137,116 @@
         .controls {
             margin-bottom: 15px;
         }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            margin-right: 2px;
+            border-radius: 5px 5px 0 0;
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .tab:hover {
+            background: #e0e0e0;
+        }
+        .tab.active {
+            background: white;
+            border-bottom: 2px solid white;
+            margin-bottom: -2px;
+            color: #333;
+        }
+        .tab-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid #333;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .line-editor {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .branch-tabs {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .branch-tab {
+            padding: 6px 12px;
+            cursor: pointer;
+            background: #f8f8f8;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            margin-right: 2px;
+            border-radius: 3px 3px 0 0;
+            font-size: 12px;
+        }
+        .branch-tab:hover {
+            background: #e8e8e8;
+        }
+        .branch-tab.active {
+            background: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            color: #333;
+        }
+        .branch-content {
+            display: none;
+        }
+        .branch-content.active {
+            display: block;
+        }
+        .parameter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .parameter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .parameter-group label {
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+        .parameter-group input {
+            font-size: 12px;
+            padding: 4px;
+        }
+        .coordinate-button {
+            background: #ff9800;
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+        .coordinate-button:hover {
+            background: #f57c00;
+        }
+        .coordinate-button.active {
+            background: #4caf50;
+        }
+        .coordinate-button.active:hover {
+            background: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -148,70 +258,139 @@
                 <button @click="exportJSON">Export JSON</button>
             </div>
             
-            <div v-for="(line, lineIndex) in lines" :key="lineIndex" class="line-section">
-                <h2>Line {{ lineIndex + 1 }}</h2>
+            <div v-if="lines.length === 0" class="line-editor">
+                <p>No lines added yet. Click "Add Line" to get started.</p>
+            </div>
+            
+            <div v-else>
+                <div class="tabs">
+                    <div v-for="(line, lineIndex) in lines" 
+                         :key="lineIndex" 
+                         :class="['tab', { active: activeTab === lineIndex }]"
+                         @click="activeTab = lineIndex">
+                        <span class="tab-color" :style="{ backgroundColor: line.line_color }"></span>
+                        {{ line.name || `Line ${lineIndex + 1}` }}
+                    </div>
+                </div>
                 
-                <label>Line ID:</label>
-                <input type="number" v-model.number="line.line_id">
-                
-                <label>Name:</label>
-                <input type="text" v-model="line.name">
-                
-                <label>Line Color:</label>
-                <input type="color" v-model="line.line_color">
-                
-                <button @click="addBranch(lineIndex)" class="add">Add Branch</button>
-                <button @click="deleteLine(lineIndex)" class="delete">Delete Line</button>
-                
-                <div v-for="(branch, branchIndex) in line.branches" :key="branchIndex" class="branch-section">
-                    <h3>Branch {{ branchIndex + 1 }}</h3>
-                    
-                    <label>Branch ID:</label>
-                    <input type="number" v-model.number="branch.branch_id">
-                    
-                    <label>Spawn Every (seconds):</label>
-                    <input type="number" v-model.number="branch.SPAWN_EVERY">
-                    
-                    <label>Offset Time (seconds):</label>
-                    <input type="number" v-model.number="branch.offset_time">
-                    
-                    <button @click="addStation(lineIndex, branchIndex)" class="add">Add Station</button>
-                    <button @click="deleteBranch(lineIndex, branchIndex)" class="delete">Delete Branch</button>
-                    
-                    <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section">
-                        <h4>Station: {{ station.name || '(unnamed)' }}</h4>
+                <div v-for="(line, lineIndex) in lines" 
+                     :key="lineIndex" 
+                     :class="['tab-content', { active: activeTab === lineIndex }]">
+                    <div class="line-editor">
+                        <h2>{{ line.name || `Line ${lineIndex + 1}` }}</h2>
+                        
+                        <label>Line ID:</label>
+                        <input type="number" v-model.number="line.line_id">
                         
                         <label>Name:</label>
-                        <input type="text" v-model="station.name">
+                        <input type="text" v-model="line.name">
                         
-                        <label>Latitude:</label>
-                        <input type="number" step="0.0001" v-model.number="station.lat">
+                        <label>Line Color:</label>
+                        <input type="color" v-model="line.line_color">
                         
-                        <label>Longitude:</label>
-                        <input type="number" step="0.0001" v-model.number="station.lng">
+                        <button @click="addBranch(lineIndex)" class="add">Add Branch</button>
+                        <button @click="deleteLine(lineIndex)" class="delete">Delete Line</button>
                         
-                        <label>Run Time (seconds):</label>
-                        <input type="number" v-model.number="station.run">
+                        <div v-if="line.branches.length === 0" class="branch-section">
+                            <p>No branches added yet. Click "Add Branch" to get started.</p>
+                        </div>
                         
-                        <label>Dwell Time (seconds):</label>
-                        <input type="number" v-model.number="station.dwell">
-                        
-                        <button @click="addCheckpoint(lineIndex, branchIndex, stationIndex)" class="add">Add Checkpoint</button>
-                        <button @click="deleteStation(lineIndex, branchIndex, stationIndex)" class="delete">Delete Station</button>
-                        
-                        <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section">
-                            <h4>Checkpoint {{ checkpointIndex + 1 }}</h4>
+                        <div v-else>
+                            <div class="branch-tabs">
+                                <div v-for="(branch, branchIndex) in line.branches" 
+                                     :key="branchIndex" 
+                                     :class="['branch-tab', { active: getActiveBranchTab(lineIndex) === branchIndex }]"
+                                     @click="setActiveBranchTab(lineIndex, branchIndex)">
+                                    Branch {{ branchIndex + 1 }} (ID: {{ branch.branch_id }})
+                                </div>
+                            </div>
                             
-                            <label>Latitude:</label>
-                            <input type="number" step="0.0001" v-model.number="checkpoint.lat">
-                            
-                            <label>Longitude:</label>
-                            <input type="number" step="0.0001" v-model.number="checkpoint.lng">
-                            
-                            <label>Progress:</label>
-                            <input type="number" step="0.01" v-model.number="checkpoint.progresss">
-                            
-                            <button @click="deleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex)" class="delete">Delete Checkpoint</button>
+                            <div v-for="(branch, branchIndex) in line.branches" 
+                                 :key="branchIndex" 
+                                 :class="['branch-content', { active: getActiveBranchTab(lineIndex) === branchIndex }]">
+                                <div class="branch-section">
+                                    <div class="parameter-row">
+                                        <div class="parameter-group">
+                                            <label>Branch ID:</label>
+                                            <input type="number" v-model.number="branch.branch_id">
+                                        </div>
+                                        <div class="parameter-group">
+                                            <label>Spawn Every (seconds):</label>
+                                            <input type="number" v-model.number="branch.SPAWN_EVERY">
+                                        </div>
+                                    </div>
+                                    
+                                    <button @click="deleteBranch(lineIndex, branchIndex)" class="delete">Delete Branch</button>
+                                    
+                                    <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section">
+                                        <h4>Station: {{ station.name || '(unnamed)' }}</h4>
+                                        
+                                        <div class="parameter-row">
+                                            <div class="parameter-group">
+                                                <label>Name:</label>
+                                                <input type="text" v-model="station.name">
+                                            </div>
+                                            <div class="parameter-group">
+                                                <label>Run Time (seconds):</label>
+                                                <input type="number" v-model.number="station.run">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="parameter-row">
+                                            <div class="parameter-group">
+                                                <label>Latitude:</label>
+                                                <input type="number" step="0.0001" v-model.number="station.lat">
+                                            </div>
+                                            <div class="parameter-group">
+                                                <label>Longitude:</label>
+                                                <input type="number" step="0.0001" v-model.number="station.lng">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="parameter-row">
+                                            <div class="parameter-group">
+                                                <label>Dwell Time (seconds):</label>
+                                                <input type="number" v-model.number="station.dwell">
+                                            </div>
+                                            <div class="parameter-group">
+                                                <button @click="toggleCoordinateMode(lineIndex, branchIndex, stationIndex)" 
+                                                        :class="['coordinate-button', { active: isCoordinateModeActive(lineIndex, branchIndex, stationIndex) }]">
+                                                    {{ isCoordinateModeActive(lineIndex, branchIndex, stationIndex) ? 'Click Map to Set' : 'Set from Map' }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <button @click="deleteStation(lineIndex, branchIndex, stationIndex)" class="delete">Delete Station</button>
+                                        
+                                        <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section">
+                                            <h4>Checkpoint {{ checkpointIndex + 1 }}</h4>
+                                            
+                                            <div class="parameter-row">
+                                                <div class="parameter-group">
+                                                    <label>Latitude:</label>
+                                                    <input type="number" step="0.0001" v-model.number="checkpoint.lat">
+                                                </div>
+                                                <div class="parameter-group">
+                                                    <label>Longitude:</label>
+                                                    <input type="number" step="0.0001" v-model.number="checkpoint.lng">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="parameter-row">
+                                                <div class="parameter-group">
+                                                    <label>Progress:</label>
+                                                    <input type="number" step="0.01" v-model.number="checkpoint.progresss">
+                                                </div>
+                                                <div class="parameter-group">
+                                                    <button @click="deleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex)" class="delete">Delete Checkpoint</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button @click="addStation(lineIndex, branchIndex)" class="add">Add Station</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -236,7 +415,10 @@
                     lines: [],
                     map: null,
                     markers: [],
-                    polylines: []
+                    polylines: [],
+                    activeTab: 0,
+                    activeBranchTabs: {},
+                    coordinateMode: null
                 };
             },
             computed: {
@@ -249,6 +431,15 @@
                 this.loadSampleData();
             },
             watch: {
+                coordinateMode: {
+                    handler(newMode) {
+                        if (newMode) {
+                            this.map.getContainer().style.cursor = 'crosshair';
+                        } else {
+                            this.map.getContainer().style.cursor = '';
+                        }
+                    }
+                },
                 lines: {
                     handler() {
                         this.updateMap();
@@ -262,6 +453,15 @@
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '© OpenStreetMap contributors'
                     }).addTo(this.map);
+                    
+                    this.map.on('click', (e) => {
+                        if (this.coordinateMode) {
+                            const { lineIndex, branchIndex, stationIndex } = this.coordinateMode;
+                            this.lines[lineIndex].branches[branchIndex].stations[stationIndex].lat = e.latlng.lat;
+                            this.lines[lineIndex].branches[branchIndex].stations[stationIndex].lng = e.latlng.lng;
+                            this.coordinateMode = null;
+                        }
+                    });
                 },
                 updateMap() {
                     this.markers.forEach(marker => this.map.removeLayer(marker));
@@ -299,21 +499,27 @@
                         });
                     });
 
-                    if (this.markers.length > 0) {
+                    // Only fit bounds if not in coordinate mode
+                    if (this.markers.length > 0 && !this.coordinateMode) {
                         const group = L.featureGroup(this.markers);
                         this.map.fitBounds(group.getBounds().pad(0.1));
                     }
                 },
                 addLine() {
-                    this.lines.push({
+                    const newLine = {
                         line_id: this.lines.length + 1,
                         name: 'New Line',
                         line_color: '#' + Math.floor(Math.random()*16777215).toString(16),
                         branches: []
-                    });
+                    };
+                    this.lines.push(newLine);
+                    this.activeTab = this.lines.length - 1;
                 },
                 deleteLine(lineIndex) {
                     this.lines.splice(lineIndex, 1);
+                    if (this.activeTab >= this.lines.length && this.activeTab > 0) {
+                        this.activeTab = this.lines.length - 1;
+                    }
                 },
                 addBranch(lineIndex) {
                     this.lines[lineIndex].branches.push({
@@ -322,18 +528,25 @@
                         offset_time: 0,
                         stations: []
                     });
+                    this.setActiveBranchTab(lineIndex, this.lines[lineIndex].branches.length - 1);
                 },
                 deleteBranch(lineIndex, branchIndex) {
                     this.lines[lineIndex].branches.splice(branchIndex, 1);
+                    if (this.getActiveBranchTab(lineIndex) >= this.lines[lineIndex].branches.length && this.getActiveBranchTab(lineIndex) > 0) {
+                        this.setActiveBranchTab(lineIndex, this.lines[lineIndex].branches.length - 1);
+                    }
                 },
                 addStation(lineIndex, branchIndex) {
-                    this.lines[lineIndex].branches[branchIndex].stations.push({
+                    const newStation = {
                         name: 'New Station',
                         lat: 22.3,
                         lng: 114.2,
                         run: 90,
                         dwell: 30
-                    });
+                    };
+                    this.lines[lineIndex].branches[branchIndex].stations.push(newStation);
+                    const stationIndex = this.lines[lineIndex].branches[branchIndex].stations.length - 1;
+                    this.coordinateMode = { lineIndex, branchIndex, stationIndex };
                 },
                 deleteStation(lineIndex, branchIndex, stationIndex) {
                     this.lines[lineIndex].branches[branchIndex].stations.splice(stationIndex, 1);
@@ -383,6 +596,28 @@
                     link.download = 'subway_map.json';
                     link.click();
                     URL.revokeObjectURL(url);
+                },
+                getActiveBranchTab(lineIndex) {
+                    if (!(lineIndex in this.activeBranchTabs)) {
+                        this.activeBranchTabs[lineIndex] = 0;
+                    }
+                    return this.activeBranchTabs[lineIndex];
+                },
+                setActiveBranchTab(lineIndex, branchIndex) {
+                    this.activeBranchTabs[lineIndex] = branchIndex;
+                },
+                toggleCoordinateMode(lineIndex, branchIndex, stationIndex) {
+                    if (this.isCoordinateModeActive(lineIndex, branchIndex, stationIndex)) {
+                        this.coordinateMode = null;
+                    } else {
+                        this.coordinateMode = { lineIndex, branchIndex, stationIndex };
+                    }
+                },
+                isCoordinateModeActive(lineIndex, branchIndex, stationIndex) {
+                    return this.coordinateMode && 
+                           this.coordinateMode.lineIndex === lineIndex &&
+                           this.coordinateMode.branchIndex === branchIndex &&
+                           this.coordinateMode.stationIndex === stationIndex;
                 }
             }
         }).mount('#app');

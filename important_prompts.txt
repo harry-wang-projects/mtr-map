@@ -27,3 +27,8 @@ Make an html textbox and button. When I click the button, I set a javascript var
 
 Editor:
 I have a subway map that simulates moving subway trains. It takes in json files. The files store lines. Each line has a specific color and one or more branches. Each branch has train frequency parameter and a list of stations. Each station includes a latitutde and longtitude, dwell, and travel time, and possibly checkpoints between that station and the next station. Create an editor for such json files. On the left, the editor should have a place where I can edit all of the properties on individual lines and branchse, such as the coordinates of stations. On the top right, the editor should have a map displaying the lines (just the stations, no need for trains). On the botton right, there should be a preview of the json file that synchronizes with the editor on the left. Use vue.js to make this, but don't use node.js, just add it to an html file. Below is a sample of what one such json file looks like:
+
+Currently, the left side of the editor is too narrow. Make it wider. 
+To further reduce the space usage, implement the tab system on the branches of each line as well. In addition, make the parameters (e.g. name, latitude, longtitude, run time, dwell time) take up half a row instead of a full row. 
+Put the "add station" button on the bottom of the list of stations. In addition, make a feature where one can set the coordinates of a station by clicking on a map.
+When adding a station, make it use the set from map option by default. In addition, when a station is being set, don't zoom out of the map. Just keep the position and zoom as it is.
