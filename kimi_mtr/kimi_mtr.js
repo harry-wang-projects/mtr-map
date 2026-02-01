@@ -374,6 +374,24 @@ let lines = [
       }
     ]
   },
+  {
+    line_id: 10,
+    name: "Test line",
+    line_color: "#01ffff",
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 486,
+        offset_time: 0,
+        branch_type: "circular",
+        stations: [
+          {name:"station 1", lat:22.3103, lng:114.1235, run:60, dwell:30},
+          {name:"station 2", lat:22.3003, lng:114.1429, run:180, dwell:30},
+          {name:"station 3", lat:22.2967, lng:114.1149, run:90, dwell:30, checkpoints: [{lat:22.3000, lng:114.1100, progresss: 0.4}]},
+        ]
+      },
+    ]
+  },
 ];
 
 /* =========  END CONFIG  ================================================ */
@@ -383,73 +401,92 @@ function reset_lines(){
   document.getElementById('status').innerHTML = '';
   for(let i = 0; i < lines.length; i++){
 
-  //top display thing
-  line_span = document.createElement('span');
-  line_span.setAttribute("id", `line${i}`)
-  document.getElementById('status').appendChild(line_span);
-  document.getElementById('status').appendChild(document.createElement("br"));
+    //top display thing
+    line_span = document.createElement('span');
+    line_span.setAttribute("id", `line${i}`)
+    document.getElementById('status').appendChild(line_span);
+    document.getElementById('status').appendChild(document.createElement("br"));
 
-  // Draw each branch
-  lines[i].branches = lines[i].branches || [];
-  for(let b = 0; b < lines[i].branches.length; b++){
-    const branch = lines[i].branches[b];
+    // Draw each branch
+    lines[i].branches = lines[i].branches || [];
+    for(let b = 0; b < lines[i].branches.length; b++){
+      const branch = lines[i].branches[b];
     
-    // Build coordinates array including checkpoints
-    const branchCoords = [];
-    for(let s = 0; s < branch.stations.length; s++){
-      const station = branch.stations[s];
-      // Add station
-      branchCoords.push([station.lat, station.lng]);
+      // Build coordinates array including checkpoints
+      const branchCoords = [];
+      for(let s = 0; s < branch.stations.length; s++){
+        const station = branch.stations[s];
+        // Add station
+        branchCoords.push([station.lat, station.lng]);
       
-      // Add checkpoints between this station and next (if going forward)
-      if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
-        // Sort checkpoints by progress (handle typo: progresss)
-        const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
-          const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
-          const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
-          return progA - progB;
-        });
+        // Add checkpoints between this station and next (if going forward)
+        if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
+          // Sort checkpoints by progress (handle typo: progresss)
+          const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+            const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
+            const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
+            return progA - progB;
+          });
         
-        sortedCheckpoints.forEach(cp => {
-          branchCoords.push([cp.lat, cp.lng]);
-        });
+          sortedCheckpoints.forEach(cp => {
+            branchCoords.push([cp.lat, cp.lng]);
+          });
+        }
       }
-    }
-    
-    L.polyline(branchCoords, {color:lines[i].line_color, weight:2}).addTo(map);
-    allLineCoords.push(...branchCoords);
-
-    branch.stations.forEach(s=>{
-      // Draw station
-      L.circleMarker([s.lat, s.lng], {
-        radius: 3, 
-        color: '#fff',
-        weight: 2, 
-        fillColor: lines[i].line_color, 
-        fillOpacity: 1
-      }).addTo(map);
       
-      // Draw checkpoints for this station (forward direction: between this station and next)
-      if(s.checkpoints && Array.isArray(s.checkpoints)){
-        s.checkpoints.forEach(cp => {
-          L.circleMarker([cp.lat, cp.lng], {
-            radius: 2, 
-            color: lines[i].line_color,
-            weight: 1, 
-            fillColor: lines[i].line_color, 
-            fillOpacity: 0.5
-          }).addTo(map);
-        });
+      //Add the final loop. For circular lines only.
+      if(lines[i].branches[b].hasOwnProperty("branch_type") && lines[i].branches[b].branch_type === "circular"){
+        const station = branch.stations[branch.stations.length - 1];
+        //add the checkpoints of the final station
+        if(station.checkpoints && Array.isArray(station.checkpoints)){
+          // Sort checkpoints by progress (handle typo: progresss)
+          const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+            const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
+            const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
+            return progA - progB;
+          });
+        
+          sortedCheckpoints.forEach(cp => {
+            branchCoords.push([cp.lat, cp.lng]);
+          });
+        }
+        branchCoords.push([branch.stations[0].lat, branch.stations[0].lng]);
       }
-    });
 
-    //set variables for each branch
-    branch.trains = [];
-    branch.spawnEnabled = true;
-    branch.firstTrainFinished = false;
-    branch.lastspawn = 0;
+      L.polyline(branchCoords, {color:lines[i].line_color, weight:2}).addTo(map);
+      allLineCoords.push(...branchCoords);
+
+      branch.stations.forEach(s=>{
+        // Draw station
+        L.circleMarker([s.lat, s.lng], {
+          radius: 3, 
+          color: '#fff',
+          weight: 2, 
+          fillColor: lines[i].line_color, 
+          fillOpacity: 1
+        }).addTo(map);
+      
+        // Draw checkpoints for this station (forward direction: between this station and next)
+          if(s.checkpoints && Array.isArray(s.checkpoints)){
+          s.checkpoints.forEach(cp => {
+            L.circleMarker([cp.lat, cp.lng], {
+              radius: 2, 
+              color: lines[i].line_color,
+              weight: 1, 
+              fillColor: lines[i].line_color, 
+              fillOpacity: 0.5
+            }).addTo(map);
+          });
+        }
+      });
+
+      //set variables for each branch
+      branch.trains = [];
+      branch.spawnEnabled = true;
+      branch.firstTrainFinished = false;
+      branch.lastspawn = 0;
+    }
   }
-}
 }
 
 /* ---------- map setup (your old code) --------------------------------- */
