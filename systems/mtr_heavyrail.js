@@ -757,7 +757,24 @@ let heavyrail_minimal = [
       }
     ]
   },
-  
+  {
+    line_id: 10,
+    name: "Test line",
+    line_color: "#01ffff",
+    branches: [
+      {
+        branch_id: 0,
+        SPAWN_EVERY: 100,
+        offset_time: 0,
+        branch_type: "circular",
+        stations: [
+          {name:"station 1", lat:22.3103, lng:114.1235, run:60, dwell:30},
+          {name:"station 2", lat:22.3003, lng:114.1429, run:180, dwell:30},
+          {name:"station 3", lat:22.2967, lng:114.1149, run:90, dwell:30, checkpoints: [{lat:22.3000, lng:114.1100, progresss: 0.4}]},
+        ]
+      },
+    ]
+  },
 ];
 
 
