@@ -1041,10 +1041,10 @@ function generateAnimation(durationSeconds, onProgress = null){
             spawnEndTime = tick;
             totalDuration = spawnEndTime + durationSeconds;
             spawn_completed_time = spawnEndTime;
-            console.log(`Spawn phase complete at ${spawnEndTime}s. Total generation: ${totalDuration}s`);
+            console.log(`Spawn phase complete at ${spawnEndTime}s. Total generation: ${totalDuration}s (spawn ${spawnEndTime}s + animation ${durationSeconds}s)`);
             
-            // Initialize animation data array now that we know total duration
-            for(let s = 0; s <= totalDuration; s++){
+            // Initialize only future animation slots; do not overwrite existing spawn-phase data
+            for(let s = second + 1; s <= totalDuration; s++){
               animationData[s] = [];
             }
           }
@@ -1340,18 +1340,21 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
   try {
     await generateAnimation(duration, (current, total, spawnEndTime, isPostSpawn, spawningLines) => {
       if(isPostSpawn){
-        // After spawn phase is complete
+        // After spawn phase: animation duration is counting (requested duration only)
         const progress = Math.round((current - spawnEndTime) / (total - spawnEndTime) * 100);
-        statusDiv.textContent = `Generating animation... ${current}/${total} seconds (${progress}% of animation phase)`;
+        statusDiv.textContent = `Generating animation... ${current - spawnEndTime}/${total - spawnEndTime}s of animation (${progress}%) | Total: ${current}/${total}s`;
       } else {
-        // During spawn phase
-        statusDiv.textContent = `Waiting for all trains to spawn... ${current}s elapsed\nStill spawning: ${spawningLines.join(', ')}`;
+        // During spawn phase: show elapsed time and which lines are still spawning
+        const spawningText = spawningLines && spawningLines.length > 0
+          ? spawningLines.join(', ')
+          : 'none (finalizing…)';
+        statusDiv.textContent = `Spawning trains… ${current}s elapsed\nLines still spawning: ${spawningText}\n(Animation will run for ${duration}s after all lines stop spawning.)`;
       }
     });
     
     generateBtn.disabled = false;
     generateBtn.textContent = 'Generate Animation';
-    statusDiv.textContent = `Generation complete! ${animationData.length} seconds of data ready (${animationData.length - spawn_completed_time} of animation + ${spawn_completed_time} of spawn).`;
+    statusDiv.textContent = `Generation complete! Total ${animationData.length}s = ${spawn_completed_time}s spawn + ${animationData.length - spawn_completed_time}s animation.`;
     // Enable playback controls
     document.getElementById('playBtn').disabled = false;
     document.getElementById('pauseBtn').disabled = false;
