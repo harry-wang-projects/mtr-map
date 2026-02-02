@@ -217,7 +217,7 @@
         }
         .parameter-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
             margin-bottom: 10px;
         }
@@ -279,15 +279,20 @@
                     <div class="line-editor">
                         <h2>{{ line.name || `Line ${lineIndex + 1}` }}</h2>
                         
-                        <label>Line ID:</label>
-                        <input type="number" v-model.number="line.line_id">
-                        
-                        <label>Name:</label>
-                        <input type="text" v-model="line.name">
-                        
-                        <label>Line Color:</label>
-                        <input type="color" v-model="line.line_color">
-                        
+                        <div class = "parameter-row">
+                            <div class="parameter-group">
+                                <label>Line ID:</label>
+                                <input type="number" v-model.number="line.line_id">
+                            </div>
+                            <div class="parameter-group">
+                                <label>Name:</label>
+                                <input type="text" v-model="line.name">
+                            </div>
+                            <div class="parameter-group">
+                                <label>Line Color:</label>
+                                <input type="color" v-model="line.line_color">
+                            </div>
+                        </div>
                         <button @click="addBranch(lineIndex)" class="add">Add Branch</button>
                         <button @click="deleteLine(lineIndex)" class="delete">Delete Line</button>
                         
@@ -323,7 +328,6 @@
                                     <button @click="deleteBranch(lineIndex, branchIndex)" class="delete">Delete Branch</button>
                                     
                                     <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section">
-                                        <h4>Station: {{ station.name || '(unnamed)' }}</h4>
                                         
                                         <div class="parameter-row">
                                             <div class="parameter-group">
@@ -333,6 +337,10 @@
                                             <div class="parameter-group">
                                                 <label>Run Time (seconds):</label>
                                                 <input type="number" v-model.number="station.run">
+                                            </div>
+                                            <div class="parameter-group">
+                                                <label>Dwell Time (seconds):</label>
+                                                <input type="number" v-model.number="station.dwell">
                                             </div>
                                         </div>
                                         
@@ -345,13 +353,6 @@
                                                 <label>Longitude:</label>
                                                 <input type="number" step="0.0001" v-model.number="station.lng">
                                             </div>
-                                        </div>
-                                        
-                                        <div class="parameter-row">
-                                            <div class="parameter-group">
-                                                <label>Dwell Time (seconds):</label>
-                                                <input type="number" v-model.number="station.dwell">
-                                            </div>
                                             <div class="parameter-group">
                                                 <button @click="toggleCoordinateMode(lineIndex, branchIndex, stationIndex)" 
                                                         :class="['coordinate-button', { active: isCoordinateModeActive(lineIndex, branchIndex, stationIndex) }]">
@@ -359,6 +360,7 @@
                                                 </button>
                                             </div>
                                         </div>
+                                        
                                         
                                         <button @click="deleteStation(lineIndex, branchIndex, stationIndex)" class="delete">Delete Station</button>
                                         
