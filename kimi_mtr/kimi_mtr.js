@@ -381,7 +381,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 486,
+        SPAWN_EVERY: 100,
         offset_time: 0,
         branch_type: "circular",
         stations: [
@@ -667,110 +667,120 @@ class Train {
   }
   
   latlng(){
-    const stations = this.getStations();
+    let stations = this.getStations();
     if(this.type == "circular"){
-      const stations = this.getStations();
-    const A = stations[this.idx];
-    if (!A) {
-      console.error(`Invalid station index ${this.idx} for line ${this.line_id}, branch ${this.branch_id}`);
-      return [22.28, 114.18]; // Default fallback position
-    }
-    const B = stations[this.idx + this.dir];
-    if (!B) return [A.lat, A.lng]; // terminus
+      stations = this.getStations();
+      const A = stations[this.idx];
+      if (!A) {
+        console.error(`Invalid station index ${this.idx} for line ${this.line_id}, branch ${this.branch_id}`);
+        return [22.28, 114.18]; // Default fallback position
+      }
+      let B = stations[this.idx + this.dir];
+
+      //see if it is the last stop for a circular line
+      //Circular Lines Only part 1
+      if(this.idx == stations.length - 1 && this.dir == 1){
+        B = stations[0];
+      }else if(this.idx == 0 && this.dir != 1){
+        B = stations[stations.length - 1];
+      }
+      //end of cirular lines only part 1
+
+      if (!B) return [A.lat, A.lng]; // terminus
     
-    const stationIdx = this.dir === 1 ? this.idx : (this.idx - 1);
-    const runTime = stations[stationIdx]?.run;
-    if (!runTime || runTime === 0) {
-      return [A.lat, A.lng]; // Fallback if run time is invalid
-    }
+      const stationIdx = this.dir === 1 ? this.idx : (this.idx - 1);
+      const runTime = stations[stationIdx]?.run;
+      if (!runTime || runTime === 0) {
+        return [A.lat, A.lng]; // Fallback if run time is invalid
+      }
     
-    // Calculate progress using accel_func (between stations, not checkpoints)
-    const time_progress = this.segmentProgress / runTime;
-    let prog_floor = Math.floor(time_progress * 100);
-    let prog_ceil = Math.min(Math.floor(time_progress * 100) + 1, accel_func.length - 1);
-    prog_floor = Math.max(0, Math.min(prog_floor, accel_func.length - 1));
+      // Calculate progress using accel_func (between stations, not checkpoints)
+      const time_progress = this.segmentProgress / runTime;
+      let prog_floor = Math.floor(time_progress * 100);
+      let prog_ceil = Math.min(Math.floor(time_progress * 100) + 1, accel_func.length - 1);
+      prog_floor = Math.max(0, Math.min(prog_floor, accel_func.length - 1));
     
-    const f = accel_func[prog_floor] + (accel_func[prog_ceil] - accel_func[prog_floor]) * (time_progress * 100 - prog_floor); 
+      const f = accel_func[prog_floor] + (accel_func[prog_ceil] - accel_func[prog_floor]) * (time_progress * 100 - prog_floor); 
     
-    // Get checkpoints for the current segment
-    // Forward: station[i].checkpoints = checkpoints between station[i] and station[i+1]
-    // Backward: use checkpoints from station with lower id (station[i-1].checkpoints)
-    let checkpoints = [];
-    if(this.dir === 1){
-      // Forward: checkpoints are in the current station's array (between A and B)
-      checkpoints = (A.checkpoints || []).map(cp => ({
-        lat: cp.lat,
-        lng: cp.lng,
-        progress: cp.progress !== undefined ? cp.progress : (cp.progresss !== undefined ? cp.progresss : 0) // Handle typo
-      }));
-      // Sort by progress
-      checkpoints.sort((a, b) => a.progress - b.progress);
-    } else {
-      // Backward: use checkpoints from station with lower id (B, which is station[i-1])
-      // B's checkpoints are stored for forward direction (between B and A)
-      // So we reverse them and invert progress values
-      checkpoints = (B.checkpoints || []).map(cp => ({
-        lat: cp.lat,
-        lng: cp.lng,
-        progress: cp.progress !== undefined ? cp.progress : (cp.progresss !== undefined ? cp.progresss : 0) // Handle typo
-      }));
-      // Reverse the checkpoints array and invert progress values for backward direction
-      // Progress is in reverse: 0.2 forward becomes 0.8 backward
-      checkpoints = checkpoints.reverse().map(cp => ({
-        ...cp,
-        progress: 1 - cp.progress
-      }));
-    }
+      // Get checkpoints for the current segment
+      // Forward: station[i].checkpoints = checkpoints between station[i] and station[i+1]
+      // Backward: use checkpoints from station with lower id (station[i-1].checkpoints)
+      let checkpoints = [];
+      if(this.dir === 1){
+        // Forward: checkpoints are in the current station's array (between A and B)
+        checkpoints = (A.checkpoints || []).map(cp => ({
+          lat: cp.lat,
+          lng: cp.lng,
+          progress: cp.progress !== undefined ? cp.progress : (cp.progresss !== undefined ? cp.progresss : 0) // Handle typo
+        }));
+        // Sort by progress
+        checkpoints.sort((a, b) => a.progress - b.progress);
+      } else {
+        // Backward: use checkpoints from station with lower id (B, which is station[i-1])
+        // B's checkpoints are stored for forward direction (between B and A)
+        // So we reverse them and invert progress values
+        checkpoints = (B.checkpoints || []).map(cp => ({
+          lat: cp.lat,
+          lng: cp.lng,
+          progress: cp.progress !== undefined ? cp.progress : (cp.progresss !== undefined ? cp.progresss : 0) // Handle typo
+        }));
+        // Reverse the checkpoints array and invert progress values for backward direction
+        // Progress is in reverse: 0.2 forward becomes 0.8 backward
+        checkpoints = checkpoints.reverse().map(cp => ({
+          ...cp,
+          progress: 1 - cp.progress
+        }));
+      }
     
-    // If there are checkpoints, find which segment we're in
-    if(checkpoints.length > 0){
-      // Find the checkpoint segment we're currently in
-      let prevPoint = {lat: A.lat, lng: A.lng, progress: 0};
-      let nextPoint = {lat: B.lat, lng: B.lng, progress: 1};
+      // If there are checkpoints, find which segment we're in
+      if(checkpoints.length > 0){
+        // Find the checkpoint segment we're currently in
+        let prevPoint = {lat: A.lat, lng: A.lng, progress: 0};
+        let nextPoint = {lat: B.lat, lng: B.lng, progress: 1};
       
-      // Find checkpoints before and after current progress
-      for(let i = 0; i < checkpoints.length; i++){
-        const cp = checkpoints[i];
-        if(cp.progress <= f){
-          prevPoint = cp;
+        // Find checkpoints before and after current progress
+        for(let i = 0; i < checkpoints.length; i++){
+          const cp = checkpoints[i];
+          if(cp.progress <= f){
+            prevPoint = cp;
+          }
+         if(cp.progress > f && nextPoint.progress === 1){
+           nextPoint = cp;
+            break;
+          }
         }
-        if(cp.progress > f && nextPoint.progress === 1){
-          nextPoint = cp;
-          break;
+      
+        // If we're between checkpoints, interpolate between them
+        if(prevPoint.progress < f && f < nextPoint.progress){
+          const segmentProgress = (f - prevPoint.progress) / (nextPoint.progress - prevPoint.progress);
+          return [
+            prevPoint.lat + (nextPoint.lat - prevPoint.lat) * segmentProgress,
+            prevPoint.lng + (nextPoint.lng - prevPoint.lng) * segmentProgress
+          ];
+        } else if(f <= prevPoint.progress && prevPoint.progress > 0){
+          // Before first checkpoint, interpolate between station and first checkpoint
+          const segmentProgress = f / prevPoint.progress;
+          return [
+            A.lat + (prevPoint.lat - A.lat) * segmentProgress,
+            A.lng + (prevPoint.lng - A.lng) * segmentProgress
+          ];
+        } else if(f >= nextPoint.progress && nextPoint.progress < 1){
+          // After last checkpoint, interpolate between last checkpoint and station
+          const segmentProgress = (f - nextPoint.progress) / (1 - nextPoint.progress);
+          return [
+            nextPoint.lat + (B.lat - nextPoint.lat) * segmentProgress,
+            nextPoint.lng + (B.lng - nextPoint.lng) * segmentProgress
+          ];
         }
       }
-      
-      // If we're between checkpoints, interpolate between them
-      if(prevPoint.progress < f && f < nextPoint.progress){
-        const segmentProgress = (f - prevPoint.progress) / (nextPoint.progress - prevPoint.progress);
-        return [
-          prevPoint.lat + (nextPoint.lat - prevPoint.lat) * segmentProgress,
-          prevPoint.lng + (nextPoint.lng - prevPoint.lng) * segmentProgress
-        ];
-      } else if(f <= prevPoint.progress && prevPoint.progress > 0){
-        // Before first checkpoint, interpolate between station and first checkpoint
-        const segmentProgress = f / prevPoint.progress;
-        return [
-          A.lat + (prevPoint.lat - A.lat) * segmentProgress,
-          A.lng + (prevPoint.lng - A.lng) * segmentProgress
-        ];
-      } else if(f >= nextPoint.progress && nextPoint.progress < 1){
-        // After last checkpoint, interpolate between last checkpoint and station
-        const segmentProgress = (f - nextPoint.progress) / (1 - nextPoint.progress);
-        return [
-          nextPoint.lat + (B.lat - nextPoint.lat) * segmentProgress,
-          nextPoint.lng + (B.lng - nextPoint.lng) * segmentProgress
-        ];
-      }
-    }
     
-    // No checkpoints or at exact checkpoint position, use standard interpolation
-    return [
-      A.lat + (B.lat - A.lat)*f,
-      A.lng + (B.lng - A.lng)*f
-    ];
+      // No checkpoints or at exact checkpoint position, use standard interpolation
+      return [
+        A.lat + (B.lat - A.lat)*f,
+        A.lng + (B.lng - A.lng)*f
+      ];
     }else{
-      const stations = this.getStations();
+    const stations = this.getStations();
     const A = stations[this.idx];
     if (!A) {
       console.error(`Invalid station index ${this.idx} for line ${this.line_id}, branch ${this.branch_id}`);
@@ -876,40 +886,64 @@ class Train {
     const stations = this.getStations();
     const branch = this.getBranch();
     
+    let leg = 0;
+    let dwell = 0;
     //when direction = 1, it is idx. When direction = -1, it is idx - 1.
-    const leg = stations[this.dir===1?this.idx:(this.idx - 1)].run;
-    const dwell = stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
+    //circular line change for stepping.
+    if(this.type == "circular" && this.dir != 1 && this.idx == 0){
+      leg = stations[stations.length - 1].run;
+      dwell = stations[this.idx].dwell; // station ahead when moving
+    }else{
+      //when direction = 1, it is idx. When direction = -1, it is idx - 1.
+      leg = stations[this.dir===1?this.idx:(this.idx - 1)].run;
+      dwell = stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
+    }
     if(this.movingstate == 1){
       if (this.segmentProgress < leg){               // still running
         this.segmentProgress+=TICK_LENGTH;
       } else {                                       // arrived
         //if (tick - this.arrivalTick < dwell) return; // dwelling
-        // leave station
-        this.idx += this.dir;
-        //this.arrivalTick = tick;
-        // turnaround at termini
-        // ---------- turn-around at termini ----------
-        if (this.idx === 0 || this.idx === stations.length-1){
-          this.dir *= -1;                 // reverse
-          //this.arrivalTick = tick;        // mark arrival for dwell calculation
-          // -- loop-completion logic (see #2) --
-          if (this.dir === this.startDir){
-            if (!branch.firstTrainFinished){ 
-              branch.firstTrainFinished = true; 
-              /*
-              branch.spawnEnabled=false; 
-              //delete the last train as 2 trains will look close together.
-              branch.trains[branch.trains.length-1].marker.remove();
-              branch.trains.pop();
-              */
+
+        if(this.type == "circular"){
+          //so much simpler than non-circular lines lmao
+          this.idx += this.dir;
+          if(this.idx === stations.length || this.dir === -1){
+            if(!branch.firstTrainFinished){
+              branch.firstTrainFinished = true;
+            }
+            if(this.idx === stations.length){
+              this.idx = 0;
+            }else if(this.idx === -1){
+              this.idx = stations.length - 1;
             }
           }
-          /*
-          if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
-            if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
+        }else{
+          // leave station
+          this.idx += this.dir;
+          //this.arrivalTick = tick;
+          // turnaround at termini
+          // ---------- turn-around at termini ----------
+          if (this.idx === 0 || this.idx === stations.length-1){
+            this.dir *= -1;                 // reverse
+            //this.arrivalTick = tick;        // mark arrival for dwell calculation
+            // -- loop-completion logic (see #2) --
+            if (this.dir === this.startDir){
+              if (!branch.firstTrainFinished){ 
+                branch.firstTrainFinished = true; 
+                /*
+                branch.spawnEnabled=false; 
+                //delete the last train as 2 trains will look close together.
+                branch.trains[branch.trains.length-1].marker.remove();
+                branch.trains.pop();
+                */
+              }
+            }
+            /*
+            if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
+              if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
+            }
+            */
           }
-          */
-
         }
         this.movingstate = 0;
         this.dwellProgress = this.segmentProgress - leg;
