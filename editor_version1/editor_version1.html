@@ -436,6 +436,7 @@
             mounted() {
                 this.initMap();
                 this.loadSampleData();
+                window.addEventListener('keydown', this.handleKeyPress);
             },
             watch: {
                 coordinateMode: {
@@ -724,6 +725,21 @@
                            this.coordinateMode.lineIndex === lineIndex &&
                            this.coordinateMode.branchIndex === branchIndex &&
                            this.coordinateMode.stationIndex === stationIndex;
+                },
+                handleKeyPress(event) {
+                    const isInputField = event.target.tagName === 'INPUT';
+
+                    if (isInputField) {
+                        console.log(`Key pressed in input: ${event.key}`);
+                        return;
+                    } else {
+                        console.log(`Key pressed outside input: ${event.key}`);
+                    }
+                    console.log(`Key pressed: ${event.key}`);
+                    // Add your logic here
+                    if(event.key == " "){
+                        this.addStation(this.activeTab, this.activeBranchTabs[this.activeTab]);
+                    }
                 }
             }
         }).mount('#app');
