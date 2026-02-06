@@ -778,4 +778,4 @@ let heavyrail_minimal = [
 ];
 
 
-document.getElementById("systems-map").innerHTML = JSON.stringify(heavyrail_minimal);
+document.getElementById("systems-map").innerHTML = JSON.stringify(heavyrail_peak_hours);

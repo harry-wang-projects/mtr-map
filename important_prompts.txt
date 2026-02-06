@@ -32,3 +32,4 @@ Currently, the left side of the editor is too narrow. Make it wider.
 To further reduce the space usage, implement the tab system on the branches of each line as well. In addition, make the parameters (e.g. name, latitude, longtitude, run time, dwell time) take up half a row instead of a full row. 
 Put the "add station" button on the bottom of the list of stations. In addition, make a feature where one can set the coordinates of a station by clicking on a map.
 When adding a station, make it use the set from map option by default. In addition, when a station is being set, don't zoom out of the map. Just keep the position and zoom as it is.
+

@@ -18,7 +18,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 114,
+        SPAWN_EVERY: 216,
         offset_time: 0, // seconds offset for when to start spawning
         stations: [
     {name:"Kennedy Town", lat:22.2810, lng:114.1289, run:80, dwell:120},
@@ -49,7 +49,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 198,
+        SPAWN_EVERY: 300,
         offset_time: 0,
         stations: [
     {name:"Admiralty", lat:22.2790, lng:114.1650, run:270, dwell:120, checkpoints: [{lat:22.2748, lng:114.1629, progresss: 0.15}, {lat:22.2523, lng:114.1771, progresss: 0.9}]},
@@ -68,7 +68,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 300,
+        SPAWN_EVERY: 600,
         offset_time: 0,
         stations: [
     {name:"Sunny Bay", lat:22.3317, lng:114.0289, run:210, dwell:90, checkpoints: [{lat:22.3332, lng:114.0316, progresss: 0.1}, {lat:22.3306, lng:114.0355, progresss: 0.25}, {lat:22.3173, lng:114.0374, progresss: 0.8}]},
@@ -84,7 +84,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 396,
+        SPAWN_EVERY: 540,
         offset_time: 0,
         stations: [
           {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
@@ -98,8 +98,8 @@ let lines = [
       },
       {
         branch_id: 1,
-        SPAWN_EVERY: 396,
-        offset_time: 132,
+        SPAWN_EVERY: 540,
+        offset_time: 180,
         stations: [
           {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
           {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
@@ -112,13 +112,10 @@ let lines = [
       },
       {
         branch_id: 2,
-        SPAWN_EVERY: 396,
-        offset_time: 264,
+        SPAWN_EVERY: 540,
+        offset_time: 180,
         stations: [
-          {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
-          {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
-          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
-          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
+          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:90},
           {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:150, dwell:30,  checkpoints: [{lat:22.3105, lng:114.2689, progresss: 0.3}, {lat:22.3021, lng:114.2750, progresss: 0.7}]},
           {name:"LOHAS Park", lat:22.2958, lng:114.2689, run:90, dwell:120},
         ]
@@ -132,7 +129,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 126,
+        SPAWN_EVERY: 210,
         offset_time: 0,
         stations: [
           {name:"Central", lat:22.2819, lng:114.1575, run:90, dwell:90},
@@ -184,29 +181,6 @@ let lines = [
           {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:90},
         ]
       },
-      {
-        branch_id: 1,
-        SPAWN_EVERY: 252,
-        offset_time: 0,
-        stations: [
-          {name:"Ho Man Tin", lat:22.3092, lng:114.1828, run:120, dwell:90},
-          {name:"Yau Ma Tei", lat:22.3128, lng:114.1708, run:90, dwell:30},
-          {name:"Mong Kok", lat:22.3192, lng:114.1694, run:90, dwell:30},
-          {name:"Prince Edward", lat:22.3244, lng:114.1683, run:90, dwell:30},
-          {name:"Shek Kip Mei", lat:22.3319, lng:114.1686, run:90, dwell:30},
-          {name:"Kowloon Tong", lat:22.3369, lng:114.1761, run:90, dwell:30},
-          {name:"Lok Fu", lat:22.3381, lng:114.1872, run:90, dwell:30},
-          {name:"Wong Tai Sin", lat:22.3417, lng:114.1939, run:90, dwell:30},
-          {name:"Diamond Hill", lat:22.3400, lng:114.2017, run:90, dwell:30},
-          {name:"Choi Hung", lat:22.3348, lng:114.2089, run:90, dwell:30},
-          {name:"Kowloon Bay", lat:22.3236, lng:114.2142, run:90, dwell:30},
-          {name:"Ngau Tau Kok", lat:22.3153, lng:114.2192, run:90, dwell:30},
-          {name:"Kwun Tong", lat:22.3122, lng:114.2264, run:90, dwell:30},
-          {name:"Lam Tin", lat:22.3067, lng:114.2331, run:90, dwell:30},
-          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
-          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:90},
-        ]
-      }
     ]
   },
   {
@@ -216,7 +190,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 360,
+        SPAWN_EVERY: 420,
         offset_time: 0,
         stations: [
           {name:"Hong Kong", lat:22.2852, lng:114.1581, run:150, dwell:90},
@@ -229,19 +203,6 @@ let lines = [
           {name:"Tung Chung", lat:22.2892, lng:113.9417, run:90, dwell:90},
         ]
       },
-      {
-        branch_id: 1,
-        SPAWN_EVERY: 360,
-        offset_time: 180,
-        stations: [
-          {name:"Hong Kong", lat:22.2852, lng:114.1581, run:150, dwell:90},
-          {name:"Kowloon", lat:22.3050, lng:114.1614, run:150, dwell:30},
-          {name:"Olympic", lat:22.3178, lng:114.1594, run:90, dwell:30},
-          {name:"Nam Cheong", lat:22.3267, lng:114.1533, run:240, dwell:30},
-          {name:"Lai King", lat:22.3483, lng:114.1261, run:90, dwell:30},
-          {name:"Tsing Yi", lat:22.3583, lng:114.1069, run:300, dwell:90},
-        ]
-      }
     ]
   },
   {
@@ -270,7 +231,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 162,
+        SPAWN_EVERY: 360,
         offset_time: 0,
         stations: [
           {name:"Wu Kai Sha", lat:22.4292, lng:114.2439, run:90, dwell:90},
@@ -311,7 +272,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 486,
+        SPAWN_EVERY: 720,
         offset_time: 0,
         stations: [
           {name:"Admiralty", lat:22.2789, lng:114.1647, run:60, dwell:90},
@@ -332,8 +293,8 @@ let lines = [
       },
       {
         branch_id: 1,
-        SPAWN_EVERY: 486,
-        offset_time: 162,
+        SPAWN_EVERY: 720,
+        offset_time: 240,
         stations: [
           {name:"Admiralty", lat:22.2789, lng:114.1647, run:60, dwell:90},
           {name:"Exhibition Centre", lat:22.2817, lng:114.1752, run:180, dwell:30, checkpoints: [{lat:22.2830, lng:114.1835, progress: 0.25}]},
@@ -353,8 +314,8 @@ let lines = [
       },
       {
         branch_id: 2,
-        SPAWN_EVERY: 486,
-        offset_time: 324,
+        SPAWN_EVERY: 720,
+        offset_time: 480,
         stations: [
           {name:"Admiralty", lat:22.2789, lng:114.1647, run:60, dwell:90},
           {name:"Exhibition Centre", lat:22.2817, lng:114.1752, run:180, dwell:30, checkpoints: [{lat:22.2830, lng:114.1835, progress: 0.25}]},
@@ -372,24 +333,6 @@ let lines = [
           {name:"Lok Ma Chau", lat:22.5144, lng:114.0658, run:90, dwell:90},
         ]
       }
-    ]
-  },
-  {
-    line_id: 10,
-    name: "Test line",
-    line_color: "#01ffff",
-    branches: [
-      {
-        branch_id: 0,
-        SPAWN_EVERY: 100,
-        offset_time: 0,
-        branch_type: "circular",
-        stations: [
-          {name:"station 1", lat:22.3103, lng:114.1235, run:60, dwell:30},
-          {name:"station 2", lat:22.3003, lng:114.1429, run:180, dwell:30},
-          {name:"station 3", lat:22.2967, lng:114.1149, run:90, dwell:30, checkpoints: [{lat:22.3000, lng:114.1100, progresss: 0.4}]},
-        ]
-      },
     ]
   },
 ];
