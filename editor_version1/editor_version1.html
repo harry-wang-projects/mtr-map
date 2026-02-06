@@ -496,6 +496,10 @@
                                 }
                             });
 
+                            if(branch.branch_type == "circular"){
+                                coords.push([branch.stations[0].lat, branch.stations[0].lng])
+                            }
+
                             if (coords.length > 1) {
                                 const polyline = L.polyline(coords, {
                                     color: line.line_color,
@@ -545,10 +549,13 @@
                     }
                 },
                 addStation(lineIndex, branchIndex) {
+                    //the new station by default starts close to the last station.
+                    let branch_length = this.lines[lineIndex].branches[branchIndex].stations.length;
+
                     const newStation = {
                         name: 'New Station',
-                        lat: 22.3,
-                        lng: 114.2,
+                        lat: this.lines[lineIndex].branches[branchIndex].stations[branch_length - 1].lat,
+                        lng: this.lines[lineIndex].branches[branchIndex].stations[branch_length - 1].lng,
                         run: 90,
                         dwell: 30
                     };
@@ -731,7 +738,7 @@
 
                     if (isInputField) {
                         console.log(`Key pressed in input: ${event.key}`);
-                        return;
+                        return;g
                     } else {
                         console.log(`Key pressed outside input: ${event.key}`);
                     }
