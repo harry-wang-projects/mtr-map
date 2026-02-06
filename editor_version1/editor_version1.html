@@ -217,7 +217,7 @@
         }
         .parameter-row {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 10px;
             margin-bottom: 10px;
         }
@@ -370,9 +370,10 @@
                                             <label>Branch Type:</label>
                                             <input type="text" v-model="branch.branch_type">
                                         </div>
+                                        <div class="parameter-group">
+                                            <button @click="requestDeleteBranch(lineIndex, branchIndex)" class="delete">Delete Branch</button>
+                                        </div>
                                     </div>
-                                    
-                                    <button @click="requestDeleteBranch(lineIndex, branchIndex)" class="delete">Delete Branch</button>
                                     
                                     <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section">
                                         
@@ -406,10 +407,10 @@
                                                     {{ isCoordinateModeActive(lineIndex, branchIndex, stationIndex) ? 'Click Map to Set' : 'Set from Map' }}
                                                 </button>
                                             </div>
+                                            <div class="parameter-group">
+                                                <button @click="requestDeleteStation(lineIndex, branchIndex, stationIndex)" class="delete">Delete Station</button>
+                                            </div>
                                         </div>
-                                        
-                                        
-                                        <button @click="requestDeleteStation(lineIndex, branchIndex, stationIndex)" class="delete">Delete Station</button>
                                         
                                         <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section">
                                             <h4>Checkpoint {{ checkpointIndex + 1 }}</h4>
@@ -423,9 +424,6 @@
                                                     <label>Longitude:</label>
                                                     <input type="number" step="0.0001" v-model.number="checkpoint.lng">
                                                 </div>
-                                            </div>
-                                            
-                                            <div class="parameter-row">
                                                 <div class="parameter-group">
                                                     <label>Progress:</label>
                                                     <input type="number" step="0.01" v-model.number="checkpoint.progresss">

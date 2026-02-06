@@ -1,0 +1,206 @@
+[
+  {
+    "line_id": 8,
+    "name": "Tuen Ma Line",
+    "line_color": "#923011",
+    "branches": [
+      {
+        "branch_id": 0,
+        "SPAWN_EVERY": 162,
+        "offset_time": 0,
+        "stations": [
+          {
+            "name": "Wu Kai Sha",
+            "lat": 22.4292,
+            "lng": 114.2439,
+            "run": 90,
+            "dwell": 90
+          },
+          {
+            "name": "Ma On Shan",
+            "lat": 22.4247,
+            "lng": 114.2316,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Heng On",
+            "lat": 22.4175,
+            "lng": 114.2258,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Tai Shui Hang",
+            "lat": 22.4089,
+            "lng": 114.2231,
+            "run": 150,
+            "dwell": 30
+          },
+          {
+            "name": "Shek Mun",
+            "lat": 22.3878,
+            "lng": 114.2083,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "City One",
+            "lat": 22.3828,
+            "lng": 114.2036,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Sha Tin Wai",
+            "lat": 22.3772,
+            "lng": 114.195,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Che Kung Temple",
+            "lat": 22.3747,
+            "lng": 114.1861,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Tai Wai",
+            "lat": 22.3731,
+            "lng": 114.1786,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Hin Keng",
+            "lat": 22.3639,
+            "lng": 114.1708,
+            "run": 240,
+            "dwell": 30
+          },
+          {
+            "name": "Diamond Hill",
+            "lat": 22.34,
+            "lng": 114.2016,
+            "run": 120,
+            "dwell": 30
+          },
+          {
+            "name": "Kai Tak",
+            "lat": 22.3303,
+            "lng": 114.1994,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Sung Wong Toi",
+            "lat": 22.3258,
+            "lng": 114.1914,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "To Kwa Wan",
+            "lat": 22.3172,
+            "lng": 114.1875,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Ho Man Tin",
+            "lat": 22.3092,
+            "lng": 114.1828,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Hung Hom",
+            "lat": 22.3028,
+            "lng": 114.1817,
+            "run": 150,
+            "dwell": 30
+          },
+          {
+            "name": "East Tsim Sha Tsui",
+            "lat": 22.2956,
+            "lng": 114.1753,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Austin",
+            "lat": 22.3047,
+            "lng": 114.1664,
+            "run": 150,
+            "dwell": 30
+          },
+          {
+            "name": "Nam Cheong",
+            "lat": 22.3267,
+            "lng": 114.1533,
+            "run": 150,
+            "dwell": 30
+          },
+          {
+            "name": "Mei Foo",
+            "lat": 22.3381,
+            "lng": 114.1375,
+            "run": 240,
+            "dwell": 30
+          },
+          {
+            "name": "Tsuen Wan West",
+            "lat": 22.3686,
+            "lng": 114.1097,
+            "run": 300,
+            "dwell": 30
+          },
+          {
+            "name": "Kam Sheung Road",
+            "lat": 22.4347,
+            "lng": 114.0633,
+            "run": 150,
+            "dwell": 30
+          },
+          {
+            "name": "Yuen Long",
+            "lat": 22.4461,
+            "lng": 114.0353,
+            "run": 90,
+            "dwell": 30
+          },
+          {
+            "name": "Long Ping",
+            "lat": 22.4478,
+            "lng": 114.0253,
+            "run": 210,
+            "dwell": 30
+          },
+          {
+            "name": "Tin Shui Wai",
+            "lat": 22.4481,
+            "lng": 114.0017,
+            "run": 210,
+            "dwell": 30
+          },
+          {
+            "name": "Siu Hong",
+            "lat": 22.4119,
+            "lng": 113.9786,
+            "run": 150,
+            "dwell": 30
+          },
+          {
+            "name": "Tuen Mun",
+            "lat": 22.3953,
+            "lng": 113.9731,
+            "run": 90,
+            "dwell": 90
+          }
+        ],
+        "branch_type": "normal"
+      }
+    ]
+  }
+]
