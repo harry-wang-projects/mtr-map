@@ -256,6 +256,7 @@
                 <button @click="addLine" class="add">Add Line</button>
                 <button @click="importJSON">Import JSON</button>
                 <button @click="exportJSON">Export JSON</button>
+                <button @click="zoomOut">Zoom Out</button>
             </div>
             
             <div v-if="lines.length === 0" class="line-editor">
@@ -448,7 +449,7 @@
                 },
                 lines: {
                     handler() {
-                        this.updateMap();
+                        this.updateMap(false);
                     },
                     deep: true
                 }
@@ -469,7 +470,7 @@
                         }
                     });
                 },
-                updateMap() {
+                updateMap(change_zoom) {
                     this.markers.forEach(marker => this.map.removeLayer(marker));
                     this.polylines.forEach(polyline => this.map.removeLayer(polyline));
                     this.markers = [];
@@ -506,7 +507,7 @@
                     });
 
                     // Only fit bounds if not in coordinate mode
-                    if (this.markers.length > 0 && !this.coordinateMode) {
+                    if (this.markers.length > 0 && !this.coordinateMode && change_zoom == true) {
                         const group = L.featureGroup(this.markers);
                         this.map.fitBounds(group.getBounds().pad(0.1));
                     }
@@ -698,6 +699,9 @@
                     link.download = 'subway_map.json';
                     link.click();
                     URL.revokeObjectURL(url);
+                },
+                zoomOut() {
+                    this.updateMap(true);
                 },
                 getActiveBranchTab(lineIndex) {
                     if (!(lineIndex in this.activeBranchTabs)) {
