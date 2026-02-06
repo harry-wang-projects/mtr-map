@@ -33,4 +33,4 @@ To further reduce the space usage, implement the tab system on the branches of e
 Put the "add station" button on the bottom of the list of stations. In addition, make a feature where one can set the coordinates of a station by clicking on a map.
 When adding a station, make it use the set from map option by default. In addition, when a station is being set, don't zoom out of the map. Just keep the position and zoom as it is.
 
-Make it so that this editor displays a warning modal or box when I click one of the delete buttons. It should give me the option to confirm the deletion or cancel it. Apply this to delete line, delete branch, delete station, and delete checkpoint.
+Make it so that this editor displays a warning modal or box when I click one of the delete buttons. It should give me the option to confirm the deletion or cancel it. Apply this to delete line, delete branch, delete station, and delete checkpoint. 
