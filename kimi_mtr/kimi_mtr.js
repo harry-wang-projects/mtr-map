@@ -1130,9 +1130,9 @@ function playAnimationFrame(time){
         train_icon = L.divIcon({
         html:`<div style="
           background: #fff;
-          height: 18px; width: 36px;border-radius:9px;font-size: 11px;text-align: center;vertical-align: middle;
+          height: 18px; width: 32px;border-radius:9px;font-size: 11px;text-align: center;vertical-align: middle;
           border:2px solid ${lines[train.line_id].line_color};">${lines[train.line_id].label}</div>  `,
-          iconSize:[0,0], iconAnchor:[18,10]
+          iconSize:[0,0], iconAnchor:[16,10]
         })
       }else{
         train_icon = L.divIcon({
