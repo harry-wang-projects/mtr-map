@@ -651,11 +651,18 @@
                 addStation(lineIndex, branchIndex) {
                     //the new station by default starts close to the last station.
                     let branch_length = this.lines[lineIndex].branches[branchIndex].stations.length;
-
+                    let default_lat = 0, default_long = 0;
+                    if(branch_length > 0){
+                        default_lat = this.lines[lineIndex].branches[branchIndex].stations[branch_length - 1].lat;
+                        default_lng = this.lines[lineIndex].branches[branchIndex].stations[branch_length - 1].lng;
+                    }else{
+                        default_lat = 22;
+                        default_lng = 140;
+                    }
                     const newStation = {
                         name: 'New Station',
-                        lat: this.lines[lineIndex].branches[branchIndex].stations[branch_length - 1].lat,
-                        lng: this.lines[lineIndex].branches[branchIndex].stations[branch_length - 1].lng,
+                        lat: default_lat,
+                        lng: default_lng,
                         run: 90,
                         dwell: 30
                     };
