@@ -3,6 +3,9 @@
     "line_id": 8,
     "name": "Tuen Ma Line",
     "line_color": "#923011",
+    "label": "TML",
+    "markertype": "default",
+    "image": "",
     "branches": [
       {
         "branch_id": 0,
@@ -205,8 +208,11 @@
   },
   {
     "line_id": 2,
-    "name": "New Line",
+    "name": "505",
     "line_color": "#ec0000",
+    "label": "505",
+    "markertype": "hklrt",
+    "image": "",
     "branches": [
       {
         "branch_id": 0,
@@ -418,6 +424,9 @@
     "line_id": 3,
     "name": "507",
     "line_color": "#14a447",
+    "label": "506",
+    "markertype": "hklrt",
+    "image": "",
     "branches": [
       {
         "branch_id": 0,
@@ -557,6 +566,9 @@
   {
     "line_id": 4,
     "name": "610",
+    "label": "507",
+    "markertype": "hklrt",
+    "image": "",
     "line_color": "#900000",
     "branches": [
       {
