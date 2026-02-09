@@ -23,6 +23,7 @@ Right now, all lines are the same in that trains go along the stations and come 
 
 Make an html textbox and button. When I click the button, I set a javascript variable to a json file given inside the textbox. Make sure that I can put the textbox and button anywhere in an existing project easily. Use textarea instead of input.
 
+Make the function reset_lines reset the entire video by stopping it and resetting and clearing everything, and then re-drawing the routes in the lines variable onto the map. Next, in kimi_mtr.html and kimi_mtr.js, add a two buttons. The first button allows for people to upload json files to update the "lines" variable and then runs the reset_lines() function. The second button is similar to the first button but appends the lines in the json to existing lines in "lines" instead of setting "lines" to the json. Check to make sure that there are no bugs when doing these tasks.
 
 
 Editor:

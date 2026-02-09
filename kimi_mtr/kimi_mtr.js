@@ -340,95 +340,112 @@ let lines = [
 /* =========  END CONFIG  ================================================ */
 
 function reset_lines(){
-  // Draw each branch
-  document.getElementById('status').innerHTML = '';
+  // Stop video/playback and clear playback state
+  stopPlayback();
+  clearPlaybackMarkers();
+  if(typeof animationData !== 'undefined') animationData = [];
+  if(typeof currentPlaybackTime !== 'undefined') currentPlaybackTime = 0;
+  if(typeof tick !== 'undefined') tick = 0;
+
+  // Remove all train markers and clear train arrays
   for(let i = 0; i < lines.length; i++){
+    const line = lines[i];
+    if(!line.branches) continue;
+    for(let b = 0; b < line.branches.length; b++){
+      const branch = line.branches[b];
+      if(branch.trains){
+        branch.trains.forEach(t => t.remove());
+        branch.trains.length = 0;
+      }
+    }
+  }
 
-    //top display thing
-    line_span = document.createElement('span');
-    line_span.setAttribute("id", `line${i}`)
-    document.getElementById('status').appendChild(line_span);
-    document.getElementById('status').appendChild(document.createElement("br"));
+  // Clear map route layers and coords
+  if(typeof routeLayerGroup !== 'undefined') routeLayerGroup.clearLayers();
+  allLineCoords = [];
 
-    // Draw each branch
+  // Clear status and time tables, then rebuild time tables for current lines
+  const statusEl = document.getElementById('status');
+  if(statusEl) statusEl.innerHTML = '';
+  const timeTablesEl = document.getElementById('timeTables');
+  if(timeTablesEl) timeTablesEl.innerHTML = '';
+  buildTables();
+
+  // Re-draw each line and branch onto the map
+  for(let i = 0; i < lines.length; i++){
+    // Top display thing
+    const line_span = document.createElement('span');
+    line_span.setAttribute("id", `line${i}`);
+    if(statusEl) statusEl.appendChild(line_span);
+    if(statusEl) statusEl.appendChild(document.createElement("br"));
+
     lines[i].branches = lines[i].branches || [];
     for(let b = 0; b < lines[i].branches.length; b++){
       const branch = lines[i].branches[b];
-    
+
       // Build coordinates array including checkpoints
       const branchCoords = [];
       for(let s = 0; s < branch.stations.length; s++){
         const station = branch.stations[s];
-        // Add station
         branchCoords.push([station.lat, station.lng]);
-      
-        // Add checkpoints between this station and next (if going forward)
         if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
-          // Sort checkpoints by progress (handle typo: progresss)
           const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
             const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
             const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
             return progA - progB;
           });
-        
-          sortedCheckpoints.forEach(cp => {
-            branchCoords.push([cp.lat, cp.lng]);
-          });
+          sortedCheckpoints.forEach(cp => branchCoords.push([cp.lat, cp.lng]));
         }
       }
-      
-      //Add the final loop. For circular lines only.
       if(lines[i].branches[b].hasOwnProperty("branch_type") && lines[i].branches[b].branch_type === "circular"){
         const station = branch.stations[branch.stations.length - 1];
-        //add the checkpoints of the final station
         if(station.checkpoints && Array.isArray(station.checkpoints)){
-          // Sort checkpoints by progress (handle typo: progresss)
           const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
             const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
             const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
             return progA - progB;
           });
-        
-          sortedCheckpoints.forEach(cp => {
-            branchCoords.push([cp.lat, cp.lng]);
-          });
+          sortedCheckpoints.forEach(cp => branchCoords.push([cp.lat, cp.lng]));
         }
         branchCoords.push([branch.stations[0].lat, branch.stations[0].lng]);
       }
 
-      L.polyline(branchCoords, {color:lines[i].line_color, weight:2}).addTo(map);
+      L.polyline(branchCoords, {color: lines[i].line_color, weight: 2}).addTo(routeLayerGroup);
       allLineCoords.push(...branchCoords);
 
-      branch.stations.forEach(s=>{
-        // Draw station
+      branch.stations.forEach(s => {
         L.circleMarker([s.lat, s.lng], {
-          radius: 3, 
+          radius: 3,
           color: '#fff',
-          weight: 2, 
-          fillColor: lines[i].line_color, 
+          weight: 2,
+          fillColor: lines[i].line_color,
           fillOpacity: 1
-        }).addTo(map);
-      
-        // Draw checkpoints for this station (forward direction: between this station and next)
-          if(s.checkpoints && Array.isArray(s.checkpoints)){
+        }).addTo(routeLayerGroup);
+        if(s.checkpoints && Array.isArray(s.checkpoints)){
           s.checkpoints.forEach(cp => {
             L.circleMarker([cp.lat, cp.lng], {
-              radius: 2, 
+              radius: 2,
               color: lines[i].line_color,
-              weight: 1, 
-              fillColor: lines[i].line_color, 
+              weight: 1,
+              fillColor: lines[i].line_color,
               fillOpacity: 0.5
-            }).addTo(map);
+            }).addTo(routeLayerGroup);
           });
         }
       });
 
-      //set variables for each branch
       branch.trains = [];
       branch.spawnEnabled = true;
       branch.firstTrainFinished = false;
       branch.lastspawn = 0;
     }
+  }
+
+  if(allLineCoords.length > 0 && typeof map !== 'undefined'){
+    map.fitBounds(L.latLngBounds(allLineCoords), { padding: [50, 50] });
+  }
+  if(document.getElementById("tickdisplay")){
+    document.getElementById("tickdisplay").textContent = 'Stopped';
   }
 }
 
@@ -437,6 +454,9 @@ const map = L.map('map').setView([22.28, 114.18], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution:'© OSM', maxZoom:19, opacity: 0.8
 }).addTo(map);
+
+/* Layer group for all route polylines and station markers (so we can clear and re-draw) */
+let routeLayerGroup = L.layerGroup().addTo(map);
 
 /* draw static line */
 let allLineCoords = [];
@@ -494,7 +514,7 @@ for(let i = 0; i < lines.length; i++){
       branchCoords.push([branch.stations[0].lat, branch.stations[0].lng]);
     }
 
-    L.polyline(branchCoords, {color:lines[i].line_color, weight:2}).addTo(map);
+    L.polyline(branchCoords, {color:lines[i].line_color, weight:2}).addTo(routeLayerGroup);
     allLineCoords.push(...branchCoords);
 
     branch.stations.forEach(s=>{
@@ -505,7 +525,7 @@ for(let i = 0; i < lines.length; i++){
         weight: 2, 
         fillColor: lines[i].line_color, 
         fillOpacity: 1
-      }).addTo(map);
+      }).addTo(routeLayerGroup);
       
       // Draw checkpoints for this station (forward direction: between this station and next)
       if(s.checkpoints && Array.isArray(s.checkpoints)){
@@ -516,7 +536,7 @@ for(let i = 0; i < lines.length; i++){
             weight: 1, 
             fillColor: lines[i].line_color, 
             fillOpacity: 0.5
-          }).addTo(map);
+          }).addTo(routeLayerGroup);
         });
       }
     });
@@ -1309,8 +1329,7 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
   
   if(isGenerating){
     return;
-  }
-  
+  }  
   generateBtn.disabled = true;
   generateBtn.textContent = 'Generating...';
   statusDiv.textContent = 'Starting generation...';
@@ -1382,6 +1401,72 @@ document.getElementById('tickTime')?.addEventListener('input', e=>{
   TICK_LENGTH = +e.target.value;
   document.getElementById('tickTimeLbl').textContent = TICK_LENGTH;
   // startClock(); // Disabled - using new generation/playback system
+});
+
+/* ---------- JSON file upload: replace or append lines ------------------ */
+function setJsonLoadStatus(msg, isError) {
+  const el = document.getElementById('jsonLoadStatus');
+  if (el) {
+    el.textContent = msg;
+    el.style.color = isError ? '#dc3545' : '#666';
+  }
+}
+
+function normalizeLineIds() {
+  for (let i = 0; i < lines.length; i++) {
+    lines[i].line_id = i;
+    if (!lines[i].branches) lines[i].branches = [];
+    for (let b = 0; b < lines[i].branches.length; b++) {
+      lines[i].branches[b].branch_id = b;
+      if (!lines[i].branches[b].stations) lines[i].branches[b].stations = [];
+    }
+  }
+}
+
+function loadJsonFile(replace) {
+  const input = document.getElementById(replace ? 'jsonFileReplace' : 'jsonFileAppend');
+  if (input && input.files && input.files.length > 0) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!Array.isArray(data)) {
+          setJsonLoadStatus('JSON must be an array of lines.', true);
+          return;
+        }
+        if (replace) {
+          lines = data;
+        } else {
+          lines = lines.concat(data);
+        }
+        normalizeLineIds();
+        reset_lines();
+        setJsonLoadStatus(replace ? 'Lines replaced.' : 'Lines appended.');
+        input.value = '';
+      } catch (err) {
+        setJsonLoadStatus('Invalid JSON: ' + err.message, true);
+      }
+    };
+    reader.onerror = function () {
+      setJsonLoadStatus('Failed to read file.', true);
+    };
+    reader.readAsText(file);
+  }
+}
+
+document.getElementById('loadJsonReplaceBtn')?.addEventListener('click', function () {
+  document.getElementById('jsonFileReplace')?.click();
+});
+document.getElementById('jsonFileReplace')?.addEventListener('change', function () {
+  loadJsonFile(true);
+});
+
+document.getElementById('loadJsonAppendBtn')?.addEventListener('click', function () {
+  document.getElementById('jsonFileAppend')?.click();
+});
+document.getElementById('jsonFileAppend')?.addEventListener('change', function () {
+  loadJsonFile(false);
 });
 
 /* ---------- initial setup ---------- */

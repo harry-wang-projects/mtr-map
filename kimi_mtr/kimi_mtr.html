@@ -131,24 +131,15 @@
         <div id="map"></div>
 
 
-    <div class="json-input-container">
-    <textarea id="jsonInput" style="width:90%;height:100px;margin-top:50px;" placeholder="Enter JSON here..."></textarea>
-    <button id="setJsonButton">Set JSON Variable</button>
+    <div class="json-upload-container" style="margin-top:15px; padding:10px; border:1px solid #ddd; border-radius:4px;">
+        <strong style="color: #0860a8;">Load lines from JSON file</strong>
+        <br><br>
+        <input type="file" id="jsonFileReplace" accept=".json,application/json" style="display:none">
+        <button type="button" id="loadJsonReplaceBtn" style="margin-right:8px; padding:6px 12px; background:#0860a8; color:white; border:none; border-radius:4px; cursor:pointer;">Load JSON (Replace Lines)</button>
+        <input type="file" id="jsonFileAppend" accept=".json,application/json" style="display:none">
+        <button type="button" id="loadJsonAppendBtn" style="padding:6px 12px; background:#28a745; color:white; border:none; border-radius:4px; cursor:pointer;">Load JSON (Append Lines)</button>
+        <span id="jsonLoadStatus" style="margin-left:10px; font-size:12px; color:#666;"></span>
     </div>
-
-    <script>
-        document.getElementById('setJsonButton').addEventListener('click', function() {
-            try {
-                const jsonString = document.getElementById('jsonInput').value;
-                lines = JSON.parse(jsonString);
-                console.log(lines); // Here you can see the parsed JSON object in the console
-                // You can assign it to a variable if needed
-                // let myJsonVariable = jsonData;
-            } catch (error) {
-                alert('Invalid JSON: ' + error.message);
-            }
-        });
-    </script>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
