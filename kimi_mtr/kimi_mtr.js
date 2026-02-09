@@ -1125,6 +1125,26 @@ function generateAnimation(durationSeconds, onProgress = null){
   });
 }
 
+function generate_train_icon(markertype, line_color, label){
+  if(markertype == "hklrt"){
+    return L.divIcon({
+      html:`<div style="
+        background: #fff;
+        height: 18px; width: 32px;border-radius:9px;font-size: 11px;text-align: center;vertical-align: middle;
+        border:2px solid ${line_color};">${label}</div>  `,
+        iconSize:[0,0], iconAnchor:[16,10]
+    })
+  }else{
+    return L.divIcon({
+      html:`<div style="
+        background:${line_color};
+        width:20px;height:20px;border-radius:50%;
+        border:2px solid #fff;"></div>  `,
+      iconSize:[0,0], iconAnchor:[10,10]
+    })
+  }
+}
+
 /* -------------------- PLAYBACK STAGE ----------------------------------- */
 function playAnimationFrame(time){
   if(!animationData || animationData.length === 0){
@@ -1146,6 +1166,8 @@ function playAnimationFrame(time){
     const train = frame[i];
     let train_icon;
     if(lines[train.line_id].hasOwnProperty("markertype")){
+      train_icon = generate_train_icon(lines[train.line_id].markertype, lines[train.line_id].line_color, lines[train.line_id].label)
+      /*
       if(lines[train.line_id].markertype == "hklrt"){
         train_icon = L.divIcon({
         html:`<div style="
@@ -1163,7 +1185,10 @@ function playAnimationFrame(time){
         iconSize:[0,0], iconAnchor:[10,10]
         })
       }
+      */
     }else{
+      train_icon = generate_train_icon("", lines[train.line_id].line_color, lines[train.line_id].label)
+      /*
       train_icon = L.divIcon({
         html:`<div style="
           background:${lines[train.line_id].line_color};
@@ -1171,6 +1196,7 @@ function playAnimationFrame(time){
           border:2px solid #fff;"></div>  `,
         iconSize:[0,0], iconAnchor:[10,10]
       });
+      */
     }
     const marker = L.marker([train.lat, train.lng], {
       icon: train_icon
