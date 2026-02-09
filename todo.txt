@@ -1,0 +1,7 @@
+Stuff to do:
+
+Set up auto-travel time function based on distance (account for checkpoints!)
+Write the autocheckpoint function to automatically determine progress for checkpoints
+Make images work for the train labels
+Add settings bar (e.g. hiding the lines, enabling/disabling certain lines in the video generator)
+Dragging stations around

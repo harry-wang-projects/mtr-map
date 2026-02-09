@@ -18,7 +18,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 114,
+        SPAWN_EVERY: 216,
         offset_time: 0, // seconds offset for when to start spawning
         stations: [
     {name:"Kennedy Town", lat:22.2810, lng:114.1289, run:80, dwell:120},
@@ -49,7 +49,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 198,
+        SPAWN_EVERY: 300,
         offset_time: 0,
         stations: [
     {name:"Admiralty", lat:22.2790, lng:114.1650, run:270, dwell:120, checkpoints: [{lat:22.2748, lng:114.1629, progresss: 0.15}, {lat:22.2523, lng:114.1771, progresss: 0.9}]},
@@ -68,7 +68,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 300,
+        SPAWN_EVERY: 600,
         offset_time: 0,
         stations: [
     {name:"Sunny Bay", lat:22.3317, lng:114.0289, run:210, dwell:90, checkpoints: [{lat:22.3332, lng:114.0316, progresss: 0.1}, {lat:22.3306, lng:114.0355, progresss: 0.25}, {lat:22.3173, lng:114.0374, progresss: 0.8}]},
@@ -84,7 +84,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 396,
+        SPAWN_EVERY: 540,
         offset_time: 0,
         stations: [
           {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
@@ -98,8 +98,8 @@ let lines = [
       },
       {
         branch_id: 1,
-        SPAWN_EVERY: 396,
-        offset_time: 132,
+        SPAWN_EVERY: 540,
+        offset_time: 180,
         stations: [
           {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
           {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
@@ -112,13 +112,10 @@ let lines = [
       },
       {
         branch_id: 2,
-        SPAWN_EVERY: 396,
-        offset_time: 264,
+        SPAWN_EVERY: 540,
+        offset_time: 180,
         stations: [
-          {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
-          {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
-          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
-          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
+          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:90},
           {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:150, dwell:30,  checkpoints: [{lat:22.3105, lng:114.2689, progresss: 0.3}, {lat:22.3021, lng:114.2750, progresss: 0.7}]},
           {name:"LOHAS Park", lat:22.2958, lng:114.2689, run:90, dwell:120},
         ]
@@ -132,7 +129,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 126,
+        SPAWN_EVERY: 210,
         offset_time: 0,
         stations: [
           {name:"Central", lat:22.2819, lng:114.1575, run:90, dwell:90},
@@ -184,29 +181,6 @@ let lines = [
           {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:90},
         ]
       },
-      {
-        branch_id: 1,
-        SPAWN_EVERY: 252,
-        offset_time: 0,
-        stations: [
-          {name:"Ho Man Tin", lat:22.3092, lng:114.1828, run:120, dwell:90},
-          {name:"Yau Ma Tei", lat:22.3128, lng:114.1708, run:90, dwell:30},
-          {name:"Mong Kok", lat:22.3192, lng:114.1694, run:90, dwell:30},
-          {name:"Prince Edward", lat:22.3244, lng:114.1683, run:90, dwell:30},
-          {name:"Shek Kip Mei", lat:22.3319, lng:114.1686, run:90, dwell:30},
-          {name:"Kowloon Tong", lat:22.3369, lng:114.1761, run:90, dwell:30},
-          {name:"Lok Fu", lat:22.3381, lng:114.1872, run:90, dwell:30},
-          {name:"Wong Tai Sin", lat:22.3417, lng:114.1939, run:90, dwell:30},
-          {name:"Diamond Hill", lat:22.3400, lng:114.2017, run:90, dwell:30},
-          {name:"Choi Hung", lat:22.3348, lng:114.2089, run:90, dwell:30},
-          {name:"Kowloon Bay", lat:22.3236, lng:114.2142, run:90, dwell:30},
-          {name:"Ngau Tau Kok", lat:22.3153, lng:114.2192, run:90, dwell:30},
-          {name:"Kwun Tong", lat:22.3122, lng:114.2264, run:90, dwell:30},
-          {name:"Lam Tin", lat:22.3067, lng:114.2331, run:90, dwell:30},
-          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
-          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:90},
-        ]
-      }
     ]
   },
   {
@@ -216,7 +190,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 360,
+        SPAWN_EVERY: 420,
         offset_time: 0,
         stations: [
           {name:"Hong Kong", lat:22.2852, lng:114.1581, run:150, dwell:90},
@@ -229,19 +203,6 @@ let lines = [
           {name:"Tung Chung", lat:22.2892, lng:113.9417, run:90, dwell:90},
         ]
       },
-      {
-        branch_id: 1,
-        SPAWN_EVERY: 360,
-        offset_time: 180,
-        stations: [
-          {name:"Hong Kong", lat:22.2852, lng:114.1581, run:150, dwell:90},
-          {name:"Kowloon", lat:22.3050, lng:114.1614, run:150, dwell:30},
-          {name:"Olympic", lat:22.3178, lng:114.1594, run:90, dwell:30},
-          {name:"Nam Cheong", lat:22.3267, lng:114.1533, run:240, dwell:30},
-          {name:"Lai King", lat:22.3483, lng:114.1261, run:90, dwell:30},
-          {name:"Tsing Yi", lat:22.3583, lng:114.1069, run:300, dwell:90},
-        ]
-      }
     ]
   },
   {
@@ -270,7 +231,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 162,
+        SPAWN_EVERY: 360,
         offset_time: 0,
         stations: [
           {name:"Wu Kai Sha", lat:22.4292, lng:114.2439, run:90, dwell:90},
@@ -311,7 +272,7 @@ let lines = [
     branches: [
       {
         branch_id: 0,
-        SPAWN_EVERY: 486,
+        SPAWN_EVERY: 720,
         offset_time: 0,
         stations: [
           {name:"Admiralty", lat:22.2789, lng:114.1647, run:60, dwell:90},
@@ -332,8 +293,8 @@ let lines = [
       },
       {
         branch_id: 1,
-        SPAWN_EVERY: 486,
-        offset_time: 162,
+        SPAWN_EVERY: 720,
+        offset_time: 240,
         stations: [
           {name:"Admiralty", lat:22.2789, lng:114.1647, run:60, dwell:90},
           {name:"Exhibition Centre", lat:22.2817, lng:114.1752, run:180, dwell:30, checkpoints: [{lat:22.2830, lng:114.1835, progress: 0.25}]},
@@ -353,8 +314,8 @@ let lines = [
       },
       {
         branch_id: 2,
-        SPAWN_EVERY: 486,
-        offset_time: 324,
+        SPAWN_EVERY: 720,
+        offset_time: 480,
         stations: [
           {name:"Admiralty", lat:22.2789, lng:114.1647, run:60, dwell:90},
           {name:"Exhibition Centre", lat:22.2817, lng:114.1752, run:180, dwell:30, checkpoints: [{lat:22.2830, lng:114.1835, progress: 0.25}]},
@@ -378,14 +339,128 @@ let lines = [
 
 /* =========  END CONFIG  ================================================ */
 
+function reset_lines(){
+  // Stop video/playback and clear playback state
+  stopPlayback();
+  clearPlaybackMarkers();
+  if(typeof animationData !== 'undefined') animationData = [];
+  if(typeof currentPlaybackTime !== 'undefined') currentPlaybackTime = 0;
+  if(typeof tick !== 'undefined') tick = 0;
+
+  // Remove all train markers and clear train arrays
+  for(let i = 0; i < lines.length; i++){
+    const line = lines[i];
+    if(!line.branches) continue;
+    for(let b = 0; b < line.branches.length; b++){
+      const branch = line.branches[b];
+      if(branch.trains){
+        branch.trains.forEach(t => t.remove());
+        branch.trains.length = 0;
+      }
+    }
+  }
+
+  // Clear map route layers and coords
+  if(typeof routeLayerGroup !== 'undefined') routeLayerGroup.clearLayers();
+  allLineCoords = [];
+
+  // Clear status and time tables, then rebuild time tables for current lines
+  const statusEl = document.getElementById('status');
+  if(statusEl) statusEl.innerHTML = '';
+  const timeTablesEl = document.getElementById('timeTables');
+  if(timeTablesEl) timeTablesEl.innerHTML = '';
+  buildTables();
+
+  // Re-draw each line and branch onto the map
+  for(let i = 0; i < lines.length; i++){
+    // Top display thing
+    const line_span = document.createElement('span');
+    line_span.setAttribute("id", `line${i}`);
+    if(statusEl) statusEl.appendChild(line_span);
+    if(statusEl) statusEl.appendChild(document.createElement("br"));
+
+    lines[i].branches = lines[i].branches || [];
+    for(let b = 0; b < lines[i].branches.length; b++){
+      const branch = lines[i].branches[b];
+
+      // Build coordinates array including checkpoints
+      const branchCoords = [];
+      for(let s = 0; s < branch.stations.length; s++){
+        const station = branch.stations[s];
+        branchCoords.push([station.lat, station.lng]);
+        if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
+          const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+            const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
+            const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
+            return progA - progB;
+          });
+          sortedCheckpoints.forEach(cp => branchCoords.push([cp.lat, cp.lng]));
+        }
+      }
+      if(lines[i].branches[b].hasOwnProperty("branch_type") && lines[i].branches[b].branch_type === "circular"){
+        const station = branch.stations[branch.stations.length - 1];
+        if(station.checkpoints && Array.isArray(station.checkpoints)){
+          const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+            const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
+            const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
+            return progA - progB;
+          });
+          sortedCheckpoints.forEach(cp => branchCoords.push([cp.lat, cp.lng]));
+        }
+        branchCoords.push([branch.stations[0].lat, branch.stations[0].lng]);
+      }
+
+      L.polyline(branchCoords, {color: lines[i].line_color, weight: 2}).addTo(routeLayerGroup);
+      allLineCoords.push(...branchCoords);
+
+      branch.stations.forEach(s => {
+        L.circleMarker([s.lat, s.lng], {
+          radius: 3,
+          color: '#fff',
+          weight: 2,
+          fillColor: lines[i].line_color,
+          fillOpacity: 1
+        }).addTo(routeLayerGroup);
+        if(s.checkpoints && Array.isArray(s.checkpoints)){
+          s.checkpoints.forEach(cp => {
+            L.circleMarker([cp.lat, cp.lng], {
+              radius: 2,
+              color: lines[i].line_color,
+              weight: 1,
+              fillColor: lines[i].line_color,
+              fillOpacity: 0.5
+            }).addTo(routeLayerGroup);
+          });
+        }
+      });
+
+      branch.trains = [];
+      branch.spawnEnabled = true;
+      branch.firstTrainFinished = false;
+      branch.lastspawn = 0;
+    }
+  }
+
+  if(allLineCoords.length > 0 && typeof map !== 'undefined'){
+    map.fitBounds(L.latLngBounds(allLineCoords), { padding: [50, 50] });
+  }
+  if(document.getElementById("tickdisplay")){
+    document.getElementById("tickdisplay").textContent = 'Stopped';
+  }
+}
+
 /* ---------- map setup (your old code) --------------------------------- */
 const map = L.map('map').setView([22.28, 114.18], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution:'© OSM', maxZoom:19, opacity: 0.8
 }).addTo(map);
 
+/* Layer group for all route polylines and station markers (so we can clear and re-draw) */
+let routeLayerGroup = L.layerGroup().addTo(map);
+
 /* draw static line */
 let allLineCoords = [];
+document.getElementById('status').innerHTML = '';
 for(let i = 0; i < lines.length; i++){
   //top display thing
   line_span = document.createElement('span');
@@ -420,7 +495,26 @@ for(let i = 0; i < lines.length; i++){
       }
     }
     
-    L.polyline(branchCoords, {color:lines[i].line_color, weight:2}).addTo(map);
+    //Add the final loop. For circular lines only.
+    if(lines[i].branches[b].hasOwnProperty("branch_type") && lines[i].branches[b].branch_type === "circular"){
+      const station = branch.stations[branch.stations.length - 1];
+      //add the checkpoints of the final station
+      if(station.checkpoints && Array.isArray(station.checkpoints)){
+        // Sort checkpoints by progress (handle typo: progresss)
+        const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+          const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
+          const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
+          return progA - progB;
+        });
+        
+        sortedCheckpoints.forEach(cp => {
+          branchCoords.push([cp.lat, cp.lng]);
+        });
+      }
+      branchCoords.push([branch.stations[0].lat, branch.stations[0].lng]);
+    }
+
+    L.polyline(branchCoords, {color:lines[i].line_color, weight:2}).addTo(routeLayerGroup);
     allLineCoords.push(...branchCoords);
 
     branch.stations.forEach(s=>{
@@ -431,7 +525,7 @@ for(let i = 0; i < lines.length; i++){
         weight: 2, 
         fillColor: lines[i].line_color, 
         fillOpacity: 1
-      }).addTo(map);
+      }).addTo(routeLayerGroup);
       
       // Draw checkpoints for this station (forward direction: between this station and next)
       if(s.checkpoints && Array.isArray(s.checkpoints)){
@@ -442,7 +536,7 @@ for(let i = 0; i < lines.length; i++){
             weight: 1, 
             fillColor: lines[i].line_color, 
             fillOpacity: 0.5
-          }).addTo(map);
+          }).addTo(routeLayerGroup);
         });
       }
     });
@@ -483,12 +577,28 @@ let lastrefresh = 0; //last time it refreshed
 let finishedticks = 0; //seeing how many ticks actually finished
 
 class Train {
-  constructor(line_id, branch_id, direction, createMarker = true){   // +1 = forward, -1 = backward
+  constructor(line_id, branch_id, direction, createMarker = true, line_type){   // +1 = forward, -1 = backward
     this.line_id = line_id;
     this.branch_id = branch_id;
     this.startDir = direction;   // remember original direction
     this.id   = 'T' + Math.floor(Math.random()*1e6);
     this.dir  = direction;
+
+    //circular or not
+    this.type = line_type;
+
+    //graphics settings
+    /*
+    if(lines[this.line_id].hasOwnProperty("label")){
+      this.label = lines[this.line_id].label;
+    }
+    if(lines[this.line_id].hasOwnProperty("markertype")){
+      this.markertype = lines[this.line_id].markertype;
+    }
+    if(lines[this.line_id].hasOwnProperty("image")){
+      this.image = lines[this.line_id].image;
+    }
+    */
     
     // Get the branch
     const branch = lines[this.line_id].branches[this.branch_id];
@@ -533,13 +643,23 @@ class Train {
   }
   
   latlng(){
-    const stations = this.getStations();
+    let stations = this.getStations();
     const A = stations[this.idx];
     if (!A) {
       console.error(`Invalid station index ${this.idx} for line ${this.line_id}, branch ${this.branch_id}`);
       return [22.28, 114.18]; // Default fallback position
     }
-    const B = stations[this.idx + this.dir];
+    let B = stations[this.idx + this.dir];
+
+    //see if it is the last stop for a circular line
+    //Circular Lines Only part 1
+    if(this.idx == stations.length - 1 && this.dir == 1){
+      B = stations[0];
+    }else if(this.idx == 0 && this.dir != 1){
+      B = stations[stations.length - 1];
+    }
+    //end of cirular lines only part 1
+
     if (!B) return [A.lat, A.lng]; // terminus
     
     const stationIdx = this.dir === 1 ? this.idx : (this.idx - 1);
@@ -638,40 +758,64 @@ class Train {
     const stations = this.getStations();
     const branch = this.getBranch();
     
+    let leg = 0;
+    let dwell = 0;
     //when direction = 1, it is idx. When direction = -1, it is idx - 1.
-    const leg = stations[this.dir===1?this.idx:(this.idx - 1)].run;
-    const dwell = stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
+    //circular line change for stepping.
+    if(this.type == "circular" && this.dir != 1 && this.idx == 0){
+      leg = stations[stations.length - 1].run;
+      dwell = stations[this.idx].dwell; // station ahead when moving
+    }else{
+      //when direction = 1, it is idx. When direction = -1, it is idx - 1.
+      leg = stations[this.dir===1?this.idx:(this.idx - 1)].run;
+      dwell = stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
+    }
     if(this.movingstate == 1){
       if (this.segmentProgress < leg){               // still running
         this.segmentProgress+=TICK_LENGTH;
       } else {                                       // arrived
         //if (tick - this.arrivalTick < dwell) return; // dwelling
-        // leave station
-        this.idx += this.dir;
-        //this.arrivalTick = tick;
-        // turnaround at termini
-        // ---------- turn-around at termini ----------
-        if (this.idx === 0 || this.idx === stations.length-1){
-          this.dir *= -1;                 // reverse
-          //this.arrivalTick = tick;        // mark arrival for dwell calculation
-          // -- loop-completion logic (see #2) --
-          if (this.dir === this.startDir){
-            if (!branch.firstTrainFinished){ 
-              branch.firstTrainFinished = true; 
-              /*
-              branch.spawnEnabled=false; 
-              //delete the last train as 2 trains will look close together.
-              branch.trains[branch.trains.length-1].marker.remove();
-              branch.trains.pop();
-              */
+
+        if(this.type == "circular"){
+          //so much simpler than non-circular lines lmao
+          this.idx += this.dir;
+          if(this.idx === stations.length || this.dir === -1){
+            if(!branch.firstTrainFinished){
+              branch.firstTrainFinished = true;
+            }
+            if(this.idx === stations.length){
+              this.idx = 0;
+            }else if(this.idx === -1){
+              this.idx = stations.length - 1;
             }
           }
-          /*
-          if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
-            if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
+        }else{
+          // leave station
+          this.idx += this.dir;
+          //this.arrivalTick = tick;
+          // turnaround at termini
+          // ---------- turn-around at termini ----------
+          if (this.idx === 0 || this.idx === stations.length-1){
+            this.dir *= -1;                 // reverse
+            //this.arrivalTick = tick;        // mark arrival for dwell calculation
+            // -- loop-completion logic (see #2) --
+            if (this.dir === this.startDir){
+              if (!branch.firstTrainFinished){ 
+                branch.firstTrainFinished = true; 
+                /*
+                branch.spawnEnabled=false; 
+                //delete the last train as 2 trains will look close together.
+                branch.trains[branch.trains.length-1].marker.remove();
+                branch.trains.pop();
+                */
+              }
+            }
+            /*
+            if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
+              if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
+            }
+            */
           }
-          */
-
         }
         this.movingstate = 0;
         this.dwellProgress = this.segmentProgress - leg;
@@ -743,6 +887,7 @@ buildTables();
 
 
 function restart(){
+  reset_lines();
   for(let i = 0; i < lines.length; i++){
     const line = lines[i];
     for(let b = 0; b < line.branches.length; b++){
@@ -762,10 +907,51 @@ function clearPlaybackMarkers(){
   playbackMarkers = [];
 }
 
+/* -------------------- Helper function to calculate when all spawning finishes ---- */
+function calculateSpawnCompletionTime(){
+  let maxSpawnTime = 0;
+  
+  for(let i = 0; i < lines.length; i++){
+    const line = lines[i];
+    for(let b = 0; b < line.branches.length; b++){
+      const branch = line.branches[b];
+      
+      // Calculate total journey time for one complete round trip
+      let totalJourneyTime = 0;
+      for(let s = 0; s < branch.stations.length; s++){
+        totalJourneyTime += branch.stations[s].run + branch.stations[s].dwell;
+      }
+      
+      // Time when first train completes journey = offset + journey time
+      const firstTrainCompletionTime = branch.offset_time + totalJourneyTime;
+      
+      maxSpawnTime = Math.max(maxSpawnTime, firstTrainCompletionTime);
+    }
+  }
+  
+  return maxSpawnTime;
+}
+
+/* -------------------- Helper function to check if all branches have stopped spawning ---- */
+function allBranchesStoppedSpawning(){
+  for(let i = 0; i < lines.length; i++){
+    const line = lines[i];
+    for(let b = 0; b < line.branches.length; b++){
+      const branch = line.branches[b];
+      if(branch.spawnEnabled){
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+let spawn_completed_time = 0;
+
 /* -------------------- GENERATION STAGE -------------------------------- */
 function generateAnimation(durationSeconds, onProgress = null){
   return new Promise((resolve, reject) => {
-    console.log(`Starting generation for ${durationSeconds} seconds...`);
+    console.log(`Starting generation for ${durationSeconds} seconds after spawning completes...`);
     isGenerating = true;
     animationData = [];
     
@@ -777,17 +963,16 @@ function generateAnimation(durationSeconds, onProgress = null){
     const originalTickLength = TICK_LENGTH;
     TICK_LENGTH = 1;
     
-    // Initialize arrays for each second
-    for(let s = 0; s <= durationSeconds; s++){
-      animationData[s] = [];
-    }
-    
     let currentSecond = 0;
     const CHUNK_SIZE = 100; // Process 100 seconds at a time to avoid blocking
     
+    let spawnPhaseComplete = false;
+    let spawnEndTime = 0;
+    let totalDuration = 0; // Will be calculated after spawn phase
+    
     function processChunk(){
       try {
-        const endSecond = Math.min(currentSecond + CHUNK_SIZE, durationSeconds);
+        const endSecond = Math.min(currentSecond + CHUNK_SIZE, currentSecond + CHUNK_SIZE); // Process chunk
         
         for(let second = currentSecond; second < endSecond; second++){
           // Advance simulation by 1 second
@@ -802,7 +987,11 @@ function generateAnimation(durationSeconds, onProgress = null){
               const effectiveTime = tick - branch.offset_time;
               if (effectiveTime >= 0 && branch.spawnEnabled && effectiveTime - branch.lastspawn >= branch.SPAWN_EVERY){
                 branch.lastspawn = effectiveTime;
-                branch.trains.push(new Train(i, b, 1, false)); // Don't create markers during generation
+                if(branch.hasOwnProperty("branch_type") && branch.branch_type === "circular"){
+                  branch.trains.push(new Train(i, b, 1, false, branch.branch_type)); // Don't create markers during generation
+                }else{
+                  branch.trains.push(new Train(i, b, 1, false, "normal")); // Don't create markers during generation
+                }
               }
             }
           }
@@ -822,7 +1011,25 @@ function generateAnimation(durationSeconds, onProgress = null){
             }
           }
           
+          // Check if spawn phase is complete
+          if(!spawnPhaseComplete && allBranchesStoppedSpawning()){
+            spawnPhaseComplete = true;
+            spawnEndTime = tick;
+            totalDuration = spawnEndTime + durationSeconds;
+            spawn_completed_time = spawnEndTime;
+            console.log(`Spawn phase complete at ${spawnEndTime}s. Total generation: ${totalDuration}s (spawn ${spawnEndTime}s + animation ${durationSeconds}s)`);
+            
+            // Initialize only future animation slots; do not overwrite existing spawn-phase data
+            for(let s = second + 1; s <= totalDuration; s++){
+              animationData[s] = [];
+            }
+          }
+          
           // Store positions for this second
+          if(animationData[second] === undefined){
+            animationData[second] = [];
+          }
+          
           for(let i = 0; i < lines.length; i++){
             const line = lines[i];
             for(let b = 0; b < line.branches.length; b++){
@@ -844,17 +1051,32 @@ function generateAnimation(durationSeconds, onProgress = null){
               }
             }
           }
+          
+          // Report progress
+          if(onProgress){
+            if(spawnPhaseComplete){
+              onProgress(second, totalDuration, spawnEndTime, true);
+            } else {
+              // During spawn phase, show which lines are still spawning
+              let spawningLines = [];
+              for(let i = 0; i < lines.length; i++){
+                const line = lines[i];
+                for(let b = 0; b < line.branches.length; b++){
+                  const branch = line.branches[b];
+                  if(branch.spawnEnabled){
+                    spawningLines.push(`${line.name} (Branch ${b+1})`);
+                  }
+                }
+              }
+              onProgress(second, null, null, false, spawningLines);
+            }
+          }
         }
         
         currentSecond = endSecond;
         
-        // Report progress
-        if(onProgress){
-          onProgress(currentSecond, durationSeconds);
-        }
-        
         // Continue with next chunk or finish
-        if(currentSecond < durationSeconds){
+        if(!spawnPhaseComplete || currentSecond < totalDuration){
           // Use requestAnimationFrame for better performance and UI responsiveness
           requestAnimationFrame(processChunk);
         } else {
@@ -867,13 +1089,15 @@ function generateAnimation(durationSeconds, onProgress = null){
                 const train = branch.trains[j];
                 try {
                   const pos = train.latlng();
-                  animationData[durationSeconds].push({
-                    train_id: train.id,
-                    line_id: train.line_id,
-                    branch_id: train.branch_id,
-                    lat: pos[0],
-                    lng: pos[1]
-                  });
+                  if(animationData[totalDuration]){
+                    animationData[totalDuration].push({
+                      train_id: train.id,
+                      line_id: train.line_id,
+                      branch_id: train.branch_id,
+                      lat: pos[0],
+                      lng: pos[1]
+                    });
+                  }
                 } catch(e) {
                   console.error(`Error getting final position for train ${train.id}:`, e);
                 }
@@ -885,7 +1109,7 @@ function generateAnimation(durationSeconds, onProgress = null){
           TICK_LENGTH = originalTickLength;
           
           isGenerating = false;
-          console.log(`Generation complete! Generated ${animationData.length} seconds of data.`);
+          console.log(`Generation complete! Generated ${animationData.length} seconds of data (${spawnEndTime}s spawn + ${durationSeconds}s animation).`);
           resolve(animationData);
         }
       } catch(e) {
@@ -899,6 +1123,28 @@ function generateAnimation(durationSeconds, onProgress = null){
     // Start processing
     processChunk();
   });
+}
+
+function generate_train_icon(markertype, line_color, label){
+  if(markertype == "hklrt"){
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html:`<div style="
+        background: #fff;
+        height: 18px; width: 32px;border-radius:9px;font-size: 11px;text-align: center;vertical-align: middle;
+        border:2px solid ${line_color};">${label}</div>  `,
+        iconSize:[0, 0], iconAnchor:[16,10]
+    })
+  }else{
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html:`<div style="
+        background:${line_color};
+        width:20px;height:20px;border-radius:50%;
+        border:2px solid #fff;"></div>  `,
+      iconSize:[0, 0], iconAnchor:[10,10]
+    })
+  }
 }
 
 /* -------------------- PLAYBACK STAGE ----------------------------------- */
@@ -920,14 +1166,14 @@ function playAnimationFrame(time){
   const frame = animationData[time] || [];
   for(let i = 0; i < frame.length; i++){
     const train = frame[i];
+    let train_icon;
+    if(lines[train.line_id].hasOwnProperty("markertype")){
+      train_icon = generate_train_icon(lines[train.line_id].markertype, lines[train.line_id].line_color, lines[train.line_id].label)
+    }else{
+      train_icon = generate_train_icon("", lines[train.line_id].line_color, lines[train.line_id].label)
+    }
     const marker = L.marker([train.lat, train.lng], {
-      icon: L.divIcon({
-        html:`<div style="
-          background:${lines[train.line_id].line_color};
-          width:20px;height:20px;border-radius:50%;
-          border:2px solid #fff;"></div>  `,
-        iconSize:[0,0], iconAnchor:[10,10]
-      })
+      icon: train_icon
     }).addTo(map);
     playbackMarkers.push(marker);
   }
@@ -939,7 +1185,7 @@ function playAnimationFrame(time){
     line_span.textContent = `${lines[i].name} Trains ${lineTrains.length}`;
   }
   
-  document.getElementById("tickdisplay").textContent = `Playback: ${time}s / ${animationData.length - 1}s`;
+  document.getElementById("tickdisplay").textContent = `Playback: ${time - spawn_completed_time}s / ${animationData.length - 1 - spawn_completed_time}s (actual playback ${time}s / ${animationData.length - 1}s )`;
 }
 
 let playbackIntervalId = null;
@@ -961,14 +1207,14 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
   isPlaying = true;
   currentPlaybackSpeed = playbackSpeed;
   if(resetTime){
-    currentPlaybackTime = 0;
+    currentPlaybackTime;
   }
   
   // Play at specified speed (frames per second)
   const frameInterval = 1000 / playbackSpeed; // milliseconds between frames
   
   playbackIntervalId = setInterval(() => {
-    playAnimationFrame(currentPlaybackTime);
+    playAnimationFrame(currentPlaybackTime + spawn_completed_time);
     currentPlaybackTime++;
     
     if(currentPlaybackTime >= animationData.length){
@@ -992,7 +1238,7 @@ function updatePlaybackSpeed(newSpeed){
   const frameInterval = 1000 / newSpeed; // milliseconds between frames
   
   playbackIntervalId = setInterval(() => {
-    playAnimationFrame(currentPlaybackTime);
+    playAnimationFrame(currentPlaybackTime + spawn_completed_time);
     currentPlaybackTime++;
     
     if(currentPlaybackTime >= animationData.length){
@@ -1083,21 +1329,29 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
   
   if(isGenerating){
     return;
-  }
-  
+  }  
   generateBtn.disabled = true;
   generateBtn.textContent = 'Generating...';
   statusDiv.textContent = 'Starting generation...';
   
   try {
-    await generateAnimation(duration, (current, total) => {
-      statusDiv.textContent = `Generating... ${current}/${total} seconds (${Math.round(current/total*100)}%)`;
+    await generateAnimation(duration, (current, total, spawnEndTime, isPostSpawn, spawningLines) => {
+      if(isPostSpawn){
+        // After spawn phase: animation duration is counting (requested duration only)
+        const progress = Math.round((current - spawnEndTime) / (total - spawnEndTime) * 100);
+        statusDiv.textContent = `Generating animation... ${current - spawnEndTime}/${total - spawnEndTime}s of animation (${progress}%) | Total: ${current}/${total}s`;
+      } else {
+        // During spawn phase: show elapsed time and which lines are still spawning
+        const spawningText = spawningLines && spawningLines.length > 0
+          ? spawningLines.join(', ')
+          : 'none (finalizing…)';
+        statusDiv.textContent = `Spawning trains… ${current}s elapsed\nLines still spawning: ${spawningText}\n(Animation will run for ${duration}s after all lines stop spawning.)`;
+      }
     });
     
     generateBtn.disabled = false;
     generateBtn.textContent = 'Generate Animation';
-    statusDiv.textContent = `Generation complete! ${animationData.length} seconds of data ready.`;
-    
+    statusDiv.textContent = `Generation complete! Total ${animationData.length}s = ${spawn_completed_time}s spawn + ${animationData.length - spawn_completed_time}s animation.`;
     // Enable playback controls
     document.getElementById('playBtn').disabled = false;
     document.getElementById('pauseBtn').disabled = false;
@@ -1147,6 +1401,72 @@ document.getElementById('tickTime')?.addEventListener('input', e=>{
   TICK_LENGTH = +e.target.value;
   document.getElementById('tickTimeLbl').textContent = TICK_LENGTH;
   // startClock(); // Disabled - using new generation/playback system
+});
+
+/* ---------- JSON file upload: replace or append lines ------------------ */
+function setJsonLoadStatus(msg, isError) {
+  const el = document.getElementById('jsonLoadStatus');
+  if (el) {
+    el.textContent = msg;
+    el.style.color = isError ? '#dc3545' : '#666';
+  }
+}
+
+function normalizeLineIds() {
+  for (let i = 0; i < lines.length; i++) {
+    lines[i].line_id = i;
+    if (!lines[i].branches) lines[i].branches = [];
+    for (let b = 0; b < lines[i].branches.length; b++) {
+      lines[i].branches[b].branch_id = b;
+      if (!lines[i].branches[b].stations) lines[i].branches[b].stations = [];
+    }
+  }
+}
+
+function loadJsonFile(replace) {
+  const input = document.getElementById(replace ? 'jsonFileReplace' : 'jsonFileAppend');
+  if (input && input.files && input.files.length > 0) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!Array.isArray(data)) {
+          setJsonLoadStatus('JSON must be an array of lines.', true);
+          return;
+        }
+        if (replace) {
+          lines = data;
+        } else {
+          lines = lines.concat(data);
+        }
+        normalizeLineIds();
+        reset_lines();
+        setJsonLoadStatus(replace ? 'Lines replaced.' : 'Lines appended.');
+        input.value = '';
+      } catch (err) {
+        setJsonLoadStatus('Invalid JSON: ' + err.message, true);
+      }
+    };
+    reader.onerror = function () {
+      setJsonLoadStatus('Failed to read file.', true);
+    };
+    reader.readAsText(file);
+  }
+}
+
+document.getElementById('loadJsonReplaceBtn')?.addEventListener('click', function () {
+  document.getElementById('jsonFileReplace')?.click();
+});
+document.getElementById('jsonFileReplace')?.addEventListener('change', function () {
+  loadJsonFile(true);
+});
+
+document.getElementById('loadJsonAppendBtn')?.addEventListener('click', function () {
+  document.getElementById('jsonFileAppend')?.click();
+});
+document.getElementById('jsonFileAppend')?.addEventListener('change', function () {
+  loadJsonFile(false);
 });
 
 /* ---------- initial setup ---------- */
