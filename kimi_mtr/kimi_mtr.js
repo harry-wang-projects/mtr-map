@@ -1128,19 +1128,21 @@ function generateAnimation(durationSeconds, onProgress = null){
 function generate_train_icon(markertype, line_color, label){
   if(markertype == "hklrt"){
     return L.divIcon({
+      className: 'custom-div-icon',
       html:`<div style="
         background: #fff;
         height: 18px; width: 32px;border-radius:9px;font-size: 11px;text-align: center;vertical-align: middle;
         border:2px solid ${line_color};">${label}</div>  `,
-        iconSize:[0,0], iconAnchor:[16,10]
+        iconSize:[0, 0], iconAnchor:[16,10]
     })
   }else{
     return L.divIcon({
+      className: 'custom-div-icon',
       html:`<div style="
         background:${line_color};
         width:20px;height:20px;border-radius:50%;
         border:2px solid #fff;"></div>  `,
-      iconSize:[0,0], iconAnchor:[10,10]
+      iconSize:[0, 0], iconAnchor:[10,10]
     })
   }
 }
