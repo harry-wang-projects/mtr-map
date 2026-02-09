@@ -6,6 +6,8 @@
     "label": "TML",
     "markertype": "default",
     "image": "",
+    "max_speed": 36.1,
+    "acceleration": 1.0,
     "branches": [
       {
         "branch_id": 0,
@@ -213,6 +215,8 @@
     "label": "505",
     "markertype": "hklrt",
     "image": "",
+    "max_speed": 22.2,
+    "acceleration": 1.0,
     "branches": [
       {
         "branch_id": 0,
@@ -427,6 +431,8 @@
     "label": "507",
     "markertype": "hklrt",
     "image": "",
+    "max_speed": 22.2,
+    "acceleration": 1.0,
     "branches": [
       {
         "branch_id": 0,

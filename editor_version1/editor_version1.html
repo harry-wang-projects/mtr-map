@@ -350,6 +350,16 @@
                                 <input type="text" v-model="line.image">
                             </div>
                         </div>
+                        <div class = "parameter-row">
+                            <div class="parameter-group">
+                                <label>Max Speed:</label>
+                                <input type="number" v-model.number="line.max_speed">
+                            </div>
+                            <div class="parameter-group">
+                                <label>Acceleration:</label>
+                                <input type="number" v-model="line.acceleration">
+                            </div>
+                        </div>
                         <button @click="addBranch(lineIndex)" class="add">Add Branch</button>
                         <button @click="requestDeleteLine(lineIndex)" class="delete">Delete Line</button>
                         
@@ -384,6 +394,12 @@
                                             <label>Branch Type:</label>
                                             <input type="text" v-model="branch.branch_type">
                                         </div>
+                                        <div class="parameter-group">
+                                            <label>Offset Time:</label>
+                                            <input type="number" v-model="branch.offset_time">
+                                        </div>
+                                    </div>
+                                    <div class="parameter-row">
                                         <div class="parameter-group">
                                             <button @click="requestDeleteBranch(lineIndex, branchIndex)" class="delete">Delete Branch</button>
                                         </div>
@@ -818,6 +834,12 @@
                                     }
                                     if(!this.lines[i].hasOwnProperty('image')){
                                         this.lines[i].image = "";
+                                    }
+                                    if(!this.lines[i].hasOwnProperty('max_speed')){
+                                        this.lines[i].max_speed = 22.2;
+                                    }
+                                    if(!this.lines[i].hasOwnProperty('acceleration')){
+                                        this.lines[i].acceleration = 1.0;
                                     }
                                 }
                             } catch (error) {
