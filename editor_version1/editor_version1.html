@@ -336,6 +336,20 @@
                                 <input type="color" v-model="line.line_color">
                             </div>
                         </div>
+                        <div class = "parameter-row">
+                            <div class="parameter-group">
+                                <label>Label:</label>
+                                <input type="text" v-model.number="line.label">
+                            </div>
+                            <div class="parameter-group">
+                                <label>Marker Type:</label>
+                                <input type="text" v-model="line.markertype">
+                            </div>
+                            <div class="parameter-group">
+                                <label>Image</label>
+                                <input type="text" v-model="line.image">
+                            </div>
+                        </div>
                         <button @click="addBranch(lineIndex)" class="add">Add Branch</button>
                         <button @click="requestDeleteLine(lineIndex)" class="delete">Delete Line</button>
                         
@@ -795,6 +809,15 @@
                                         if(!this.lines[i].branches[j].hasOwnProperty('branch_type')){
                                             this.lines[i].branches[j].branch_type = "normal";
                                         }
+                                    }
+                                    if(!this.lines[i].hasOwnProperty('label')){
+                                        this.lines[i].label = this.lines[i].name;
+                                    }
+                                    if(!this.lines[i].hasOwnProperty('markertype')){
+                                        this.lines[i].markertype = "default";
+                                    }
+                                    if(!this.lines[i].hasOwnProperty('image')){
+                                        this.lines[i].image = "";
                                     }
                                 }
                             } catch (error) {
