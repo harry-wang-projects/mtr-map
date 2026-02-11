@@ -5,3 +5,6 @@ Write the autocheckpoint function to automatically determine progress for checkp
 Make images work for the train labels
 Add settings bar (e.g. hiding the lines, enabling/disabling certain lines in the video generator)
 Dragging stations around
+New progress function for longer lines
+Display the label next to the line
+Split the code into shorter readable segments
