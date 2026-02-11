@@ -96,14 +96,16 @@ let lines = [
 ];
 
 /* =========  END CONFIG  ================================================ */
-
-function reset_lines(){
+function reset_animation(){
   // Stop video/playback and clear playback state
   stopPlayback();
   clearPlaybackMarkers();
   if(typeof animationData !== 'undefined') animationData = [];
   if(typeof currentPlaybackTime !== 'undefined') currentPlaybackTime = 0;
   if(typeof tick !== 'undefined') tick = 0;
+}
+
+function reset_lines(){
 
   // Remove all train markers and clear train arrays
   for(let i = 0; i < lines.length; i++){
@@ -219,6 +221,8 @@ let routeLayerGroup = L.layerGroup().addTo(map);
 /* draw static line */
 let allLineCoords = [];
 document.getElementById('status').innerHTML = '';
+reset_lines();
+/*
 for(let i = 0; i < lines.length; i++){
   //top display thing
   line_span = document.createElement('span');
@@ -311,7 +315,7 @@ for(let i = 0; i < lines.length; i++){
     map.fitBounds(L.latLngBounds(allLineCoords), {padding:[50,50]});
   }
 }
-
+*/
 
 //train simulation here
 
@@ -645,6 +649,7 @@ buildTables();
 
 
 function restart(){
+  reset_animation();
   reset_lines();
   for(let i = 0; i < lines.length; i++){
     const line = lines[i];
@@ -1141,6 +1146,7 @@ function loadJsonFile(replace) {
           lines = lines.concat(data);
         }
         normalizeLineIds();
+        reset_animation();
         reset_lines();
         setJsonLoadStatus(replace ? 'Lines replaced.' : 'Lines appended.');
         input.value = '';
