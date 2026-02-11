@@ -1029,54 +1029,8 @@ function resumePlayback(playbackSpeed = 1){
   startPlayback(playbackSpeed, false); // Don't reset time when resuming
 }
 
-/* -------------------- OLD SIMULATION (kept for reference) ------------- */
-/* ---------- simulation step ---------- */
-function simulate(){
 
-  tick+=TICK_LENGTH;
-  actual_tick++;
 
-  //refresh coordinates
-  refreshcoords = 0;
-  if(tick - lastrefresh > TICK_RATE / 30){
-    lastrefresh = tick;
-    refreshcoords = 1;
-  }
-
-  //do the important stuff first so that they don't get hindered
-  for(let i = 0; i < lines.length; i++){
-    //such as train spawn control
-    if (lines[i].spawnEnabled && tick - lines[i].lastspawn >= lines[i].SPAWN_EVERY){
-      lines[i].lastspawn = tick;
-      //direction = 1
-      lines[i].trains.push(new Train(i, 1));
-    }
-  }
-
-  for(let i = 0; i < lines.length; i++){
-    let trainsstring = "";
-    for(let j = 0; j < lines[i].trains.length; j++){
-      trainsstring += lines[i].trains[j].visitedstations.toString() + " "
-    }
-
-    lines[i].trains.forEach(t=>t.step());
-    line_span = document.getElementById(`line${i}`);
-    line_span.textContent = `${lines[i].name} Trains ${lines[i].trains.length} | Spawning ${lines[i].spawnEnabled?'ON':'OFF'} ${trainsstring}`;
-  }
-  document.getElementById("tickdisplay").textContent = `Tick ${tick} (actually ${actual_tick}) - finished: ${finishedticks}`;
-  finishedticks+= 1;
-}
-
-/* ---------- configurable clock (OLD - kept for reference) ---------- */
-let TICK_RATE = 30;          // sim ticks per real second
-let SIM_MS    = 1000 / TICK_RATE;
-let clockId   = null;
-
-function startClock(){
-  if (clockId) clearInterval(clockId);
-  SIM_MS = 1000 / TICK_RATE;
-  clockId = setInterval(simulate, SIM_MS);
-}
 
 /* ---------- UI Controls for Generation and Playback ---------- */
 // Generation controls
