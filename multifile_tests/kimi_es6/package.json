@@ -1,0 +1,7 @@
+{
+  "name": "es6-modules-demo",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Simple ES6 modules demonstration",
+  "main": "main.js"
+}
