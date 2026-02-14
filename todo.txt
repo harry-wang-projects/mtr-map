@@ -8,3 +8,4 @@ Dragging stations around
 New progress function for longer lines
 Display the label next to the line
 Split the code into shorter readable segments
+Idea: Make the generation stage a separate file. It should be a function that takes in the lines json and returns the array of the train positions vs time.
