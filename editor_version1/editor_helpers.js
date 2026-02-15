@@ -79,6 +79,42 @@ export function autotime(input_stations, speed, acceleration) {
     return return_array;
 }
 
-export function autoprogress(input_checkpoints) {
+export function autoprogress(input_station, nextstation_lat, nextstation_lng) {
+    if(!input_station.hasOwnProperty("checkpoints")){
+        return [];
+    };
+    if(input_station.checkpoints.length == 0){
+        return [];
+    }
+    //returns the progress of each checkpoint.
+    let return_array = [];
+    let distances = [];
+    let total_distance = 0;
+    
+    //add the checkpoints up.
+    let lat1 = input_station.lat;
+    let lng1 = input_station.lng;
+    let lat2 = input_station.checkpoints[0].lat;
+    let lng2 = input_station.checkpoints[0].lng;
+    distances[0] = calculateDistance(lat1, lng1, lat2, lng2)
+    total_distance += distances[0];
+    for(let j = 0; j < input_station.checkpoints.length - 1; j++){
+        lat1 = input_station.checkpoints[j].lat;
+        lng1 = input_station.checkpoints[j].lng;
+        lat2 = input_station.checkpoints[j+1].lat;
+        lng2 = input_station.checkpoints[j+1].lng;
+        //it is accumulative distance, not real distance.
+        distances[j + 1] = total_distance + calculateDistance(lat1, lng1, lat2, lng2);
+        total_distance = distances[j + 1];
+    }
+    lat1 = input_station.checkpoints[input_station.checkpoints.length - 1].lat;
+    lng1 = input_station.checkpoints[input_station.checkpoints.length - 1].lng;
+    lat2 = nextstation_lat;
+    lng2 = nextstation_lng;
+    total_distance += (calculateDistance(lat1, lng1, lat2, lng2));
 
+    for(let i = 0; i < distances.length; i++){
+        return_array[i] = distances[i] / total_distance;
+    }
+    return return_array;
 }

@@ -3,7 +3,7 @@ import {calculateDistance, dist2time, autotime, autoprogress} from "./editor_hel
 let lat1 = 22.3317, lng1 = 114.0289;
 let lat2 = 22.3156, lng2 = 114.0450;
 
-/*
+
 let testing_stations= [
     {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
     {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
@@ -12,7 +12,8 @@ let testing_stations= [
     {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:150, dwell:30,  checkpoints: [{lat:22.3105, lng:114.2689, progresss: 0.3}, {lat:22.3021, lng:114.2750, progresss: 0.7}]},
     {name:"LOHAS Park", lat:22.2958, lng:114.2689, run:90, dwell:120},
 ];
-*/
+
+/*
 let testing_stations = [
           {name:"Hong Kong", lat:22.2852, lng:114.1581, run:150, dwell:90},
           {name:"Kowloon", lat:22.3050, lng:114.1614, run:150, dwell:30},
@@ -23,6 +24,7 @@ let testing_stations = [
           {name:"Sunny Bay", lat:22.3317, lng:114.0289, run:360, dwell:30},
           {name:"Tung Chung", lat:22.2892, lng:113.9417, run:90, dwell:90},
         ];
+*/
 
 document.getElementById("distance").innerHTML=(calculateDistance(lat1, lng1, lat2, lng2));
 document.getElementById("time").innerHTML=(dist2time(10, 22.2, 0.8));
@@ -32,3 +34,4 @@ for(let i = 0; i < display_array.length; i++){
     display_string += display_array[i].toString() + " , ";
 }
 document.getElementById("times").innerHTML=(display_string);
+document.getElementById("progresses").innerHTML=autoprogress({name:"Sunny Bay", lat:22.3317, lng:114.0289, run:210, dwell:90, checkpoints: [{lat:22.3332, lng:114.0316, progresss: 0.1}, {lat:22.3306, lng:114.0355, progresss: 0.25}, {lat:22.3173, lng:114.0374, progresss: 0.8}]}, 22.3156, 114.0450);
