@@ -1,13 +1,4 @@
 
-let testing_stations= [
-          {name:"North Point", lat:22.2908, lng:114.2008, run:90, dwell:90},
-          {name:"Quarry Bay", lat:22.2878, lng:114.2097, run:210, dwell:30},
-          {name:"Yau Tong", lat:22.2978, lng:114.2372, run:150, dwell:30, checkpoints: [{lat:22.2944, lng:114.2419, progresss: 0.3}]},
-          {name:"Tiu Keng Leng", lat:22.3042, lng:114.2525, run:90, dwell:30},
-          {name:"Tseung Kwan O", lat:22.3075, lng:114.2600, run:150, dwell:30,  checkpoints: [{lat:22.3105, lng:114.2689, progresss: 0.3}, {lat:22.3021, lng:114.2750, progresss: 0.7}]},
-          {name:"LOHAS Park", lat:22.2958, lng:114.2689, run:90, dwell:120},
-        ];
-
 export function calculateDistance(lat1, lon1, lat2, lon2) {
     // Earth's radius in meters
     const R = 6371000;

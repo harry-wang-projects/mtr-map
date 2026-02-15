@@ -129,7 +129,6 @@ function reset_lines(){
   if(statusEl) statusEl.innerHTML = '';
   const timeTablesEl = document.getElementById('timeTables');
   if(timeTablesEl) timeTablesEl.innerHTML = '';
-  buildTables();
 
   // Re-draw each line and branch onto the map
   for(let i = 0; i < lines.length; i++){
@@ -520,36 +519,6 @@ class Train {
   }
 }
 
-/* -------------------- time-table builder ------------------------------ */
-function buildTables(){
-  for(let j = 0; j < lines.length; j++){
-    const line = lines[j];
-    for(let b = 0; b < line.branches.length; b++){
-      const branch = line.branches[b];
-    const wrap = (arr, title) => {
-      const tbl = document.createElement('table');
-      tbl.innerHTML = `<caption>${title}</caption>` +
-          arr.map((v,i)=>`<tr><td>${branch.stations[i].name||'leg '+i}</td>
-          <td><input data-array="${title}" data-idx="${i}" type="number"
-                     min="5" max="600" value="${v}" style="width:60px;"></td></tr>`).join('');
-      return tbl;
-    };
-    const div = document.createElement("div");
-      div.innerHTML = `<strong>${line.name} - Branch ${b + 1}</strong>`;
-    //turn station run into a list
-    let RUNNING = [];
-    let DWELL = [];
-      for(let i = 0; i < branch.stations.length; i++){
-        RUNNING[i] = branch.stations[i].run;
-        DWELL[i] = branch.stations[i].dwell;
-    }
-    div.appendChild(wrap(RUNNING, 'Running'));
-    div.appendChild(wrap(DWELL, 'Dwell'));
-    document.getElementById('timeTables').appendChild(div);
-    }
-  }
-}
-buildTables();
 
 //TODO: Make these buttons work for many lines in the future
 
