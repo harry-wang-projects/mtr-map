@@ -25,6 +25,7 @@ Make an html textbox and button. When I click the button, I set a javascript var
 
 Make the function reset_lines reset the entire video by stopping it and resetting and clearing everything, and then re-drawing the routes in the lines variable onto the map. Next, in kimi_mtr.html and kimi_mtr.js, add a two buttons. The first button allows for people to upload json files to update the "lines" variable and then runs the reset_lines() function. The second button is similar to the first button but appends the lines in the json to existing lines in "lines" instead of setting "lines" to the json. Check to make sure that there are no bugs when doing these tasks.
 
+In kimi_mtr.js, put the generateAnimation function into a separate file along with the variables that it uses. The class Train should also be moved to that file as it is primarily used by the generateAnimation function. Modify kimi_mtr.html if extra script tags will be needed. When these things are done, make sure that the code can still run like before after the changes.
 
 Editor:
 I have a subway map that simulates moving subway trains. It takes in json files. The files store lines. Each line has a specific color and one or more branches. Each branch has train frequency parameter and a list of stations. Each station includes a latitutde and longtitude, dwell, and travel time, and possibly checkpoints between that station and the next station. Create an editor for such json files. On the left, the editor should have a place where I can edit all of the properties on individual lines and branchse, such as the coordinates of stations. On the top right, the editor should have a map displaying the lines (just the stations, no need for trains). On the botton right, there should be a preview of the json file that synchronizes with the editor on the left. Use vue.js to make this, but don't use node.js, just add it to an html file. Below is a sample of what one such json file looks like:
@@ -36,3 +37,6 @@ When adding a station, make it use the set from map option by default. In additi
 
 Make it so that this editor displays a warning modal or box when I click one of the delete buttons. It should give me the option to confirm the deletion or cancel it. Apply this to delete line, delete branch, delete station, and delete checkpoint. 
 
+Add "add checkpoint" buttons to stations. In addition, make it like the "add station" button where it lets the user click on the map where the checkpoint should be by default. Also, add the "set on map" option to checkpoints just like for stations.
+
+Make it possible for me to drag and drop the stations in branches around, changing their order within branches. Don't change the checkpoint or run time data, just shift the stations.
