@@ -27,6 +27,9 @@ Make the function reset_lines reset the entire video by stopping it and resettin
 
 In kimi_mtr.js, put the generateAnimation function into a separate file along with the variables that it uses. The class Train should also be moved to that file as it is primarily used by the generateAnimation function. Modify kimi_mtr.html if extra script tags will be needed. When these things are done, make sure that the code can still run like before after the changes.
 
+In this file, put the generateAnimation function into a separate file along with the variables that it uses. The class Train should also be moved to that file as it is primarily used by the generateAnimation function. Inform me about any script tags that I will need to add to the .html file. When these things are done, make sure that the code can still run like before after the changes.
+
+
 Editor:
 I have a subway map that simulates moving subway trains. It takes in json files. The files store lines. Each line has a specific color and one or more branches. Each branch has train frequency parameter and a list of stations. Each station includes a latitutde and longtitude, dwell, and travel time, and possibly checkpoints between that station and the next station. Create an editor for such json files. On the left, the editor should have a place where I can edit all of the properties on individual lines and branchse, such as the coordinates of stations. On the top right, the editor should have a map displaying the lines (just the stations, no need for trains). On the botton right, there should be a preview of the json file that synchronizes with the editor on the left. Use vue.js to make this, but don't use node.js, just add it to an html file. Below is a sample of what one such json file looks like:
 

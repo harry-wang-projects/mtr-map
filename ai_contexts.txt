@@ -1,0 +1,19 @@
+
+kimi_mtr.js:
+This is an animation generator that generates time-lapse animations showing subway trains moving on a map. Each train is marked by a label and moves around.
+
+It takes in a javascript array called "lines". In the array, each object is a "line" with a specific color, name, and marker type. There are "branches" in each "line" with a specific spawn frequency and a list of stations that represent branches of the line. Each station contains a latitude and longtitude, travel time, dwell time, and an optional list of checkpoints. The travel time is the time, in seconds, needed for the train to travel to the next station on the list. The dwell time is the time, in seconds, that the train stops at the station. The list of checkpoints contains checkpoints that the train passes when going to the next station. Each checkpoint has a latitude and longtitude, and a "progress" value between 0 and 1 representing the amount of progress the train makes when it goes pass the checkpoint. For instance, if the "progress" is 0.7, then the train passes through the checkpoint when it is 70% of the way to the next station.
+
+The simulation runs with one frame marking one second in the simulation. In the beginning, trains in each branch of each line spawn at one end of the line at a frequency specified in the "branch" object. They move from one end of a line and move towards the other end following the travel and dwell times in the stations. When they reach the end, they turn back. Once a train goes to the end and comes back, the spawning on the train line stops. Note that for branches of branch_type "circular", trains do not turn around. Instead, when the reach the end, they go to the first stop next.
+
+The simulation is generated in the "generation" process where everything is simulated. The data is stored in an array containing the train data in every frame. Every frame contains the coordinates of each train and a "line id", representing the line that the train belongs to. Once the generation is complete, the animation gets played frame by frame on the map, with the framerate being adjustable. 
+
+Rules:
+Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
+
+editor_version1.html:
+This is a json editor that edits files that store information about a subway network. The network consists of lines, which consist of branches, which consist of stations. All information can be edited. In addition, the positions (latitude, longtitudes) of stations can be edited by clicking on a map.
+
+
+Rules:
+Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
