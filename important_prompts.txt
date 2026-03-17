@@ -40,6 +40,8 @@ When adding a station, make it use the set from map option by default. In additi
 
 Make it so that this editor displays a warning modal or box when I click one of the delete buttons. It should give me the option to confirm the deletion or cancel it. Apply this to delete line, delete branch, delete station, and delete checkpoint. 
 
-Add "add checkpoint" buttons to stations. In addition, make it like the "add station" button where it lets the user click on the map where the checkpoint should be by default. Also, add the "set on map" option to checkpoints just like for stations.
+Add "add checkpoint" buttons to stations that can add new checkpoints. In addition, make it like the "add station" button where by default, it lets the user click on the map where the checkpoint should be. Also, add the "set on map" option to each checkpoint just like for stations.
 
 Make it possible for me to drag and drop the stations in branches around, changing their order within branches. Don't change the checkpoint or run time data, just shift the stations.
+
+Make sure that it doesn't affect the "add station" function. In addition, the "space" button should be reserved for adding stations. It shouldn't be used for adding checkpoints.

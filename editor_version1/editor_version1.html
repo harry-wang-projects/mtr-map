@@ -182,8 +182,20 @@
                                                     <input type="number" step="0.01" v-model.number="checkpoint.progresss">
                                                 </div>
                                                 <div class="parameter-group">
+                                                    <button @click="toggleCheckpointCoordinateMode(lineIndex, branchIndex, stationIndex, checkpointIndex)" 
+                                                            :class="['coordinate-button', { active: isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex) }]">
+                                                        {{ isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex) ? 'Click Map to Set' : 'Set from Map' }}
+                                                    </button>
+                                                </div>
+                                                <div class="parameter-group">
                                                     <button @click="requestDeleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex)" class="delete">Delete Checkpoint</button>
                                                 </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="parameter-row">
+                                            <div class="parameter-group">
+                                                <button @click="addCheckpoint(lineIndex, branchIndex, stationIndex)" class="add">Add Checkpoint</button>
                                             </div>
                                         </div>
                                     </div>
@@ -275,9 +287,15 @@
                     
                     this.map.on('click', (e) => {
                         if (this.coordinateMode) {
-                            const { lineIndex, branchIndex, stationIndex } = this.coordinateMode;
-                            this.lines[lineIndex].branches[branchIndex].stations[stationIndex].lat = e.latlng.lat;
-                            this.lines[lineIndex].branches[branchIndex].stations[stationIndex].lng = e.latlng.lng;
+                            const { target, lineIndex, branchIndex, stationIndex, checkpointIndex } = this.coordinateMode;
+                            const station = this.lines[lineIndex].branches[branchIndex].stations[stationIndex];
+                            if (target === 'station') {
+                                station.lat = e.latlng.lat;
+                                station.lng = e.latlng.lng;
+                            } else if (target === 'checkpoint' && station.checkpoints && station.checkpoints[checkpointIndex]) {
+                                station.checkpoints[checkpointIndex].lat = e.latlng.lat;
+                                station.checkpoints[checkpointIndex].lng = e.latlng.lng;
+                            }
                             this.coordinateMode = null;
                         }
                     });
@@ -426,7 +444,7 @@
                     };
                     this.lines[lineIndex].branches[branchIndex].stations.push(newStation);
                     const stationIndex = this.lines[lineIndex].branches[branchIndex].stations.length - 1;
-                    this.coordinateMode = { lineIndex, branchIndex, stationIndex };
+                    this.coordinateMode = { target: 'station', lineIndex, branchIndex, stationIndex };
                 },
                 deleteStation(lineIndex, branchIndex, stationIndex) {
                     this.lines[lineIndex].branches[branchIndex].stations.splice(stationIndex, 1);
@@ -441,6 +459,8 @@
                         lng: station.lng,
                         progresss: 0.5
                     });
+                    const checkpointIndex = station.checkpoints.length - 1;
+                    this.coordinateMode = { target: 'checkpoint', lineIndex, branchIndex, stationIndex, checkpointIndex };
                 },
                 deleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex) {
                     this.lines[lineIndex].branches[branchIndex].stations[stationIndex].checkpoints.splice(checkpointIndex, 1);
@@ -617,14 +637,30 @@
                     if (this.isCoordinateModeActive(lineIndex, branchIndex, stationIndex)) {
                         this.coordinateMode = null;
                     } else {
-                        this.coordinateMode = { lineIndex, branchIndex, stationIndex };
+                        this.coordinateMode = { target: 'station', lineIndex, branchIndex, stationIndex };
                     }
                 },
                 isCoordinateModeActive(lineIndex, branchIndex, stationIndex) {
                     return this.coordinateMode && 
+                           this.coordinateMode.target === 'station' &&
                            this.coordinateMode.lineIndex === lineIndex &&
                            this.coordinateMode.branchIndex === branchIndex &&
                            this.coordinateMode.stationIndex === stationIndex;
+                },
+                toggleCheckpointCoordinateMode(lineIndex, branchIndex, stationIndex, checkpointIndex) {
+                    if (this.isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex)) {
+                        this.coordinateMode = null;
+                    } else {
+                        this.coordinateMode = { target: 'checkpoint', lineIndex, branchIndex, stationIndex, checkpointIndex };
+                    }
+                },
+                isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex) {
+                    return this.coordinateMode &&
+                           this.coordinateMode.target === 'checkpoint' &&
+                           this.coordinateMode.lineIndex === lineIndex &&
+                           this.coordinateMode.branchIndex === branchIndex &&
+                           this.coordinateMode.stationIndex === stationIndex &&
+                           this.coordinateMode.checkpointIndex === checkpointIndex;
                 },
                 handleKeyPress(event) {
                     const isInputField = event.target.tagName === 'INPUT';
