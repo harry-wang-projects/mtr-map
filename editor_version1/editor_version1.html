@@ -353,6 +353,10 @@
                                 <label>Image</label>
                                 <input type="text" v-model="line.image">
                             </div>
+                            <div class="parameter-group">
+                                <label>Icon Preview</label>
+                                <div v-html="line.icon" style="padding:2px;border:2px solid;border-color:#000000;background-color:#999999;width:100px;height:40px;"></div>
+                            </div>
                         </div>
                         <div class = "parameter-row">
                             <div class="parameter-group">
@@ -366,7 +370,8 @@
                         </div>
                         <button @click="addBranch(lineIndex)" class="add">Add Branch</button>
                         <button @click="requestDeleteLine(lineIndex)" class="delete">Delete Line</button>
-                        
+                        <button @click="updateicon(lineIndex)" class="change">View Icon</button>
+
                         <div v-if="line.branches.length === 0" class="branch-section">
                             <p>No branches added yet. Click "Add Branch" to get started.</p>
                         </div>
@@ -499,7 +504,8 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import {generate_train_icon_2} from "./editor_visualstuff.js";
         const { createApp } = Vue;
 
         createApp({
@@ -682,6 +688,10 @@
                         this.setActiveBranchTab(lineIndex, this.lines[lineIndex].branches.length - 1);
                     }
                 },
+                updateicon(lineIndex){
+                    this.lines[lineIndex].icon = generate_train_icon_2(this.lines[lineIndex].markertype, this.lines[lineIndex].line_color, this.lines[lineIndex].label, this.lines[lineIndex].image);
+                    console.log(this.lines[lineIndex].icon);
+                },
                 addStation(lineIndex, branchIndex) {
                     //the new station by default starts close to the last station.
                     let branch_length = this.lines[lineIndex].branches[branchIndex].stations.length;
@@ -727,6 +737,8 @@
     line_id: 2,
     name: "Disneyland Resort Line",
     line_color: "#f173ac",
+    markertype: "hkmtr",
+    image:"assets/mtr_train1.png",
     branches: [
       {
         branch_id: 0,
@@ -795,6 +807,8 @@
     line_id: 10,
     name: "Test line",
     line_color: "#01ffff",
+    label:"000",
+    markertype:"hklrt",
     branches: [
       {
         branch_id: 0,
@@ -809,8 +823,14 @@
       },
     ]
   },
+                    
                     ];
+                    
                     this.lines = sampleData;
+                    //show icons
+                    for(let i = 0; i < this.lines.length; i++){
+                        this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image);
+                    }
                 },
                 importJSON() {
                     const input = document.createElement('input');
@@ -830,6 +850,7 @@
                                             this.lines[i].branches[j].branch_type = "normal";
                                         }
                                     }
+                                    //properties it may or may not have
                                     if(!this.lines[i].hasOwnProperty('label')){
                                         this.lines[i].label = this.lines[i].name;
                                     }
@@ -845,6 +866,8 @@
                                     if(!this.lines[i].hasOwnProperty('acceleration')){
                                         this.lines[i].acceleration = 1.0;
                                     }
+                                    //properties to set
+                                    this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image);
                                 }
                             } catch (error) {
                                 alert('Invalid JSON file');
