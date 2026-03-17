@@ -1,5 +1,7 @@
 
 kimi_mtr.js:
+
+Focus on kimi_mtr.html and kimi_mtr.js in this task.
 This is an animation generator that generates time-lapse animations showing subway trains moving on a map. Each train is marked by a label and moves around.
 
 It takes in a javascript array called "lines". In the array, each object is a "line" with a specific color, name, and marker type. There are "branches" in each "line" with a specific spawn frequency and a list of stations that represent branches of the line. Each station contains a latitude and longtitude, travel time, dwell time, and an optional list of checkpoints. The travel time is the time, in seconds, needed for the train to travel to the next station on the list. The dwell time is the time, in seconds, that the train stops at the station. The list of checkpoints contains checkpoints that the train passes when going to the next station. Each checkpoint has a latitude and longtitude, and a "progress" value between 0 and 1 representing the amount of progress the train makes when it goes pass the checkpoint. For instance, if the "progress" is 0.7, then the train passes through the checkpoint when it is 70% of the way to the next station.
@@ -10,6 +12,10 @@ The simulation is generated in the "generation" process where everything is simu
 
 Rules:
 Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
+
+Task:
+In kimi_mtr.js, put the generateAnimation function into a separate file along with the variables that it uses. The class Train should also be moved to that file as it is primarily used by the generateAnimation function. Modify kimi_mtr.html if extra script tags will be needed. When these things are done, make sure that the code can still run like before after the changes.
+
 
 editor_version1.html:
 This is a json editor that edits files that store information about a subway network. The network consists of lines, which consist of branches, which consist of stations. All information can be edited. In addition, the positions (latitude, longtitudes) of stations can be edited by clicking on a map.
