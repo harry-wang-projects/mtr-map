@@ -18,8 +18,11 @@ In kimi_mtr.js, put the generateAnimation function into a separate file along wi
 
 
 editor_version1.html:
-This is a json editor that edits files that store information about a subway network. The network consists of lines, which consist of branches, which consist of stations. All information can be edited. In addition, the positions (latitude, longtitudes) of stations can be edited by clicking on a map.
+Focus on editor_version1.html.
+This is a json editor that edits a that stores information about a subway network. The network consists of lines, which consist of branches, which consist of stations. All information can be edited. In addition, the positions (latitude, longtitudes) of stations can be edited by clicking on a map.
 
 
 Rules:
 Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
+
+Task:

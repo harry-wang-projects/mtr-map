@@ -2,9 +2,9 @@
 Stuff to do:
 Dragging stations around (on the list, not on the map)
 New progress function for longer lines
-Display the label next to the line in the editor.
 Split the code into shorter readable segments
 Refer to the mtr wiki on the number of trains operating on each line. Make sure it is consistent.
+Idea: Separate a "branch editor" from the "line editor"??
 
 Half-finished:
 Make images work for the train labels (maybe put a train image and a circle around it.)
@@ -15,6 +15,7 @@ Add settings bar (e.g. hiding the lines, enabling/disabling certain lines in the
 
 Finished:
 Idea: Make the generation stage a separate file. It should be a function that takes in the lines json and returns the array of the train positions vs time.
+Display the label next to the line in the editor.
 
 
 Later stuff to consider:
