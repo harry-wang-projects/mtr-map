@@ -308,7 +308,35 @@
 
                     this.lines.forEach(line => {
                         line.branches.forEach(branch => {
-                            const coords = [];
+                            let coords = [];
+
+                            //copied from kimi_mtr.js
+                            for(let s = 0; s < branch.stations.length; s++){
+                                const station = branch.stations[s];
+                                coords.push([station.lat, station.lng]);
+                                if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
+                                    const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+                                        const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
+                                        const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
+                                        return progA - progB;
+                                    });
+                                    sortedCheckpoints.forEach(cp => coords.push([cp.lat, cp.lng]));
+                                }
+                            }
+                            if(branch.hasOwnProperty("branch_type") && branch.branch_type === "circular"){
+                                const station = branch.stations[branch.stations.length - 1];
+                                if(station.checkpoints && Array.isArray(station.checkpoints)){
+                                    const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+                                        const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
+                                        const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
+                                        return progA - progB;
+                                    });
+                                    sortedCheckpoints.forEach(cp => coords.push([cp.lat, cp.lng]));
+                                }
+                                coords.push([branch.stations[0].lat, branch.stations[0].lng]);
+                            }
+
+                            //stations
                             branch.stations.forEach(station => {
                                 if (station.lat && station.lng) {
                                     const marker = L.circleMarker([station.lat, station.lng], {
@@ -321,13 +349,15 @@
                                     }).addTo(this.map);
                                     marker.bindPopup(`<b>${station.name || 'Unnamed'}</b><br>${line.name}`);
                                     this.markers.push(marker);
-                                    coords.push([station.lat, station.lng]);
+                                    //coords.push([station.lat, station.lng]);
                                 }
                             });
 
+                            /*
                             if(branch.branch_type == "circular"){
                                 coords.push([branch.stations[0].lat, branch.stations[0].lng])
                             }
+                            */
 
                             if (coords.length > 1) {
                                 const polyline = L.polyline(coords, {
@@ -427,7 +457,7 @@
                 addStation(lineIndex, branchIndex) {
                     //the new station by default starts close to the last station.
                     let branch_length = this.lines[lineIndex].branches[branchIndex].stations.length;
-                    let default_lat = 0, default_long = 0;
+                    let default_lat = 0, default_lng = 0;
                     if(branch_length > 0){
                         default_lat = this.lines[lineIndex].branches[branchIndex].stations[branch_length - 1].lat;
                         default_lng = this.lines[lineIndex].branches[branchIndex].stations[branch_length - 1].lng;
