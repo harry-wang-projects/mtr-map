@@ -205,58 +205,6 @@ function reset_lines(){
       const branch = lines[i].branches[b];
 
       // Build coordinates array including checkpoints
-      /*
-      const branchCoords = [];
-      for(let s = 0; s < branch.stations.length; s++){
-        const station = branch.stations[s];
-        branchCoords.push([station.lat, station.lng]);
-        if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
-          const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
-            const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
-            const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
-            return progA - progB;
-          });
-          sortedCheckpoints.forEach(cp => branchCoords.push([cp.lat, cp.lng]));
-        }
-      }
-      if(lines[i].branches[b].hasOwnProperty("branch_type") && lines[i].branches[b].branch_type === "circular"){
-        const station = branch.stations[branch.stations.length - 1];
-        if(station.checkpoints && Array.isArray(station.checkpoints)){
-          const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
-            const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
-            const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
-            return progA - progB;
-          });
-          sortedCheckpoints.forEach(cp => branchCoords.push([cp.lat, cp.lng]));
-        }
-        branchCoords.push([branch.stations[0].lat, branch.stations[0].lng]);
-      }
-
-      L.polyline(branchCoords, {color: lines[i].line_color, weight: 2}).addTo(routeLayerGroup);
-      allLineCoords.push(...branchCoords);
-
-      branch.stations.forEach(s => {
-        L.circleMarker([s.lat, s.lng], {
-          radius: 3,
-          color: '#fff',
-          weight: 2,
-          fillColor: lines[i].line_color,
-          fillOpacity: 1
-        }).addTo(routeLayerGroup);
-        if(s.checkpoints && Array.isArray(s.checkpoints)){
-          s.checkpoints.forEach(cp => {
-            L.circleMarker([cp.lat, cp.lng], {
-              radius: 2,
-              color: lines[i].line_color,
-              weight: 1,
-              fillColor: lines[i].line_color,
-              fillOpacity: 0.5
-            }).addTo(routeLayerGroup);
-          });
-        }
-      });
-
-      */
       draw_branchroute(branch, lines[i].line_color);
 
       branch.trains = [];
