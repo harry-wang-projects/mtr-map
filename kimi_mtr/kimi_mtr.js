@@ -16,6 +16,7 @@ let lines = [
     name: "Disneyland Resort Line",
     line_color: "#f173ac",
     markertype: "hkmtr",
+    image: "assets/mtr_train1.png",
     branches: [
       {
         branch_id: 0,
@@ -33,6 +34,7 @@ let lines = [
     name: "Tseung Kwan O line",
     line_color: "#7d499d",
     markertype: "hkmtr",
+    image: "assets/train1.png",
     branches: [
       {
         branch_id: 0,
@@ -325,7 +327,7 @@ function allBranchesStoppedSpawning(){
 
 let spawn_completed_time = 0;
 
-function generate_train_icon(markertype, line_color, label){
+function generate_train_icon(markertype, line_color, label, image){
   if(markertype == "hklrt"){
     return L.divIcon({
       className: 'custom-div-icon',
@@ -341,7 +343,7 @@ function generate_train_icon(markertype, line_color, label){
       html:`<div style="
         background:${line_color};overflow: hidden;
         width:24px;height:24px;border-radius:50%;
-        border:4px solid ${line_color};"><img src="assets/mtr_train1.png" style="
+        border:4px solid ${line_color};"><img src="${image}" style="
         height:100%; width: 100%; object-fit:cover;display:block;"></div>  `,
       iconSize:[0, 0], iconAnchor:[10,10]
     })
@@ -377,10 +379,14 @@ function playAnimationFrame(time){
   for(let i = 0; i < frame.length; i++){
     const train = frame[i];
     let train_icon;
+    let train_image = "";
+    if(lines[train.line_id].hasOwnProperty("image")){
+      train_image = lines[train.line_id].image;
+    }
     if(lines[train.line_id].hasOwnProperty("markertype")){
-      train_icon = generate_train_icon(lines[train.line_id].markertype, lines[train.line_id].line_color, lines[train.line_id].label)
+      train_icon = generate_train_icon(lines[train.line_id].markertype, lines[train.line_id].line_color, lines[train.line_id].label, train_image)
     }else{
-      train_icon = generate_train_icon("", lines[train.line_id].line_color, lines[train.line_id].label)
+      train_icon = generate_train_icon("", lines[train.line_id].line_color, lines[train.line_id].label, train_image)
     }
     const marker = L.marker([train.lat, train.lng], {
       icon: train_icon
