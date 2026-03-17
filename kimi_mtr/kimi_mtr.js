@@ -15,6 +15,7 @@ let lines = [
     line_id: 2,
     name: "Disneyland Resort Line",
     line_color: "#f173ac",
+    markertype: "hkmtr",
     branches: [
       {
         branch_id: 0,
@@ -31,6 +32,7 @@ let lines = [
     line_id: 3,
     name: "Tseung Kwan O line",
     line_color: "#7d499d",
+    markertype: "hkmtr",
     branches: [
       {
         branch_id: 0,
@@ -332,6 +334,16 @@ function generate_train_icon(markertype, line_color, label){
         height: 18px; width: 32px;border-radius:9px;font-size: 11px;text-align: center;vertical-align: middle;
         border:2px solid ${line_color};">${label}</div>  `,
         iconSize:[0, 0], iconAnchor:[16,10]
+    });
+  }else if(markertype == "hkmtr"){
+    return L.divIcon({
+      className: 'custom-div-icon',
+      html:`<div style="
+        background:${line_color};overflow: hidden;
+        width:24px;height:24px;border-radius:50%;
+        border:4px solid ${line_color};"><img src="assets/mtr_train1.png" style="
+        height:100%; width: 100%; object-fit:cover;display:block;"></div>  `,
+      iconSize:[0, 0], iconAnchor:[10,10]
     })
   }else{
     return L.divIcon({
@@ -341,7 +353,7 @@ function generate_train_icon(markertype, line_color, label){
         width:20px;height:20px;border-radius:50%;
         border:2px solid #fff;"></div>  `,
       iconSize:[0, 0], iconAnchor:[10,10]
-    })
+    });
   }
 }
 
