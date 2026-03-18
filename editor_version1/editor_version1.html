@@ -175,6 +175,12 @@
                                             <div class="parameter-group">
                                                 <button @click="requestDeleteStation(lineIndex, branchIndex, stationIndex)" class="delete">Delete Station</button>
                                             </div>
+                                            <div class="parameter-group">
+                                                <button @click="addCheckpoint(lineIndex, branchIndex, stationIndex)" class="add">Add Checkpoint</button>
+                                            </div>
+                                            <div class="parameter-group">
+                                                <button @click="calculate_progress(lineIndex, branchIndex, stationIndex)" class="change">Calculate Progresses</button>
+                                            </div>
                                         </div>
                                         
                                         <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section">
@@ -213,11 +219,6 @@
                                             </div>
                                         </div>
                                         
-                                        <div class="parameter-row">
-                                            <div class="parameter-group">
-                                                <button @click="addCheckpoint(lineIndex, branchIndex, stationIndex)" class="add">Add Checkpoint</button>
-                                            </div>
-                                        </div>
                                     </div>
                                     
                                     <button @click="addStation(lineIndex, branchIndex)" class="add">Add Station</button>
@@ -252,6 +253,7 @@
 
     <script type="module">
         import {generate_train_icon_2} from "./editor_visualstuff.js";
+        import {autotime, autoprogress} from "./editor_helpers.js";
         const { createApp } = Vue;
 
         createApp({
@@ -604,6 +606,49 @@
                         else if (this.coordinateMode.checkpointIndex === checkpointIndex - 1) this.coordinateMode.checkpointIndex = checkpointIndex;
                     }
                 },
+
+                //calculation-based stuff
+                calculate_progress(lineIndex, branchIndex, stationIndex){
+                    let i = lineIndex;
+                    let j = branchIndex;
+                    let k = stationIndex;
+                    let this_station = this.lines[i].branches[j].stations[k];
+                    //only for stations with checkpoints
+                    if(!this_station.hasOwnProperty("checkpoints")){
+                        return;
+                    }
+                    if(this_station.checkpoints.length == 0){
+                        return;
+                    }
+                    let next_lat = 0;
+                    let next_lng = 0;
+                    //last station calculations
+                    if(k == this.lines[i].branches[j].stations.length - 1){
+                        if(this.lines[i].branches[j].hasOwnProperty("branch_type")){
+                            if(this.lines[i].branches[j].branch_type == "circular"){
+                                next_lat = this.lines[i].branches[j].stations[0].lat;
+                                next_lng = this.lines[i].branches[j].stations[0].lng;
+                            }else{
+                                //no point in checkpoints if it's not a circular line
+                                return;
+                            }
+                        }
+                    }else{
+                        next_lat = this.lines[i].branches[j].stations[k + 1].lat;
+                        next_lng = this.lines[i].branches[j].stations[k + 1].lng;
+                    }
+
+                    let got_array = autoprogress(this_station, next_lat, next_lng);
+                    //wow 4 variables lol
+                    for(let l = 0; l < this_station.checkpoints.length; l++){
+                        this_station.checkpoints[l].progresss = got_array[l];
+                    }
+                },
+                calculate_traveltimes(lineIndex, branchIndex){
+
+                },
+
+
                 loadSampleData() {
                     const sampleData = [
                         {
