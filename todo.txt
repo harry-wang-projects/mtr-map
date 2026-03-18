@@ -6,8 +6,6 @@ Idea: Separate a "branch editor" from the "line editor" to reduce the number of 
 
 Half-finished:
 Make images work for the train labels (maybe put a train image and a circle around it.)
-Set up auto-travel time function based on distance (account for checkpoints!)
-Write the autocheckpoint function to automatically determine progress for checkpoints
 Add settings bar (e.g. hiding the lines, enabling/disabling certain lines in the video generator)
 
 
@@ -16,6 +14,9 @@ Idea: Make the generation stage a separate file. It should be a function that ta
 Display the label next to the line in the editor.
 Dragging stations around (on the list, not on the map) --> made the move up function, even better as it isn't weird.
 Cloning of lines/branches.
+Set up auto-travel time function based on distance (account for checkpoints!)
+Write the autocheckpoint function to automatically determine progress for checkpoints
+
 
 Ongoing:
 Split the code into shorter readable segments

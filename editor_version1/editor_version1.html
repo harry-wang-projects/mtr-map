@@ -653,7 +653,7 @@
                     let this_branch = this.lines[i].branches[j];
 
                     //make sure there is a speed and acceleration defined. Otherwise, define it manualy.
-                    if(!this.lines[i].hasOwnProperty("speed")){
+                    if(!this.lines[i].hasOwnProperty("max_speed")){
                         this.lines[i].max_speed = 20;
                     }
                     if(!this.lines[i].hasOwnProperty("acceleration")){
