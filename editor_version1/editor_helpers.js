@@ -37,8 +37,10 @@ export function dist2time(distance, speed, acceleration) {
 }
 
 export function autotime(input_stations, speed, acceleration, circular) {
+    console.log(input_stations);
     let return_array = [];
     for(let i = 0; i < input_stations.length - 1; i++){
+        console.log(i);
         if(input_stations[i].hasOwnProperty("checkpoints")){
             if(input_stations[i].checkpoints.length > 0){
                 //add the checkpoints up.
@@ -60,10 +62,14 @@ export function autotime(input_stations, speed, acceleration, circular) {
                 lat2 = input_stations[i + 1].lat;
                 lng2 = input_stations[i + 1].lng;
                 distance += (calculateDistance(lat1, lng1, lat2, lng2));
+                console.log(distance);
                 return_array.push(dist2time(distance, speed, acceleration));
+            }else{
+                return_array.push(dist2time(calculateDistance(input_stations[i].lat, input_stations[i].lng, input_stations[i+1].lat, input_stations[i+1].lng), speed, acceleration));
             }
         }else{
             //no checkpoints, very easy.
+            console.log(calculateDistance(input_stations[i].lat, input_stations[i].lng, input_stations[i+1].lat, input_stations[i+1].lng));
             return_array.push(dist2time(calculateDistance(input_stations[i].lat, input_stations[i].lng, input_stations[i+1].lat, input_stations[i+1].lng), speed, acceleration));
         }
     }
