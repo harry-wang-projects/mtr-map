@@ -83,6 +83,7 @@
                             </div>
                         </div>
                         <button @click="addBranch(lineIndex)" class="add">Add Branch</button>
+                        <button @click="cloneLine(lineIndex)" class="change">Clone Line</button>
                         <button @click="requestDeleteLine(lineIndex)" class="delete">Delete Line</button>
                         <button @click="updateicon(lineIndex)" class="change">View Icon</button>
 
@@ -125,6 +126,9 @@
                                     <div class="parameter-row">
                                         <div class="parameter-group">
                                             <button @click="requestDeleteBranch(lineIndex, branchIndex)" class="delete">Delete Branch</button>
+                                        </div>
+                                        <div class="parameter-group">
+                                            <button @click="cloneBranch(lineIndex, branchIndex)" class="change">Clone Branch</button>
                                         </div>
                                     </div>
                                     
@@ -295,6 +299,32 @@
                 }
             },
             methods: {
+                deepClone(obj) {
+                    if (typeof structuredClone === 'function') return structuredClone(obj);
+                    return JSON.parse(JSON.stringify(obj));
+                },
+                nextUniqueLineId() {
+                    const used = new Set(this.lines.map(l => Number(l.line_id)).filter(n => Number.isFinite(n)));
+                    let candidate = used.size > 0 ? Math.max(...used) + 1 : 1;
+                    while (used.has(candidate)) candidate += 1;
+                    return candidate;
+                },
+                nextUniqueBranchId(lineIndex) {
+                    const branches = this.lines[lineIndex]?.branches || [];
+                    const used = new Set(branches.map(b => Number(b.branch_id)).filter(n => Number.isFinite(n)));
+                    let candidate = used.size > 0 ? Math.max(...used) + 1 : 0;
+                    while (used.has(candidate)) candidate += 1;
+                    return candidate;
+                },
+                nextUniqueLineName(baseName) {
+                    const used = new Set(this.lines.map(l => (l.name || '').trim()).filter(Boolean));
+                    const base = (baseName || 'New Line').trim() || 'New Line';
+                    let candidate = `${base} (Copy)`;
+                    if (!used.has(candidate)) return candidate;
+                    let i = 2;
+                    while (used.has(`${candidate} ${i}`)) i += 1;
+                    return `${candidate} ${i}`;
+                },
                 initMap() {
                     this.map = L.map('map').setView([22.3, 114.2], 11);
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -402,6 +432,17 @@
                     this.lines.push(newLine);
                     this.activeTab = this.lines.length - 1;
                 },
+                cloneLine(lineIndex) {
+                    const original = this.lines[lineIndex];
+                    if (!original) return;
+
+                    const cloned = this.deepClone(original);
+                    cloned.line_id = this.nextUniqueLineId();
+                    cloned.name = this.nextUniqueLineName(original.name);
+
+                    this.lines.splice(lineIndex + 1, 0, cloned);
+                    this.activeTab = lineIndex + 1;
+                },
                 requestDeleteLine(lineIndex) {
                     const lineName = this.lines[lineIndex].name || `Line ${lineIndex + 1}`;
                     this.confirmModal = {
@@ -459,6 +500,17 @@
                         stations: []
                     });
                     this.setActiveBranchTab(lineIndex, this.lines[lineIndex].branches.length - 1);
+                },
+                cloneBranch(lineIndex, branchIndex) {
+                    const line = this.lines[lineIndex];
+                    const original = line?.branches?.[branchIndex];
+                    if (!line || !original) return;
+
+                    const cloned = this.deepClone(original);
+                    cloned.branch_id = this.nextUniqueBranchId(lineIndex);
+
+                    line.branches.splice(branchIndex + 1, 0, cloned);
+                    this.setActiveBranchTab(lineIndex, branchIndex + 1);
                 },
                 deleteBranch(lineIndex, branchIndex) {
                     this.lines[lineIndex].branches.splice(branchIndex, 1);
