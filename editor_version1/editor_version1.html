@@ -161,6 +161,14 @@
                                                 </button>
                                             </div>
                                             <div class="parameter-group">
+                                                <button
+                                                    @click="moveStationUp(lineIndex, branchIndex, stationIndex)"
+                                                    :disabled="stationIndex === 0"
+                                                    class="change">
+                                                    Move Up
+                                                </button>
+                                            </div>
+                                            <div class="parameter-group">
                                                 <button @click="requestDeleteStation(lineIndex, branchIndex, stationIndex)" class="delete">Delete Station</button>
                                             </div>
                                         </div>
@@ -185,6 +193,14 @@
                                                     <button @click="toggleCheckpointCoordinateMode(lineIndex, branchIndex, stationIndex, checkpointIndex)" 
                                                             :class="['coordinate-button', { active: isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex) }]">
                                                         {{ isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex) ? 'Click Map to Set' : 'Set from Map' }}
+                                                    </button>
+                                                </div>
+                                                <div class="parameter-group">
+                                                    <button
+                                                        @click="moveCheckpointUp(lineIndex, branchIndex, stationIndex, checkpointIndex)"
+                                                        :disabled="checkpointIndex === 0"
+                                                        class="change">
+                                                        Move Up
                                                     </button>
                                                 </div>
                                                 <div class="parameter-group">
@@ -494,6 +510,47 @@
                 },
                 deleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex) {
                     this.lines[lineIndex].branches[branchIndex].stations[stationIndex].checkpoints.splice(checkpointIndex, 1);
+                },
+                moveStationUp(lineIndex, branchIndex, stationIndex) {
+                    if (stationIndex <= 0) return;
+                    const stations = this.lines[lineIndex].branches[branchIndex].stations;
+                    const tmp = stations[stationIndex - 1];
+                    stations[stationIndex - 1] = stations[stationIndex];
+                    stations[stationIndex] = tmp;
+
+                    if (this.coordinateMode &&
+                        this.coordinateMode.lineIndex === lineIndex &&
+                        this.coordinateMode.branchIndex === branchIndex &&
+                        this.coordinateMode.target === 'station') {
+                        if (this.coordinateMode.stationIndex === stationIndex) this.coordinateMode.stationIndex = stationIndex - 1;
+                        else if (this.coordinateMode.stationIndex === stationIndex - 1) this.coordinateMode.stationIndex = stationIndex;
+                    }
+
+                    if (this.coordinateMode &&
+                        this.coordinateMode.lineIndex === lineIndex &&
+                        this.coordinateMode.branchIndex === branchIndex &&
+                        this.coordinateMode.target === 'checkpoint') {
+                        if (this.coordinateMode.stationIndex === stationIndex) this.coordinateMode.stationIndex = stationIndex - 1;
+                        else if (this.coordinateMode.stationIndex === stationIndex - 1) this.coordinateMode.stationIndex = stationIndex;
+                    }
+                },
+                moveCheckpointUp(lineIndex, branchIndex, stationIndex, checkpointIndex) {
+                    if (checkpointIndex <= 0) return;
+                    const station = this.lines[lineIndex].branches[branchIndex].stations[stationIndex];
+                    if (!station.checkpoints || !Array.isArray(station.checkpoints)) return;
+                    const checkpoints = station.checkpoints;
+                    const tmp = checkpoints[checkpointIndex - 1];
+                    checkpoints[checkpointIndex - 1] = checkpoints[checkpointIndex];
+                    checkpoints[checkpointIndex] = tmp;
+
+                    if (this.coordinateMode &&
+                        this.coordinateMode.target === 'checkpoint' &&
+                        this.coordinateMode.lineIndex === lineIndex &&
+                        this.coordinateMode.branchIndex === branchIndex &&
+                        this.coordinateMode.stationIndex === stationIndex) {
+                        if (this.coordinateMode.checkpointIndex === checkpointIndex) this.coordinateMode.checkpointIndex = checkpointIndex - 1;
+                        else if (this.coordinateMode.checkpointIndex === checkpointIndex - 1) this.coordinateMode.checkpointIndex = checkpointIndex;
+                    }
                 },
                 loadSampleData() {
                     const sampleData = [

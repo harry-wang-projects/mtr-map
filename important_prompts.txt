@@ -41,7 +41,8 @@ When adding a station, make it use the set from map option by default. In additi
 Make it so that this editor displays a warning modal or box when I click one of the delete buttons. It should give me the option to confirm the deletion or cancel it. Apply this to delete line, delete branch, delete station, and delete checkpoint. 
 
 Add "add checkpoint" buttons to stations that can add new checkpoints. In addition, make it like the "add station" button where by default, it lets the user click on the map where the checkpoint should be. Also, add the "set on map" option to each checkpoint just like for stations.
-
-Make it possible for me to drag and drop the stations in branches around, changing their order within branches. Don't change the checkpoint or run time data, just shift the stations.
-
 Make sure that it doesn't affect the "add station" function. In addition, the "space" button should be reserved for adding stations. It shouldn't be used for adding checkpoints.
+
+Make it possible for me to drag and drop the stations in the list of stations, changing their order within branches. Keep the checkpoints and run/dwell times of each station, just shift the order of the stations. Also, make the dragging and dropping of checkpoints in stations work. However, don't allow for checkpoints to be dragged to another station. When you are finished, check to see that it works and that there are no bugs.
+
+For each station, add a "move up" button that moves the station up by one in the list. In other words, it switches positions with the station that is before it. Let the station keep it's original position and checkpoints. Also make a "move up" button for each checkpoint in each station. This button should move the checkpoint up by one within the list of checkpoints in a station, switching the checkpoint's with the checkpoint before it. Make sure that the button doesn't work for the first station/checkpoint. When you are finished, check to see that it works and that there are no bugs.
