@@ -29,7 +29,7 @@ let testing_stations = [
 document.getElementById("distance").innerHTML=(calculateDistance(lat1, lng1, lat2, lng2));
 document.getElementById("time").innerHTML=(dist2time(10, 22.2, 0.8));
 let display_string = "";
-let display_array = autotime(testing_stations, 36.2, 0.8);
+let display_array = autotime(testing_stations, 36.2, 0.8, false);
 for(let i = 0; i < display_array.length; i++){
     display_string += display_array[i].toString() + " , ";
 }

@@ -36,7 +36,7 @@ export function dist2time(distance, speed, acceleration) {
     }
 }
 
-export function autotime(input_stations, speed, acceleration) {
+export function autotime(input_stations, speed, acceleration, circular) {
     let return_array = [];
     for(let i = 0; i < input_stations.length - 1; i++){
         if(input_stations[i].hasOwnProperty("checkpoints")){
@@ -65,6 +65,36 @@ export function autotime(input_stations, speed, acceleration) {
         }else{
             //no checkpoints, very easy.
             return_array.push(dist2time(calculateDistance(input_stations[i].lat, input_stations[i].lng, input_stations[i+1].lat, input_stations[i+1].lng), speed, acceleration));
+        }
+    }
+    //what if it is a circle line? Need to make it for the last station.
+    if(circular == true){
+        let pos=input_stations.length - 1;
+        if(input_stations[pos].hasOwnProperty("checkpoints")){
+            if(input_stations[pos].checkpoints.length > 0){
+                //add the checkpoints up.
+                let distance = 0;
+                let lat1 = input_stations[pos].lat;
+                let lng1 = input_stations[pos].lng;
+                let lat2 = input_stations[pos].checkpoints[0].lat;
+                let lng2 = input_stations[pos].checkpoints[0].lng;
+                distance += (calculateDistance(lat1, lng1, lat2, lng2));
+                for(let j = 0; j < input_stations[pos].checkpoints.length - 1; j++){
+                    lat1 = input_stations[pos].checkpoints[j].lat;
+                    lng1 = input_stations[pos].checkpoints[j].lng;
+                    lat2 = input_stations[pos].checkpoints[j+1].lat;
+                    lng2 = input_stations[pos].checkpoints[j+1].lng;
+                    distance += (calculateDistance(lat1, lng1, lat2, lng2));
+                }
+                lat1 = input_stations[pos].checkpoints[input_stations[pos].checkpoints.length - 1].lat;
+                lng1 = input_stations[pos].checkpoints[input_stations[pos].checkpoints.length - 1].lng;
+                lat2 = input_stations[0].lat;
+                lng2 = input_stations[0].lng;
+                distance += (calculateDistance(lat1, lng1, lat2, lng2));
+                return_array.push(dist2time(distance, speed, acceleration));
+            }
+        }else{
+            return_array.push(dist2time(calculateDistance(input_stations[pos].lat, input_stations[pos].lng, input_stations[0].lat, input_stations[0].lng), speed, acceleration));
         }
     }
     return return_array;

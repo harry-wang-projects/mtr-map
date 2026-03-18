@@ -130,6 +130,9 @@
                                         <div class="parameter-group">
                                             <button @click="cloneBranch(lineIndex, branchIndex)" class="change">Clone Branch</button>
                                         </div>
+                                        <div class="parameter-group">
+                                            <button @click="calculate_traveltimes(lineIndex, branchIndex)" class="change">Calculate Times</button>
+                                        </div>
                                     </div>
                                     
                                     <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section">
@@ -641,11 +644,34 @@
                     let got_array = autoprogress(this_station, next_lat, next_lng);
                     //wow 4 variables lol
                     for(let l = 0; l < this_station.checkpoints.length; l++){
-                        this_station.checkpoints[l].progress = got_array[l];
+                        this.lines[i].branches[j].stations[k].checkpoints[l].progress = got_array[l];
                     }
                 },
                 calculate_traveltimes(lineIndex, branchIndex){
+                    let i = lineIndex;
+                    let j = branchIndex;
+                    let this_branch = this.lines[i].branches[j];
 
+                    //make sure there is a speed and acceleration defined. Otherwise, define it manualy.
+                    if(!this.lines[i].hasOwnProperty("speed")){
+                        this.lines[i].max_speed = 20;
+                    }
+                    if(!this.lines[i].hasOwnProperty("acceleration")){
+                        this.lines[i].acceleration = 0.8;
+                    }
+
+                    let circularornot = false;
+                    if(this_branch.hasOwnProperty("branch_type")){
+                        if(this_branch.branch_type == "circular"){
+                            circularornot = true;
+                        }
+                    }
+                    let got_array = autotime(this.lines[i].branches[j].stations, this.lines[i].max_speed, this.lines[i].acceleration, circularornot);
+                    console.log(got_array);
+                    //got_array will be 1 shorter than stations if the line isn't circular.
+                    for(let k = 0; k < got_array.length; k++){
+                        this.lines[i].branches[j].stations[k].run = got_array[k];
+                    }
                 },
 
 
