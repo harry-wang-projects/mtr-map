@@ -1,5 +1,15 @@
 
 Stuff to do:
+Highlight lines when clicking a button
+Make autoprogress possible for an entire branch 
+
+Performance increasing:
+- Instead of generating an entire array of the position of each train, simply make an array of the position of a single train.
+- Since the trains spawn periodically and all follow the same path, their positions can simply be deduced from this. (tick + offset + spawn_offset)
+- No more "generate animation" needed! The generating will be super fast. It can be moved to the editor file.
+- Very low memory usage. A lot of the previous stuff was redundant.
+- Instead of creating and destroying markers each time, use the setlatlng option. Make an array of markers in the beginning.
+
 New progress function for longer lines
 Refer to the mtr wiki on the number of trains operating on each line. Make sure it is consistent.
 Idea: Separate a "branch editor" from the "line editor" to reduce the number of lines??
