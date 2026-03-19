@@ -3,6 +3,14 @@ Stuff to do:
 New progress function for longer lines
 Refer to the mtr wiki on the number of trains operating on each line. Make sure it is consistent.
 Idea: Separate a "branch editor" from the "line editor" to reduce the number of lines??
+The system currently can't simulate transit systems with schedules. The following should be done to accomodate them:
+- Make "single-trip" options for lines, where trains disappear when they travel to one end.
+- For "single-trip" lines, create "unidirectional" and "bidirectional" options. For bidirectional lines, trains spawn on both ends.
+- For the spawning of "single trip" trains, give two options: "scheduled" and "scheduled frequency".
+- For "scheduled" spawning, a list of times (in seconds) is given. Trains spawn at each time in the list.
+- For "scheduled frequencies" spawning, a list of times is given, along with a list of frequencies. At each time in the list, the frequency is changed to the corresponding frequency value. 
+- For the animation player, let the number of seconds be the time since 00:00:00 (24 hour clock). Display the time. Make it possible to start/stop at any time.
+
 
 Half-finished:
 Make images work for the train labels (maybe put a train image and a circle around it.)

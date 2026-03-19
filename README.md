@@ -1,41 +1,19 @@
-MTR train tracking map, inspired by Datarail from Instagram.
+A Subway train animation maker.
 
-A simulation, not a real-time map. Things that are realistic:
-- Travel times and dwell times
-- Train frequencies
+Main Files:
+- kimi_mtr/kimi_mtr.html - Animation player. Can generate and play animations based on JSON files of networks.
+- editor_version1/editor_version1.html - Network editor. Can edit JSON files of networks.
+- systems/ - Some pre-made JSON network files that can be animated
 
-Steps: 
-1. Make a functional simulation of simple lines where trains simply go back and forth along a line. (Island Line, South Island Line, Tsuen Wan Line, West Rail Line, Disneyland Resort Line, Airport Express?)
+Todo:
+The system currently can't simulate transit systems with schedules. The following should be done to accomodate them:
+- Make "single-trip" options for lines, where trains disappear when they travel to one end.
+- For "single-trip" lines, create "unidirectional" and "bidirectional" options. For bidirectional lines, trains spawn on both ends.
+- For the spawning of "single trip" trains, give two options: "scheduled" and "scheduled frequency".
+- For "scheduled" spawning, a list of times (in seconds) is given. Trains spawn at each time in the list.
+- For "scheduled frequencies" spawning, a list of times is given, along with a list of frequencies. At each time in the list, the frequency is changed to the corresponding frequency value. 
+- For the animation player, let the number of seconds be the time since 00:00:00 (24 hour clock). Display the time. Make it possible to start/stop at any time.
 
-Todo (priority):
-- Make sure that trains complete the entire journey.
-- Make sure that the stopping and dwelling times can be toggled for every station.
-- Make sure that the simulation supports multiple lines.
-
-Todo (other):
-- Make sure that the spawner stops spawning when the leading train is almost here. (could consider deleting the last train once the first train arrives at the terminus)
-- Get realistic numbers for the frequencies/travel times during rush hour.
-- Find the optimal length of 1 tick (not sure if 1 tick = 1 second can peform well).
-- Make it easy to show/hide the stations and the toggle the size of the trains/stations.
-- Make a config file (json/csv/javascript?) storing data for each line. New lines should be able to be added solely based on data in the file.
-- Make an editor for the line data files.
-
-2. Make branches and special schedules possible.
-- The TKO Line and East Rail Line have branches which require additional programming. Make branches (essentially new lines with the same color?)
-- For the Kwun Tong Line and Tung Chung Line, some trains terminate at stops that aren't the terminus during peak hours (the branch system could also work).
-3. Make it possible for routes to have checkpoints (i.e. allowing for the line routes to be more precise). Will help for segments such as Tsing Yi -> Airport. Could simply make them stations where trains don't stop.
-4. Add additional functions related to realism, such as:
-- Keeping trains a certain distance apart (tricky on branch lines where branches take different amounts of time)
-- Making sure that trains crossing the Tsing Ma Bridge are a certain distance apart (need to synchronize trains on the Tung Chung Line and Airport Express)
-- Adding acceleration/deceleration (can watch online videos of MTR trains to get an idea of the time needed to accelerate/decelerate) Edit: Found the speeds. The acceleration is 1 ms^-2. For normal trains, the max speed is 80 km/h (22.2 ms^-1). For fast trains, the max speed is (36.1 ms^-1)
-    - Change the progress model from time to distance-based. Set the distance between stations instead of the time taken.
-- Simulating trains during off-peak hours
-- Support for loop lines (useful for metro systems in different places)
-5. Add other modes of transport, e.g. light rail, buses, trams, ferries
-6. Create a framework to make visualizations of new lines easily (e.g. by adding stations by clicking on points on a map). Perhaps simplify it by making "spawners" that one can place in stations which spawn trains. Use this framework to make simulations of metro systems in other cities.
-
-Notes:
-Could add a "time offset" parameter to branches of lines to sync trains on a line with different destinations.
 
 January 5 update:
 Due to bad performance, major overhauls are needed. From now on, the generation of the animation and the playing of the animation will be separate. I will generate an array storing the coordinates of each train every second to make the animation playing faster. Other things to consider:
@@ -44,3 +22,4 @@ Due to bad performance, major overhauls are needed. From now on, the generation 
 - Keep the time-based model for good performance. The speed-based model might be slow.
 - For the train coordinates, simply record the coordinates for each line for the first x seconds, where x is the number of seconds per train. When playing, repeating it works.
 - If the performance still isn't good enough, consider using another language. (could be caused by a limitation of browsers or leaflet js.)
+
