@@ -184,6 +184,14 @@
                                             <div class="parameter-group">
                                                 <button @click="calculate_progress(lineIndex, branchIndex, stationIndex)" class="change">Calculate Progresses</button>
                                             </div>
+                                            <div class="parameter-group">
+                                                <button
+                                                    type="button"
+                                                    @click="showStationOnMap(lineIndex, branchIndex, stationIndex)"
+                                                    :class="['map-show', { active: isStationMapHighlight(lineIndex, branchIndex, stationIndex) }]">
+                                                    Show on map
+                                                </button>
+                                            </div>
                                         </div>
                                         
                                         <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section">
@@ -218,6 +226,14 @@
                                                 </div>
                                                 <div class="parameter-group">
                                                     <button @click="requestDeleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex)" class="delete">Delete Checkpoint</button>
+                                                </div>
+                                                <div class="parameter-group">
+                                                    <button
+                                                        type="button"
+                                                        @click="showCheckpointOnMap(lineIndex, branchIndex, stationIndex, checkpointIndex)"
+                                                        :class="['map-show', { active: isCheckpointMapHighlight(lineIndex, branchIndex, stationIndex, checkpointIndex) }]">
+                                                        Show on map
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -273,7 +289,9 @@
                         show: false,
                         message: '',
                         pendingDelete: null
-                    }
+                    },
+                    /** { type: 'station'|'checkpoint', lineIndex, branchIndex, stationIndex, checkpointIndex? } */
+                    mapHighlight: null
                 };
             },
             computed: {
@@ -351,14 +369,39 @@
                         }
                     });
                 },
+                validateMapHighlight() {
+                    const h = this.mapHighlight;
+                    if (!h) return;
+                    const line = this.lines[h.lineIndex];
+                    if (!line || !line.branches) {
+                        this.mapHighlight = null;
+                        return;
+                    }
+                    const branch = line.branches[h.branchIndex];
+                    if (!branch || !branch.stations) {
+                        this.mapHighlight = null;
+                        return;
+                    }
+                    const station = branch.stations[h.stationIndex];
+                    if (!station) {
+                        this.mapHighlight = null;
+                        return;
+                    }
+                    if (h.type === 'checkpoint') {
+                        if (!station.checkpoints || !station.checkpoints[h.checkpointIndex]) {
+                            this.mapHighlight = null;
+                        }
+                    }
+                },
                 updateMap(change_zoom) {
+                    this.validateMapHighlight();
                     this.markers.forEach(marker => this.map.removeLayer(marker));
                     this.polylines.forEach(polyline => this.map.removeLayer(polyline));
                     this.markers = [];
                     this.polylines = [];
 
-                    this.lines.forEach(line => {
-                        line.branches.forEach(branch => {
+                    this.lines.forEach((line, lineIndex) => {
+                        line.branches.forEach((branch, branchIndex) => {
                             let coords = [];
 
                             //copied from kimi_mtr.js
@@ -387,20 +430,52 @@
                                 coords.push([branch.stations[0].lat, branch.stations[0].lng]);
                             }
 
-                            //stations
-                            branch.stations.forEach(station => {
+                            // stations and checkpoint markers (checkpoints are also polyline vertices; markers make them easy to highlight)
+                            branch.stations.forEach((station, stationIndex) => {
                                 if (station.lat && station.lng) {
+                                    const stationHl =
+                                        this.mapHighlight &&
+                                        this.mapHighlight.type === 'station' &&
+                                        this.mapHighlight.lineIndex === lineIndex &&
+                                        this.mapHighlight.branchIndex === branchIndex &&
+                                        this.mapHighlight.stationIndex === stationIndex;
                                     const marker = L.circleMarker([station.lat, station.lng], {
-                                        radius: 6,
+                                        radius: stationHl ? 16 : 6,
                                         fillColor: line.line_color,
-                                        color: '#000',
-                                        weight: 2,
+                                        color: stationHl ? '#ffcc00' : '#000',
+                                        weight: stationHl ? 5 : 2,
                                         opacity: 1,
-                                        fillOpacity: 0.8
+                                        fillOpacity: stationHl ? 1 : 0.8
                                     }).addTo(this.map);
                                     marker.bindPopup(`<b>${station.name || 'Unnamed'}</b><br>${line.name}`);
                                     this.markers.push(marker);
-                                    //coords.push([station.lat, station.lng]);
+                                    if (stationHl) marker.bringToFront();
+                                }
+                                if (station.checkpoints && Array.isArray(station.checkpoints)) {
+                                    station.checkpoints.forEach((checkpoint, checkpointIndex) => {
+                                        if (checkpoint.lat && checkpoint.lng) {
+                                            const cpHl =
+                                                this.mapHighlight &&
+                                                this.mapHighlight.type === 'checkpoint' &&
+                                                this.mapHighlight.lineIndex === lineIndex &&
+                                                this.mapHighlight.branchIndex === branchIndex &&
+                                                this.mapHighlight.stationIndex === stationIndex &&
+                                                this.mapHighlight.checkpointIndex === checkpointIndex;
+                                            const cpMarker = L.circleMarker([checkpoint.lat, checkpoint.lng], {
+                                                radius: cpHl ? 14 : 4,
+                                                fillColor: '#ffffff',
+                                                color: cpHl ? '#ffcc00' : line.line_color,
+                                                weight: cpHl ? 5 : 2,
+                                                opacity: 1,
+                                                fillOpacity: 1
+                                            }).addTo(this.map);
+                                            cpMarker.bindPopup(
+                                                `<b>Checkpoint ${checkpointIndex + 1}</b><br>${station.name || 'Unnamed'}<br>${line.name}`
+                                            );
+                                            this.markers.push(cpMarker);
+                                            if (cpHl) cpMarker.bringToFront();
+                                        }
+                                    });
                                 }
                             });
 
@@ -873,6 +948,44 @@
                            this.coordinateMode.branchIndex === branchIndex &&
                            this.coordinateMode.stationIndex === stationIndex &&
                            this.coordinateMode.checkpointIndex === checkpointIndex;
+                },
+                showStationOnMap(lineIndex, branchIndex, stationIndex) {
+                    this.mapHighlight = {
+                        type: 'station',
+                        lineIndex,
+                        branchIndex,
+                        stationIndex
+                    };
+                    this.updateMap(false);
+                },
+                showCheckpointOnMap(lineIndex, branchIndex, stationIndex, checkpointIndex) {
+                    this.mapHighlight = {
+                        type: 'checkpoint',
+                        lineIndex,
+                        branchIndex,
+                        stationIndex,
+                        checkpointIndex
+                    };
+                    this.updateMap(false);
+                },
+                isStationMapHighlight(lineIndex, branchIndex, stationIndex) {
+                    return (
+                        this.mapHighlight &&
+                        this.mapHighlight.type === 'station' &&
+                        this.mapHighlight.lineIndex === lineIndex &&
+                        this.mapHighlight.branchIndex === branchIndex &&
+                        this.mapHighlight.stationIndex === stationIndex
+                    );
+                },
+                isCheckpointMapHighlight(lineIndex, branchIndex, stationIndex, checkpointIndex) {
+                    return (
+                        this.mapHighlight &&
+                        this.mapHighlight.type === 'checkpoint' &&
+                        this.mapHighlight.lineIndex === lineIndex &&
+                        this.mapHighlight.branchIndex === branchIndex &&
+                        this.mapHighlight.stationIndex === stationIndex &&
+                        this.mapHighlight.checkpointIndex === checkpointIndex
+                    );
                 },
                 handleKeyPress(event) {
                     const isInputField = event.target.tagName === 'INPUT';

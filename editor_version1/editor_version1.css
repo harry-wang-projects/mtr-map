@@ -241,6 +241,20 @@
         .coordinate-button.active:hover {
             background: #45a049;
         }
+        button.map-show {
+            background: #5c6bc0;
+            font-size: 11px;
+            padding: 4px 8px;
+        }
+        button.map-show:hover {
+            background: #3f51b5;
+        }
+        button.map-show.active {
+            background: #4caf50;
+        }
+        button.map-show.active:hover {
+            background: #45a049;
+        }
         .confirm-modal-overlay {
             position: fixed;
             top: 0;
