@@ -15,6 +15,11 @@ class Train {
     //circular or not
     this.type = line_type;
 
+    //this happens when the train comes back. However, it hasn't dwelled at the starting station yet.
+    this.returned = false;
+    //this shows if the train finished one cycle
+    this.finishedtraverse = false;
+
     //graphics settings
     /*
     if(lines[this.line_id].hasOwnProperty("label")){
@@ -208,6 +213,7 @@ class Train {
           //so much simpler than non-circular lines lmao
           this.idx += this.dir;
           if(this.idx === stations.length || this.dir === -1){
+            this.returned = true;
             if(!branch.firstTrainFinished){
               branch.firstTrainFinished = true;
             }
@@ -227,7 +233,10 @@ class Train {
             this.dir *= -1;                 // reverse
             //this.arrivalTick = tick;        // mark arrival for dwell calculation
             // -- loop-completion logic (see #2) --
+            
+            //if it went back to startdir, it means that it completed a loop.
             if (this.dir === this.startDir){
+              this.returned = true;
               if (!branch.firstTrainFinished){ 
                 branch.firstTrainFinished = true; 
                 /*
@@ -259,6 +268,11 @@ class Train {
       if(this.dwellProgress >= dwell){
         this.visitedstations++;
         this.movingstate = 1;
+
+        if(this.returned == true){
+          this.finishedtraverse = true;
+        }
+
         // -- loop-completion logic (see #2) --
         if (branch.firstTrainFinished && branch.spawnEnabled){
           branch.spawnEnabled=false; 
@@ -361,7 +375,7 @@ function generateAnimation(onProgress = null){
 
         for(let b = 0; b < line.branches.length; b++){
           const branch = line.branches[b];
-          const journeyTimeSeconds = computeBranchJourneySeconds(branch);
+          let journeyTimeSeconds = computeBranchJourneySeconds(branch);
           const offset_time = branch.offset_time || 0;
           const spawnEvery = branch.SPAWN_EVERY || 0;
 
@@ -376,8 +390,8 @@ function generateAnimation(onProgress = null){
           const line_type = (branch.hasOwnProperty("branch_type") && branch.branch_type === "circular") ? "circular" : "normal";
           const train = new Train(i, b, 1, false, line_type);
 
-          const trajectory = new Array(journeyTimeSeconds);
-          for(let t = 0; t < journeyTimeSeconds; t++){
+          let trajectory = [];
+          for(let t = 0; train.finishedtraverse == false; t++){
             const pos = train.latlng();
             trajectory[t] = { lat: pos[0], lng: pos[1] };
             train.step();
@@ -387,6 +401,7 @@ function generateAnimation(onProgress = null){
               onProgress(stepsDone, totalSteps, 0, true);
             }
           }
+          journeyTimeSeconds = trajectory.length;
 
           // Spawn offsets: create "virtual trains" at spawn frequency intervals.
           // We initialize their timeProgress values at the global playback start (spawn_completed_time).

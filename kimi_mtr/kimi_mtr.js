@@ -286,7 +286,21 @@ function clearPlaybackMarkers(){
   playbackMarkers = [];
 }
 
+//turn everything into integers for travel/dwell times
+function remove_decimals(){
+  for(let i = 0; i < lines.length; i++){
+    for(let j = 0; j < lines[i].branches.length; j++){
+      for(let k = 0; k < lines[i].branches[j].stations.length; k++){
+        lines[i].branches[j].stations[k].run = Math.ceil(lines[i].branches[j].stations[k].run);
+        lines[i].branches[j].stations[k].dwell = Math.ceil(lines[i].branches[j].stations[k].dwell);
+      }
+    }
+  }
+}
+
+
 /* -------------------- Helper function to calculate when all spawning finishes ---- */
+/*
 function calculateSpawnCompletionTime(){
   let maxSpawnTime = 0;
   
@@ -310,6 +324,8 @@ function calculateSpawnCompletionTime(){
   
   return maxSpawnTime;
 }
+*/
+
 
 /* -------------------- Helper function to check if all branches have stopped spawning ---- */
 /*
@@ -386,9 +402,9 @@ function playAnimationFrame(time){
   for(let i = 0; i < lines.length; i++){
     const lineCfg = lines[i];
     const lineMeta = animationTrajectories[i] || [];
-    const train_image = lineCfg.hasOwnProperty("image") ? lineCfg.image : "";
-    const markertype = lineCfg.hasOwnProperty("markertype") ? lineCfg.markertype : "";
-    const line_icon = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
+    //const train_image = lineCfg.hasOwnProperty("image") ? lineCfg.image : "";
+    //const markertype = lineCfg.hasOwnProperty("markertype") ? lineCfg.markertype : "";
+    //const line_icon = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
 
     let trainsOnThisLine = 0;
 
@@ -571,6 +587,10 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
   generateBtn.textContent = 'Generating...';
   statusDiv.textContent = 'Starting generation...';
   
+  //turn all travel times into integers.
+  remove_decimals();
+  console.log(lines);
+
   try {
     await generateAnimation((current, total, spawnEndTime, isPostSpawn, spawningLines) => {
       if(isPostSpawn){
