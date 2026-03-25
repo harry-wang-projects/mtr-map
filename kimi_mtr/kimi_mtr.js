@@ -374,7 +374,7 @@ function playAnimationFrame(time){
   }
 
   // Clear existing markers
-  clearPlaybackMarkers();
+  //clearPlaybackMarkers();
 
   // Create markers for all virtual trains at this time.
   // Each branch has a trajectory array indexed by `timeProgress` (seconds).
@@ -400,9 +400,12 @@ function playAnimationFrame(time){
         const pos = trajectory[timeProgress];
         if(!pos) continue;
 
+        /*
         const marker = L.marker([pos.lat, pos.lng], { icon: line_icon }).addTo(map);
         playbackMarkers.push(marker);
+        */
         trainsOnThisLine++;
+        branchMeta.markers[k].setLatLng([pos.lat, pos.lng]);       
       }
     }
 
@@ -431,6 +434,50 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
     return;
   }
   
+  //generate the train markers. By pre-generating them and updating them each time, I should be able to increase the performance.
+
+  // Clear existing markers
+  clearPlaybackMarkers();
+
+  // Create markers for all virtual trains at this time.
+  // Each branch has a trajectory array indexed by `timeProgress` (seconds).
+  // A train's `timeProgress` advances by 1 per frame and wraps with modulo.
+  for(let i = 0; i < lines.length; i++){
+    const lineCfg = lines[i];
+    const lineMeta = animationTrajectories[i] || [];
+    const train_image = lineCfg.hasOwnProperty("image") ? lineCfg.image : "";
+    const markertype = lineCfg.hasOwnProperty("markertype") ? lineCfg.markertype : "";
+    const line_icon = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
+
+    let trainsOnThisLine = 0;
+
+    for(let b = 0; b < (lineCfg.branches ? lineCfg.branches.length : 0); b++){
+      const branchMeta = lineMeta[b];
+      if(!branchMeta) continue;
+
+      const { trajectory, journeyTimeSeconds, initialProgresses } = branchMeta;
+      if(!trajectory || journeyTimeSeconds <= 0) continue;
+
+      animationTrajectories[i][b].markers = [];
+
+      for(let k = 0; k < initialProgresses.length; k++){
+        const timeProgress = (initialProgresses[k]) % journeyTimeSeconds;
+        const pos = trajectory[timeProgress];
+        if(!pos) continue;
+
+        const marker = L.marker([pos.lat, pos.lng], { icon: line_icon }).addTo(map);
+        playbackMarkers.push(marker);
+        animationTrajectories[i][b].markers[k] = marker;
+        trainsOnThisLine++;
+      }
+    }
+
+    const line_span = document.getElementById(`line${i}`);
+    if(line_span){
+      line_span.textContent = `${lineCfg.name} Trains ${trainsOnThisLine}`;
+    }
+  }
+
   isPlaying = true;
   currentPlaybackSpeed = playbackSpeed;
   if(resetTime){
