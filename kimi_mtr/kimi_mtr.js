@@ -312,6 +312,7 @@ function calculateSpawnCompletionTime(){
 }
 
 /* -------------------- Helper function to check if all branches have stopped spawning ---- */
+/*
 function allBranchesStoppedSpawning(){
   for(let i = 0; i < lines.length; i++){
     const line = lines[i];
@@ -324,6 +325,7 @@ function allBranchesStoppedSpawning(){
   }
   return true;
 }
+*/
 
 let spawn_completed_time = 0;
 
@@ -559,7 +561,6 @@ function resumePlayback(playbackSpeed = 1){
 /* ---------- UI Controls for Generation and Playback ---------- */
 // Generation controls
 document.getElementById('generateBtn')?.addEventListener('click', async () => {
-  //const duration = parseInt(document.getElementById('animationDuration').value) || 3600;
   const generateBtn = document.getElementById('generateBtn');
   const statusDiv = document.getElementById('generationStatus');
   
