@@ -133,6 +133,9 @@
                                         <div class="parameter-group">
                                             <button @click="calculate_traveltimes(lineIndex, branchIndex)" class="change">Calculate Times</button>
                                         </div>
+                                        <div class="parameter-group">
+                                            <button @click="calculate_allprogresses(lineIndex, branchIndex)" class="change">Calculate All Progresses</button>
+                                        </div>
                                     </div>
                                     
                                     <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section">
@@ -724,6 +727,11 @@
                         this.lines[i].branches[j].stations[k].checkpoints[l].progress = got_array[l];
                     }
                 },
+                calculate_allprogresses(lineIndex, branchIndex){
+                    for(let i = 0; i < this.lines[lineIndex].branches[branchIndex].stations.length; i++){
+                        this.calculate_progress(lineIndex, branchIndex, i);
+                    }
+                },
                 calculate_traveltimes(lineIndex, branchIndex){
                     let i = lineIndex;
                     let j = branchIndex;
@@ -747,7 +755,7 @@
                     console.log(got_array);
                     //got_array will be 1 shorter than stations if the line isn't circular.
                     for(let k = 0; k < got_array.length; k++){
-                        this.lines[i].branches[j].stations[k].run = got_array[k];
+                        this.lines[i].branches[j].stations[k].run = Math.ceil(got_array[k]);
                     }
                 },
 
