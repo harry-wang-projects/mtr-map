@@ -1,7 +1,7 @@
 
 kimi_mtr.js:
 
-Focus on kimi_mtr.html and kimi_mtr.js in this task.
+Focus on the kimi_mtr directory, specifically kimi_mtr.html, kimi_mtr.js, and animation-generator.js in this task.
 This is an animation generator that generates time-lapse animations showing subway trains moving on a map. Each train is marked by a label and moves around.
 
 It takes in a javascript array called "lines". In the array, each object is a "line" with a specific color, name, and marker type. There are "branches" in each "line" with a specific spawn frequency and a list of stations that represent branches of the line. Each station contains a latitude and longtitude, travel time, dwell time, and an optional list of checkpoints. The travel time is the time, in seconds, needed for the train to travel to the next station on the list. The dwell time is the time, in seconds, that the train stops at the station. The list of checkpoints contains checkpoints that the train passes when going to the next station. Each checkpoint has a latitude and longtitude, and a "progress" value between 0 and 1 representing the amount of progress the train makes when it goes pass the checkpoint. For instance, if the "progress" is 0.7, then the train passes through the checkpoint when it is 70% of the way to the next station.
@@ -14,7 +14,12 @@ Rules:
 Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
 
 Task:
-In kimi_mtr.js, put the generateAnimation function into a separate file along with the variables that it uses. The class Train should also be moved to that file as it is primarily used by the generateAnimation function. Modify kimi_mtr.html if extra script tags will be needed. When these things are done, make sure that the code can still run like before after the changes.
+
+Currently, the generateAnimation function in animation-generator.js in this program generates an array containing the positions of every single train in every second. This is very inefficient as the trains the same branch follow the same trajectory and repeat it many times if the duration of the animation is long. Hence, instead of generating an array storing the position of every train at every second, let the generateAnimation function generate a trajectory of one train for every branch of every line. The trajectory should mark the position over time of a train that goes to one end of the line and comes back. It should mark the position every second, and should only last the amount of time needed for a train to traverse the line once (this can be calculated by adding up the run and dwell times in the line). Thus, the "duration" of the animation being generated is now irrelevant.
+
+With this new generation method, the animation playing stage in kimi_mtr.js should be modified too. Train spawning should be stopped, and trains should be initialized at different "time progress" values spaced apart by the spawn frequency of the branch. For instance, if a branch has a spawn frequency of 100 seconds and a journey takes 500 seconds, in the beginning, there should be trains at 0, 100, 200, 300, and 400 seconds respectively. The coordinates of these trains can be obtained from the train trajectory array. For instance, if a train has a "time progress" of 253 seconds, the train's coordinates should be at the 253th position in the trajectory array. In every frame, the "time progress" of each train should increase by 1. If the "time progress" exceeds the time taken to traverse the line, the remainder of the "time progress" divided by the time taken to traverse the line should be used. For example, if a train has a "time progress" of 600 seconds and the journey time of the line is 500 seconds, the train's coordinates should be at the 600 % 500 = 100th position of the trajectory array.
+
+Make sure to check to see if there are any errors/bugs when you are finished.
 
 
 editor_version1.html:
@@ -26,3 +31,5 @@ Only do the things specified in the prompt. Do not change parts of the code that
 
 Task:
 Make a button for me to clone a branch. That is, clicking it makes an exact copy of the branch within the line, keeping all information the same. Remember to change the id of the new branch to something unique. Then, make it possible to clone lines. It should make an exact copy of the line, but change the line ID and the line name to something different from the original line. When you are finished, check to see that it works and that there are no bugs.
+
+
