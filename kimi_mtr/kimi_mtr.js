@@ -104,7 +104,7 @@ function reset_animation(){
   // Stop video/playback and clear playback state
   stopPlayback();
   clearPlaybackMarkers();
-  if(typeof animationData !== 'undefined') animationData = [];
+  if(typeof animationTrajectories !== 'undefined') animationTrajectories = [];
   if(typeof currentPlaybackTime !== 'undefined') currentPlaybackTime = 0;
   if(typeof tick !== 'undefined') tick = 0;
 }
@@ -246,9 +246,9 @@ reset_lines();
 /* ---------------------------------------------------------------------- */
 
 /* =====================  SIMULATION  =================================== */
-// Animation data structure: animationData[second] = [{train_id, line_id, lat, lng}, ...]
-let animationData = [];  // Pre-computed animation data
-let animationDuration = 30000; // Default: 1 hour in seconds
+// animationTrajectories[line_id][branch_id] = { trajectory, journeyTimeSeconds, initialProgresses }
+let animationTrajectories = [];  // Pre-computed per-branch trajectories (one full journey cycle).
+let animationPlaybackDurationSeconds = 0; // User-requested playback length (generation is independent).
 let isGenerating = false;
 let isPlaying = false;
 let currentPlaybackTime = 0;
@@ -361,47 +361,58 @@ function generate_train_icon(markertype, line_color, label, image){
 
 /* -------------------- PLAYBACK STAGE ----------------------------------- */
 function playAnimationFrame(time){
-  if(!animationData || animationData.length === 0){
-    console.warn("No animation data to play");
+  if(!animationTrajectories || animationTrajectories.length === 0){
+    console.warn("No animation trajectories to play");
     return;
   }
-  
-  if(time >= animationData.length){
+
+  const elapsedSeconds = time - spawn_completed_time;
+  if(elapsedSeconds < 0) return;
+  if(elapsedSeconds >= animationPlaybackDurationSeconds){
     stopPlayback();
     return;
   }
-  
+
   // Clear existing markers
   clearPlaybackMarkers();
-  
-  // Create markers for all trains at this time
-  const frame = animationData[time] || [];
-  for(let i = 0; i < frame.length; i++){
-    const train = frame[i];
-    let train_icon;
-    let train_image = "";
-    if(lines[train.line_id].hasOwnProperty("image")){
-      train_image = lines[train.line_id].image;
-    }
-    if(lines[train.line_id].hasOwnProperty("markertype")){
-      train_icon = generate_train_icon(lines[train.line_id].markertype, lines[train.line_id].line_color, lines[train.line_id].label, train_image)
-    }else{
-      train_icon = generate_train_icon("", lines[train.line_id].line_color, lines[train.line_id].label, train_image)
-    }
-    const marker = L.marker([train.lat, train.lng], {
-      icon: train_icon
-    }).addTo(map);
-    playbackMarkers.push(marker);
-  }
-  
-  // Update status display
+
+  // Create markers for all virtual trains at this time.
+  // Each branch has a trajectory array indexed by `timeProgress` (seconds).
+  // A train's `timeProgress` advances by 1 per frame and wraps with modulo.
   for(let i = 0; i < lines.length; i++){
-    const lineTrains = frame.filter(t => t.line_id === i);
+    const lineCfg = lines[i];
+    const lineMeta = animationTrajectories[i] || [];
+    const train_image = lineCfg.hasOwnProperty("image") ? lineCfg.image : "";
+    const markertype = lineCfg.hasOwnProperty("markertype") ? lineCfg.markertype : "";
+    const line_icon = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
+
+    let trainsOnThisLine = 0;
+
+    for(let b = 0; b < (lineCfg.branches ? lineCfg.branches.length : 0); b++){
+      const branchMeta = lineMeta[b];
+      if(!branchMeta) continue;
+
+      const { trajectory, journeyTimeSeconds, initialProgresses } = branchMeta;
+      if(!trajectory || journeyTimeSeconds <= 0) continue;
+
+      for(let k = 0; k < initialProgresses.length; k++){
+        const timeProgress = (initialProgresses[k] + elapsedSeconds) % journeyTimeSeconds;
+        const pos = trajectory[timeProgress];
+        if(!pos) continue;
+
+        const marker = L.marker([pos.lat, pos.lng], { icon: line_icon }).addTo(map);
+        playbackMarkers.push(marker);
+        trainsOnThisLine++;
+      }
+    }
+
     const line_span = document.getElementById(`line${i}`);
-    line_span.textContent = `${lines[i].name} Trains ${lineTrains.length}`;
+    if(line_span){
+      line_span.textContent = `${lineCfg.name} Trains ${trainsOnThisLine}`;
+    }
   }
-  
-  document.getElementById("tickdisplay").textContent = `Playback: ${time - spawn_completed_time}s / ${animationData.length - 1 - spawn_completed_time}s (actual playback ${time}s / ${animationData.length - 1}s )`;
+
+  document.getElementById("tickdisplay").textContent = `Playback: ${elapsedSeconds}s / ${animationPlaybackDurationSeconds}s`;
 }
 
 let playbackIntervalId = null;
@@ -409,7 +420,7 @@ let currentPlaybackSpeed = 1;
 
 function startPlayback(playbackSpeed = 1, resetTime = true){
   if(isPlaying && resetTime) return; // Don't restart if already playing and not resetting
-  if(!animationData || animationData.length === 0){
+  if(!animationTrajectories || animationTrajectories.length === 0){
     alert("Please generate animation data first!");
     return;
   }
@@ -423,19 +434,19 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
   isPlaying = true;
   currentPlaybackSpeed = playbackSpeed;
   if(resetTime){
-    currentPlaybackTime;
+    currentPlaybackTime = 0;
   }
   
   // Play at specified speed (frames per second)
   const frameInterval = 1000 / playbackSpeed; // milliseconds between frames
   
   playbackIntervalId = setInterval(() => {
+    if(currentPlaybackTime >= animationPlaybackDurationSeconds){
+      stopPlayback();
+      return;
+    }
     playAnimationFrame(currentPlaybackTime + spawn_completed_time);
     currentPlaybackTime++;
-    
-    if(currentPlaybackTime >= animationData.length){
-      stopPlayback();
-    }
   }, frameInterval);
 }
 
@@ -454,12 +465,12 @@ function updatePlaybackSpeed(newSpeed){
   const frameInterval = 1000 / newSpeed; // milliseconds between frames
   
   playbackIntervalId = setInterval(() => {
+    if(currentPlaybackTime >= animationPlaybackDurationSeconds){
+      stopPlayback();
+      return;
+    }
     playAnimationFrame(currentPlaybackTime + spawn_completed_time);
     currentPlaybackTime++;
-    
-    if(currentPlaybackTime >= animationData.length){
-      stopPlayback();
-    }
   }, frameInterval);
 }
 
@@ -481,7 +492,7 @@ function pausePlayback(){
 
 function resumePlayback(playbackSpeed = 1){
   if(isPlaying) return;
-  if(currentPlaybackTime >= animationData.length){
+  if(currentPlaybackTime >= animationPlaybackDurationSeconds){
     currentPlaybackTime = 0;
   }
   startPlayback(playbackSpeed, false); // Don't reset time when resuming
@@ -521,7 +532,8 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
     
     generateBtn.disabled = false;
     generateBtn.textContent = 'Generate Animation';
-    statusDiv.textContent = `Generation complete! Total ${animationData.length}s = ${spawn_completed_time}s spawn + ${animationData.length - spawn_completed_time}s animation.`;
+    animationPlaybackDurationSeconds = duration;
+    statusDiv.textContent = `Generation complete! spawn_completed_time=${spawn_completed_time}s. Playback length: ${duration}s.`;
     // Enable playback controls
     document.getElementById('playBtn').disabled = false;
     document.getElementById('pauseBtn').disabled = false;

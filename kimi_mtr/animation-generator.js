@@ -1,7 +1,7 @@
 /**
  * Animation generation: Train class and generateAnimation().
- * Depends on globals from kimi_mtr.js: lines, map, accel_func, TICK_LENGTH, refreshcoords,
- * restart, allBranchesStoppedSpawning, animationData, isGenerating, tick, spawn_completed_time.
+ * Depends on globals from kimi_mtr.js: lines, accel_func, TICK_LENGTH, restart,
+ * isGenerating, tick, spawn_completed_time, animationTrajectories.
  */
 
 class Train {
@@ -284,176 +284,119 @@ class Train {
 /* -------------------- GENERATION STAGE -------------------------------- */
 function generateAnimation(durationSeconds, onProgress = null){
   return new Promise((resolve, reject) => {
-    console.log(`Starting generation for ${durationSeconds} seconds after spawning completes...`);
+    console.log(`Starting trajectory generation (requested duration: ${durationSeconds}s) ...`);
     isGenerating = true;
-    animationData = [];
-    
+
     // Reset simulation state
     restart();
     tick = 0;
-    
+
     // Ensure TICK_LENGTH is 1 for generation (store original value)
     const originalTickLength = TICK_LENGTH;
     TICK_LENGTH = 1;
-    
-    let currentSecond = 0;
-    const CHUNK_SIZE = 100; // Process 100 seconds at a time to avoid blocking
-    
-    let spawnPhaseComplete = false;
-    let spawnEndTime = 0;
-    let totalDuration = 0; // Will be calculated after spawn phase
-    
-    function processChunk(){
-      try {
-        const endSecond = Math.min(currentSecond + CHUNK_SIZE, currentSecond + CHUNK_SIZE); // Process chunk
-        
-        for(let second = currentSecond; second < endSecond; second++){
-          // Advance simulation by 1 second
-          tick = second;
-          
-          // Spawn trains for each branch (with offset time)
-          for(let i = 0; i < lines.length; i++){
-            const line = lines[i];
-            for(let b = 0; b < line.branches.length; b++){
-              const branch = line.branches[b];
-              // Account for offset_time: only spawn if current time >= offset
-              const effectiveTime = tick - branch.offset_time;
-              if (effectiveTime >= 0 && branch.spawnEnabled && effectiveTime - branch.lastspawn >= branch.SPAWN_EVERY){
-                branch.lastspawn = effectiveTime;
-                if(branch.hasOwnProperty("branch_type") && branch.branch_type === "circular"){
-                  branch.trains.push(new Train(i, b, 1, false, branch.branch_type)); // Don't create markers during generation
-                }else{
-                  branch.trains.push(new Train(i, b, 1, false, "normal")); // Don't create markers during generation
-                }
-              }
-            }
-          }
-          
-          // Step all trains from all branches
-          for(let i = 0; i < lines.length; i++){
-            const line = lines[i];
-            for(let b = 0; b < line.branches.length; b++){
-              const branch = line.branches[b];
-              branch.trains.forEach(t => {
-                try {
-                  t.step();
-                } catch(e) {
-                  console.error(`Error stepping train ${t.id} at second ${second}:`, e);
-                }
-              });
-            }
-          }
-          
-          // Check if spawn phase is complete
-          if(!spawnPhaseComplete && allBranchesStoppedSpawning()){
-            spawnPhaseComplete = true;
-            spawnEndTime = tick;
-            totalDuration = spawnEndTime + durationSeconds;
-            spawn_completed_time = spawnEndTime;
-            console.log(`Spawn phase complete at ${spawnEndTime}s. Total generation: ${totalDuration}s (spawn ${spawnEndTime}s + animation ${durationSeconds}s)`);
-            
-            // Initialize only future animation slots; do not overwrite existing spawn-phase data
-            for(let s = second + 1; s <= totalDuration; s++){
-              animationData[s] = [];
-            }
-          }
-          
-          // Store positions for this second
-          if(animationData[second] === undefined){
-            animationData[second] = [];
-          }
-          
-          for(let i = 0; i < lines.length; i++){
-            const line = lines[i];
-            for(let b = 0; b < line.branches.length; b++){
-              const branch = line.branches[b];
-              for(let j = 0; j < branch.trains.length; j++){
-                const train = branch.trains[j];
-                try {
-                  const pos = train.latlng();
-                  animationData[second].push({
-                    train_id: train.id,
-                    line_id: train.line_id,
-                    branch_id: train.branch_id,
-                    lat: pos[0],
-                    lng: pos[1]
-                  });
-                } catch(e) {
-                  console.error(`Error getting position for train ${train.id} at second ${second}:`, e);
-                }
-              }
-            }
-          }
-          
-          // Report progress
-          if(onProgress){
-            if(spawnPhaseComplete){
-              onProgress(second, totalDuration, spawnEndTime, true);
-            } else {
-              // During spawn phase, show which lines are still spawning
-              let spawningLines = [];
-              for(let i = 0; i < lines.length; i++){
-                const line = lines[i];
-                for(let b = 0; b < line.branches.length; b++){
-                  const branch = line.branches[b];
-                  if(branch.spawnEnabled){
-                    spawningLines.push(`${line.name} (Branch ${b+1})`);
-                  }
-                }
-              }
-              onProgress(second, null, null, false, spawningLines);
-            }
-          }
-        }
-        
-        currentSecond = endSecond;
-        
-        // Continue with next chunk or finish
-        if(!spawnPhaseComplete || currentSecond < totalDuration){
-          // Use requestAnimationFrame for better performance and UI responsiveness
-          requestAnimationFrame(processChunk);
-        } else {
-          // Store final state
-          for(let i = 0; i < lines.length; i++){
-            const line = lines[i];
-            for(let b = 0; b < line.branches.length; b++){
-              const branch = line.branches[b];
-              for(let j = 0; j < branch.trains.length; j++){
-                const train = branch.trains[j];
-                try {
-                  const pos = train.latlng();
-                  if(animationData[totalDuration]){
-                    animationData[totalDuration].push({
-                      train_id: train.id,
-                      line_id: train.line_id,
-                      branch_id: train.branch_id,
-                      lat: pos[0],
-                      lng: pos[1]
-                    });
-                  }
-                } catch(e) {
-                  console.error(`Error getting final position for train ${train.id}:`, e);
-                }
-              }
-            }
-          }
-          
-          // Restore original TICK_LENGTH
-          TICK_LENGTH = originalTickLength;
-          
-          isGenerating = false;
-          console.log(`Generation complete! Generated ${animationData.length} seconds of data (${spawnEndTime}s spawn + ${durationSeconds}s animation).`);
-          resolve(animationData);
-        }
-      } catch(e) {
-        console.error('Error in processChunk:', e);
-        isGenerating = false;
-        TICK_LENGTH = originalTickLength;
-        reject(e);
-      }
+
+    // Helper: safe integer modulo for negative numbers.
+    function mod(n, m){
+      return ((n % m) + m) % m;
     }
-    
-    // Start processing
-    processChunk();
+
+    function computeBranchJourneySeconds(branch){
+      let total = 0;
+      for(let s = 0; s < branch.stations.length; s++){
+        const st = branch.stations[s];
+        total += (st.run || 0) + (st.dwell || 0);
+      }
+      // Must be >= 1 so we can index trajectory[timeProgress].
+      return Math.max(1, Math.round(total));
+    }
+
+    try {
+      // Compute spawn completion time analytically (same logic as calculateSpawnCompletionTime).
+      spawn_completed_time = 0;
+      for(let i = 0; i < lines.length; i++){
+        const line = lines[i];
+        for(let b = 0; b < line.branches.length; b++){
+          const branch = line.branches[b];
+          const journeySeconds = computeBranchJourneySeconds(branch);
+          const offset = branch.offset_time || 0;
+          spawn_completed_time = Math.max(spawn_completed_time, offset + journeySeconds);
+        }
+      }
+
+      // Build one trajectory per branch.
+      animationTrajectories = new Array(lines.length);
+
+      // Total work for progress reporting: sum of per-branch trajectory lengths.
+      let totalSteps = 0;
+      for(let i = 0; i < lines.length; i++){
+        const line = lines[i];
+        for(let b = 0; b < line.branches.length; b++){
+          totalSteps += computeBranchJourneySeconds(line.branches[b]);
+        }
+      }
+
+      let stepsDone = 0;
+
+      for(let i = 0; i < lines.length; i++){
+        const line = lines[i];
+        animationTrajectories[i] = new Array(line.branches.length);
+
+        for(let b = 0; b < line.branches.length; b++){
+          const branch = line.branches[b];
+          const journeyTimeSeconds = computeBranchJourneySeconds(branch);
+          const offset_time = branch.offset_time || 0;
+          const spawnEvery = branch.SPAWN_EVERY || 0;
+
+          // Disable any spawn bookkeeping during generation.
+          branch.spawnEnabled = false;
+          branch.firstTrainFinished = false;
+          branch.lastspawn = 0;
+          branch.trains = branch.trains || [];
+          branch.trains.length = 0;
+
+          // Create a single train trajectory for this branch.
+          const line_type = (branch.hasOwnProperty("branch_type") && branch.branch_type === "circular") ? "circular" : "normal";
+          const train = new Train(i, b, 1, false, line_type);
+
+          const trajectory = new Array(journeyTimeSeconds);
+          for(let t = 0; t < journeyTimeSeconds; t++){
+            const pos = train.latlng();
+            trajectory[t] = { lat: pos[0], lng: pos[1] };
+            train.step();
+            stepsDone++;
+
+            if(onProgress && totalSteps > 0){
+              onProgress(stepsDone, totalSteps, 0, true);
+            }
+          }
+
+          // Spawn offsets: create "virtual trains" at spawn frequency intervals.
+          // We initialize their timeProgress values at the global playback start (spawn_completed_time).
+          // Count matches: trains at progress k*SPAWN_EVERY for k such that k*SPAWN_EVERY < journeyTimeSeconds.
+          const count = spawnEvery > 0 ? Math.floor((journeyTimeSeconds - 1) / spawnEvery) + 1 : 1;
+          const initialProgresses = new Array(count);
+          for(let k = 0; k < count; k++){
+            const spawnTime = offset_time + k * spawnEvery;
+            initialProgresses[k] = mod(spawn_completed_time - spawnTime, journeyTimeSeconds);
+          }
+
+          animationTrajectories[i][b] = {
+            trajectory,
+            journeyTimeSeconds,
+            initialProgresses
+          };
+        }
+      }
+
+      TICK_LENGTH = originalTickLength;
+      isGenerating = false;
+      console.log(`Trajectory generation complete. spawn_completed_time=${spawn_completed_time}s`);
+      resolve(animationTrajectories);
+    } catch(e) {
+      console.error('Error in generateAnimation:', e);
+      isGenerating = false;
+      TICK_LENGTH = originalTickLength;
+      reject(e);
+    }
   });
 }
