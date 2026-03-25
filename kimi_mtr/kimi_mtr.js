@@ -368,10 +368,12 @@ function playAnimationFrame(time){
 
   const elapsedSeconds = time - spawn_completed_time;
   if(elapsedSeconds < 0) return;
+  /*
   if(elapsedSeconds >= animationPlaybackDurationSeconds){
     stopPlayback();
     return;
   }
+  */
 
   // Clear existing markers
   //clearPlaybackMarkers();
@@ -415,7 +417,7 @@ function playAnimationFrame(time){
     }
   }
 
-  document.getElementById("tickdisplay").textContent = `Playback: ${elapsedSeconds}s / ${animationPlaybackDurationSeconds}s`;
+  document.getElementById("tickdisplay").textContent = `Playback: ${elapsedSeconds}s`;
 }
 
 let playbackIntervalId = null;
@@ -488,10 +490,12 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
   const frameInterval = 1000 / playbackSpeed; // milliseconds between frames
   
   playbackIntervalId = setInterval(() => {
+    /*
     if(currentPlaybackTime >= animationPlaybackDurationSeconds){
       stopPlayback();
       return;
     }
+    */
     playAnimationFrame(currentPlaybackTime + spawn_completed_time);
     currentPlaybackTime++;
   }, frameInterval);
@@ -512,10 +516,12 @@ function updatePlaybackSpeed(newSpeed){
   const frameInterval = 1000 / newSpeed; // milliseconds between frames
   
   playbackIntervalId = setInterval(() => {
+    /*
     if(currentPlaybackTime >= animationPlaybackDurationSeconds){
       stopPlayback();
       return;
     }
+    */
     playAnimationFrame(currentPlaybackTime + spawn_completed_time);
     currentPlaybackTime++;
   }, frameInterval);
@@ -539,9 +545,11 @@ function pausePlayback(){
 
 function resumePlayback(playbackSpeed = 1){
   if(isPlaying) return;
+  /*
   if(currentPlaybackTime >= animationPlaybackDurationSeconds){
     currentPlaybackTime = 0;
   }
+  */
   startPlayback(playbackSpeed, false); // Don't reset time when resuming
 }
 
@@ -551,7 +559,7 @@ function resumePlayback(playbackSpeed = 1){
 /* ---------- UI Controls for Generation and Playback ---------- */
 // Generation controls
 document.getElementById('generateBtn')?.addEventListener('click', async () => {
-  const duration = parseInt(document.getElementById('animationDuration').value) || 3600;
+  //const duration = parseInt(document.getElementById('animationDuration').value) || 3600;
   const generateBtn = document.getElementById('generateBtn');
   const statusDiv = document.getElementById('generationStatus');
   
@@ -563,7 +571,7 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
   statusDiv.textContent = 'Starting generation...';
   
   try {
-    await generateAnimation(duration, (current, total, spawnEndTime, isPostSpawn, spawningLines) => {
+    await generateAnimation((current, total, spawnEndTime, isPostSpawn, spawningLines) => {
       if(isPostSpawn){
         // After spawn phase: animation duration is counting (requested duration only)
         const progress = Math.round((current - spawnEndTime) / (total - spawnEndTime) * 100);
@@ -573,14 +581,14 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
         const spawningText = spawningLines && spawningLines.length > 0
           ? spawningLines.join(', ')
           : 'none (finalizing…)';
-        statusDiv.textContent = `Spawning trains… ${current}s elapsed\nLines still spawning: ${spawningText}\n(Animation will run for ${duration}s after all lines stop spawning.)`;
+        statusDiv.textContent = `Spawning trains… ${current}s elapsed\nLines still spawning: ${spawningText}\n`;
       }
     });
     
     generateBtn.disabled = false;
     generateBtn.textContent = 'Generate Animation';
-    animationPlaybackDurationSeconds = duration;
-    statusDiv.textContent = `Generation complete! spawn_completed_time=${spawn_completed_time}s. Playback length: ${duration}s.`;
+    //animationPlaybackDurationSeconds = duration;
+    statusDiv.textContent = `Generation complete! spawn_completed_time=${spawn_completed_time}s.`;
     // Enable playback controls
     document.getElementById('playBtn').disabled = false;
     document.getElementById('pauseBtn').disabled = false;

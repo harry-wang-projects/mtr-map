@@ -282,9 +282,8 @@ class Train {
 
 
 /* -------------------- GENERATION STAGE -------------------------------- */
-function generateAnimation(durationSeconds, onProgress = null){
+function generateAnimation(onProgress = null){
   return new Promise((resolve, reject) => {
-    console.log(`Starting trajectory generation (requested duration: ${durationSeconds}s) ...`);
     isGenerating = true;
 
     // Reset simulation state
