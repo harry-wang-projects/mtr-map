@@ -13,6 +13,8 @@ export function generate_train_icon_2(markertype, line_color, label, image){
         width:24px;height:24px;border-radius:50%;
         border:4px solid ${line_color};"><img src="${image}" style="
         height:100%; width: 100%; object-fit:cover;display:block;"></div>  `;
+  }else if(markertype == "image"){
+    return `<img src="${image}" style="width:30px; height: 30px ;object-fit:contain;">`;
   }else{
     return `<div style="
         background-color:${line_color};

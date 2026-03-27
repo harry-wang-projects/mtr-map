@@ -1,14 +1,8 @@
 
 Stuff to do:
-Highlight lines when clicking a button
-Make autoprogress possible for an entire branch 
-
-Performance increasing:
-- Instead of generating an entire array of the position of each train, simply make an array of the position of a single train.
-- Since the trains spawn periodically and all follow the same path, their positions can simply be deduced from this. (tick + offset + spawn_offset)
-- No more "generate animation" needed! The generating will be super fast. It can be moved to the editor file.
-- Very low memory usage. A lot of the previous stuff was redundant.
-- Instead of creating and destroying markers each time, use the setlatlng option. Make an array of markers in the beginning.
+Add support for image icons. Also make some image generators for basic images (circular image, text image).
+Add z-indexes, allowing for users to put things on top of each other.
+Make the animation generator fetch a json directly, so no uploading is needed.
 
 New progress function for longer lines
 Refer to the mtr wiki on the number of trains operating on each line. Make sure it is consistent.
@@ -34,6 +28,9 @@ Dragging stations around (on the list, not on the map) --> made the move up func
 Cloning of lines/branches.
 Set up auto-travel time function based on distance (account for checkpoints!)
 Write the autocheckpoint function to automatically determine progress for checkpoints
+Highlight lines when clicking a button
+Make autoprogress possible for an entire branch 
+
 
 
 Ongoing:

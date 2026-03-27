@@ -365,6 +365,13 @@ function generate_train_icon(markertype, line_color, label, image){
         height:100%; width: 100%; object-fit:cover;display:block;"></div>  `,
       iconSize:[0, 0], iconAnchor:[10,10]
     })
+  }else if(markertype == "image"){
+    return L.icon({
+      iconUrl: image,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      className: 'my-image-icon'
+    });
   }else{
     return L.divIcon({
       className: 'custom-div-icon',
