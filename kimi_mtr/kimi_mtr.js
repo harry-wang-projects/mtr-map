@@ -140,35 +140,37 @@ function draw_branchroute(branch, line_color){
     branchCoords.push([branch.stations[0].lat, branch.stations[0].lng]);
   }
 
-  L.polyline(branchCoords, {color: line_color, weight: 2}).addTo(routeLayerGroup);
+  routeLineFeatures.push({
+    type: 'Feature',
+    geometry: { type: 'LineString', coordinates: branchCoords.map(c => [c[1], c[0]]) },
+    properties: { color: line_color }
+  });
   allLineCoords.push(...branchCoords);
 
   branch.stations.forEach(s => {
-    L.circleMarker([s.lat, s.lng], {
-      radius: 3,
-      color: '#fff',
-      weight: 2,
-      fillColor: line_color,
-      fillOpacity: 1
-    }).addTo(routeLayerGroup);
+    stationPointFeatures.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
+      properties: { radius: 3, fillColor: line_color, strokeColor: '#fff', strokeWidth: 2, opacity: 1 }
+    });
     if(s.checkpoints && Array.isArray(s.checkpoints)){
       s.checkpoints.forEach(cp => {
-        L.circleMarker([cp.lat, cp.lng], {
-          radius: 2,
-          color: line_color,
-          weight: 1,
-          fillColor: line_color,
-          fillOpacity: 0.5
-        }).addTo(routeLayerGroup);
+        stationPointFeatures.push({
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [cp.lng, cp.lat] },
+          properties: { radius: 2, fillColor: line_color, strokeColor: line_color, strokeWidth: 1, opacity: 0.5 }
+        });
       });
     }
   });
+  updateRouteSources();
 }
 
 function clear_routes(){
-  // Clear map route layers and coords
-  if(typeof routeLayerGroup !== 'undefined') routeLayerGroup.clearLayers();
+  routeLineFeatures = [];
+  stationPointFeatures = [];
   allLineCoords = [];
+  updateRouteSources();
 }
 
 function reset_lines(){
@@ -218,27 +220,71 @@ function reset_lines(){
     }
   }
 
-  if(allLineCoords.length > 0 && typeof map !== 'undefined'){
-    map.fitBounds(L.latLngBounds(allLineCoords), { padding: [50, 50] });
+  if(allLineCoords.length > 0){
+    const lats = allLineCoords.map(c => c[0]);
+    const lngs = allLineCoords.map(c => c[1]);
+    map.fitBounds(
+      [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
+      { padding: 50 }
+    );
   }
   if(document.getElementById("tickdisplay")){
     document.getElementById("tickdisplay").textContent = 'Stopped';
   }
 }
 
-/* ---------- map setup (your old code) --------------------------------- */
-const map = L.map('map').setView([22.28, 114.18], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution:'© OSM', maxZoom:19, opacity: 0.8
-}).addTo(map);
+/* ---------- map setup ------------------------------------------------- */
+const map = new maplibregl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    sources: {
+      osm: {
+        type: 'raster',
+        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        tileSize: 256,
+        attribution: '© OSM'
+      }
+    },
+    layers: [{ id: 'osm', type: 'raster', source: 'osm', paint: { 'raster-opacity': 0.8 } }]
+  },
+  center: [114.18, 22.28],
+  zoom: 13
+});
 
-/* Layer group for all route polylines and station markers (so we can clear and re-draw) */
-let routeLayerGroup = L.layerGroup().addTo(map);
+let routeLineFeatures = [];
+let stationPointFeatures = [];
+let mapLoaded = false;
+
+function updateRouteSources() {
+  if (!mapLoaded) return;
+  map.getSource('route-lines').setData({ type: 'FeatureCollection', features: routeLineFeatures });
+  map.getSource('route-stations').setData({ type: 'FeatureCollection', features: stationPointFeatures });
+}
+
+map.on('load', () => {
+  mapLoaded = true;
+  map.addSource('route-lines', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  map.addSource('route-stations', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  map.addLayer({
+    id: 'route-lines-layer', type: 'line', source: 'route-lines',
+    paint: { 'line-color': ['get', 'color'], 'line-width': 2 }
+  });
+  map.addLayer({
+    id: 'route-stations-layer', type: 'circle', source: 'route-stations',
+    paint: {
+      'circle-radius': ['get', 'radius'],
+      'circle-color': ['get', 'fillColor'],
+      'circle-stroke-color': ['get', 'strokeColor'],
+      'circle-stroke-width': ['get', 'strokeWidth'],
+      'circle-opacity': ['get', 'opacity']
+    }
+  });
+  restart();
+});
 
 /* draw static line */
 let allLineCoords = [];
-document.getElementById('status').innerHTML = '';
-reset_lines();
 
 //train simulation here
 
@@ -282,7 +328,7 @@ function restart(){
 }
 
 function clearPlaybackMarkers(){
-  playbackMarkers.forEach(m => map.removeLayer(m));
+  playbackMarkers.forEach(m => m.remove());
   playbackMarkers = [];
 }
 
@@ -346,42 +392,26 @@ function allBranchesStoppedSpawning(){
 let spawn_completed_time = 0;
 
 function generate_train_icon(markertype, line_color, label, image){
+  const el = document.createElement('div');
   if(markertype == "hklrt"){
-    return L.divIcon({
-      className: 'custom-div-icon',
-      html:`<div style="
-        background: #fff;
-        height: 18px; width: 32px;border-radius:9px;font-size: 11px;text-align: center;vertical-align: middle;
-        border:2px solid ${line_color};">${label}</div>  `,
-        iconSize:[0, 0], iconAnchor:[16,10]
-    });
+    el.style.cssText = `background:#fff;height:18px;width:32px;border-radius:9px;font-size:11px;text-align:center;line-height:18px;border:2px solid ${line_color};`;
+    el.textContent = label;
   }else if(markertype == "hkmtr"){
-    return L.divIcon({
-      className: 'custom-div-icon',
-      html:`<div style="
-        background:${line_color};overflow: hidden;
-        width:24px;height:24px;border-radius:50%;
-        border:4px solid ${line_color};"><img src="${image}" style="
-        height:100%; width: 100%; object-fit:cover;display:block;"></div>  `,
-      iconSize:[0, 0], iconAnchor:[10,10]
-    })
+    el.style.cssText = `background:${line_color};overflow:hidden;width:24px;height:24px;border-radius:50%;border:4px solid ${line_color};`;
+    const img = document.createElement('img');
+    img.src = image;
+    img.style.cssText = 'height:100%;width:100%;object-fit:cover;display:block;';
+    el.appendChild(img);
   }else if(markertype == "image"){
-    return L.icon({
-      iconUrl: image,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
-      className: 'my-image-icon'
-    });
+    const img = document.createElement('img');
+    img.src = image;
+    img.style.cssText = 'width:30px;height:30px;object-fit:contain;';
+    img.className = 'my-image-icon';
+    el.appendChild(img);
   }else{
-    return L.divIcon({
-      className: 'custom-div-icon',
-      html:`<div style="
-        background:${line_color};
-        width:20px;height:20px;border-radius:50%;
-        border:2px solid #fff;"></div>  `,
-      iconSize:[0, 0], iconAnchor:[10,10]
-    });
+    el.style.cssText = `background:${line_color};width:20px;height:20px;border-radius:50%;border:2px solid #fff;`;
   }
+  return el;
 }
 
 /* -------------------- PLAYBACK STAGE ----------------------------------- */
@@ -432,7 +462,7 @@ function playAnimationFrame(time){
         playbackMarkers.push(marker);
         */
         trainsOnThisLine++;
-        branchMeta.markers[k].setLatLng([pos.lat, pos.lng]);       
+        branchMeta.markers[k].setLngLat([pos.lng, pos.lat]);
       }
     }
 
@@ -474,8 +504,6 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
     const lineMeta = animationTrajectories[i] || [];
     const train_image = lineCfg.hasOwnProperty("image") ? lineCfg.image : "";
     const markertype = lineCfg.hasOwnProperty("markertype") ? lineCfg.markertype : "";
-    const line_icon = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
-
     let trainsOnThisLine = 0;
 
     for(let b = 0; b < (lineCfg.branches ? lineCfg.branches.length : 0); b++){
@@ -492,7 +520,8 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
         const pos = trajectory[timeProgress];
         if(!pos) continue;
 
-        const marker = L.marker([pos.lat, pos.lng], { icon: line_icon }).addTo(map);
+        const el = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
+        const marker = new maplibregl.Marker({element: el, anchor: 'center'}).setLngLat([pos.lng, pos.lat]).addTo(map);
         playbackMarkers.push(marker);
         animationTrajectories[i][b].markers[k] = marker;
         trainsOnThisLine++;
@@ -738,8 +767,6 @@ document.getElementById('jsonFileAppend')?.addEventListener('change', function (
   loadJsonFile(false);
 });
 
-/* ---------- initial setup ---------- */
-restart();   // sets tick=0, clears trains, etc.
 // startClock(); // Disabled - using new generation/playback system
 /* ======================================================================= */
 /* ======================================================================= */
