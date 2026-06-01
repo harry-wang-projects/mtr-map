@@ -1,0 +1,14 @@
+editor_version1.html:
+
+Focus on the folder @editor_version1.
+This is a json editor that edits a json file (an object in the code) that stores information about a subway network. The network consists of lines, which consist of branches, which consist of stations. All information can be edited. In addition, the positions (latitude, longtitudes) of stations can be edited by clicking on a map.
+
+Rules:
+Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
+
+Task:
+Make a separate js file called lines.js containing all of the functions that modify the object this.lines in editor_version1/editor_version1.html. Examples include (but are not limited to) the functions that add, delete, or modify items such as lines, branches, stations, and checkpoints. Also move utility functions such as nextUniqueLineId, nextUniqueBranchId, and nextUniqueLineName to lines.js. Any function that is related to the this.lines object and isn't related to the map should be moved.
+
+Then, in @editor_version/editor_version1.html, let the buttons/functions call the functions in the lines.js. This should shorten editor_version1.html and make it easier to read. 
+
+Make sure that the code can run in the end.
