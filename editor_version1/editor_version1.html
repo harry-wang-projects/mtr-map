@@ -870,6 +870,7 @@
                             this.map.setCenter([lng, lat]);
                         }
                     }
+                    //go to checkpoint mode
                     if (event.key === 'e' || event.key === 'E') {
                         if (!this.mapHighlight) return;
                         const h = this.mapHighlight;
@@ -878,6 +879,38 @@
                         } else if (h.type === 'checkpoint') {
                             this.insertCheckpointAt(h.lineIndex, h.branchIndex, h.stationIndex, h.checkpointIndex + 1);
                         }
+                    }
+                    //set the checkpoint to a new point
+                    if (event.key === 'q' || event.key === 'Q') {
+                        if (!this.mapHighlight) return;
+                        const h = this.mapHighlight;
+                        if (h.type === 'station') {
+                            this.toggleCoordinateMode(h.lineIndex, h.branchIndex, h.stationIndex)
+                        } else if (h.type === 'checkpoint') {
+                            this.toggleCheckpointCoordinateMode(h.lineIndex, h.branchIndex, h.stationIndex, h.checkpointIndex);
+                        }
+                    }
+                    //reset the current highlight
+                    if (event.key === 'r' || event.key === 'R') {
+                        if (this.mapHighlight) return;
+                        let lineindex_to_use = this.activeTab;
+                        let branchindex_to_use = this.getActiveBranchTab(lineindex_to_use);
+
+                        if (this.lines[lineindex_to_use].branches[branchindex_to_use].stations.length == 0){
+                            return;
+                        } 
+                        this.showStationOnMap(lineindex_to_use, branchindex_to_use, 0);
+
+                    }
+                    //calculate everything
+                    if(event.key === 'k' || event.key === 'K') {
+                        let lineindex_to_use = this.activeTab;
+                        let branchindex_to_use = this.getActiveBranchTab(lineindex_to_use);
+                        this.calculate_allprogresses(lineindex_to_use, branchindex_to_use);
+                    }
+                    //calculate everything
+                    if(event.key === 'l' || event.key === 'L') {
+                        this.exportJSON();
                     }
                 }
             }
