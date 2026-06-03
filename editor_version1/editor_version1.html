@@ -279,7 +279,7 @@
             deepClone, nextUniqueLineId, nextUniqueBranchId, nextUniqueLineName,
             addLine, cloneLine, requestDeleteLine, requestDeleteBranch, requestDeleteStation, requestDeleteCheckpoint,
             confirmDelete, cancelDelete, deleteLine, addBranch, cloneBranch, deleteBranch,
-            updateicon, addStation, deleteStation, addCheckpoint, deleteCheckpoint,
+            updateicon, addStation, deleteStation, addCheckpoint, deleteCheckpoint, insertCheckpointAt,
             moveStationUp, moveCheckpointUp, calculate_progress, calculate_allprogresses, calculate_traveltimes
         } from "./lines.js";
         const { createApp } = Vue;
@@ -352,6 +352,7 @@
                 deleteStation(lineIndex, branchIndex, stationIndex) { deleteStation(this, lineIndex, branchIndex, stationIndex); },
                 addCheckpoint(lineIndex, branchIndex, stationIndex) { addCheckpoint(this, lineIndex, branchIndex, stationIndex); },
                 deleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex) { deleteCheckpoint(this, lineIndex, branchIndex, stationIndex, checkpointIndex); },
+                insertCheckpointAt(lineIndex, branchIndex, stationIndex, insertIndex) { insertCheckpointAt(this, lineIndex, branchIndex, stationIndex, insertIndex); },
                 moveStationUp(lineIndex, branchIndex, stationIndex) { moveStationUp(this, lineIndex, branchIndex, stationIndex); },
                 moveCheckpointUp(lineIndex, branchIndex, stationIndex, checkpointIndex) { moveCheckpointUp(this, lineIndex, branchIndex, stationIndex, checkpointIndex); },
                 calculate_progress(lineIndex, branchIndex, stationIndex) { calculate_progress(this, lineIndex, branchIndex, stationIndex); },
@@ -800,13 +801,48 @@
                         const nextIndex = (h.stationIndex + 1) % numStations;
                         this.showStationOnMap(h.lineIndex, h.branchIndex, nextIndex);
                     }
+                    if (event.key === 's' || event.key === 'S') {
+                        if (!this.mapHighlight) return;
+                        const h = this.mapHighlight;
+                        const branch = this.lines[h.lineIndex].branches[h.branchIndex];
+                        const station = branch.stations[h.stationIndex];
+                        if (h.type === 'checkpoint') {
+                            const checkpoints = station.checkpoints;
+                            if (h.checkpointIndex < checkpoints.length - 1) {
+                                this.showCheckpointOnMap(h.lineIndex, h.branchIndex, h.stationIndex, h.checkpointIndex + 1);
+                            } else {
+                                const nextStationIndex = (h.stationIndex + 1) % branch.stations.length;
+                                this.showStationOnMap(h.lineIndex, h.branchIndex, nextStationIndex);
+                            }
+                        } else if (h.type === 'station') {
+                            if (station.checkpoints && station.checkpoints.length > 0) {
+                                this.showCheckpointOnMap(h.lineIndex, h.branchIndex, h.stationIndex, 0);
+                            } else {
+                                const nextStationIndex = (h.stationIndex + 1) % branch.stations.length;
+                                this.showStationOnMap(h.lineIndex, h.branchIndex, nextStationIndex);
+                            }
+                        }
+                    }
                     if (event.key === 'a' || event.key === 'A') {
                         if (!this.mapHighlight) return;
                         const h = this.mapHighlight;
                         const branch = this.lines[h.lineIndex].branches[h.branchIndex];
                         const numStations = branch.stations.length;
-                        const prevIndex = (h.stationIndex - 1 + numStations) % numStations;
-                        this.showStationOnMap(h.lineIndex, h.branchIndex, prevIndex);
+                        if (h.type === 'checkpoint') {
+                            if (h.checkpointIndex > 0) {
+                                this.showCheckpointOnMap(h.lineIndex, h.branchIndex, h.stationIndex, h.checkpointIndex - 1);
+                            } else {
+                                this.showStationOnMap(h.lineIndex, h.branchIndex, h.stationIndex);
+                            }
+                        } else if (h.type === 'station') {
+                            const prevStationIndex = (h.stationIndex - 1 + numStations) % numStations;
+                            const prevStation = branch.stations[prevStationIndex];
+                            if (prevStation.checkpoints && prevStation.checkpoints.length > 0) {
+                                this.showCheckpointOnMap(h.lineIndex, h.branchIndex, prevStationIndex, prevStation.checkpoints.length - 1);
+                            } else {
+                                this.showStationOnMap(h.lineIndex, h.branchIndex, prevStationIndex);
+                            }
+                        }
                     }
                     if (event.key === 'c' || event.key === 'C') {
                         if (!this.mapHighlight) return;
@@ -829,7 +865,11 @@
                     if (event.key === 'e' || event.key === 'E') {
                         if (!this.mapHighlight) return;
                         const h = this.mapHighlight;
-                        this.addCheckpoint(h.lineIndex, h.branchIndex, h.stationIndex);
+                        if (h.type === 'station') {
+                            this.insertCheckpointAt(h.lineIndex, h.branchIndex, h.stationIndex, 0);
+                        } else if (h.type === 'checkpoint') {
+                            this.insertCheckpointAt(h.lineIndex, h.branchIndex, h.stationIndex, h.checkpointIndex + 1);
+                        }
                     }
                 }
             }
