@@ -793,7 +793,7 @@
                     if(event.key == " "){
                         this.addStation(this.activeTab, this.activeBranchTabs[this.activeTab]);
                     }
-                    if (event.key === 'd' || event.key === 'D') {
+                    if (event.key === 's' || event.key === 'S') {
                         if (!this.mapHighlight) return;
                         const h = this.mapHighlight;
                         const branch = this.lines[h.lineIndex].branches[h.branchIndex];
@@ -801,7 +801,15 @@
                         const nextIndex = (h.stationIndex + 1) % numStations;
                         this.showStationOnMap(h.lineIndex, h.branchIndex, nextIndex);
                     }
-                    if (event.key === 's' || event.key === 'S') {
+                    if (event.key === 'w' || event.key === 'W') {
+                        if (!this.mapHighlight) return;
+                        const h = this.mapHighlight;
+                        const branch = this.lines[h.lineIndex].branches[h.branchIndex];
+                        const numStations = branch.stations.length;
+                        const prevIndex = (h.stationIndex - 1 + numStations) % numStations;
+                        this.showStationOnMap(h.lineIndex, h.branchIndex, prevIndex);
+                    }
+                    if (event.key === 'd' || event.key === 'D') {
                         if (!this.mapHighlight) return;
                         const h = this.mapHighlight;
                         const branch = this.lines[h.lineIndex].branches[h.branchIndex];
