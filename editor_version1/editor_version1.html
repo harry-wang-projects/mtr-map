@@ -116,7 +116,10 @@
                                         </div>
                                         <div class="parameter-group">
                                             <label>Branch Type:</label>
-                                            <input type="text" v-model="branch.branch_type">
+                                            <select v-model="branch.branch_type">
+                                                <option value="normal">normal</option>
+                                                <option value="circular">circular</option>
+                                            </select>
                                         </div>
                                         <div class="parameter-group">
                                             <label>Offset Time:</label>
