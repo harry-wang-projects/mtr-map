@@ -671,6 +671,65 @@ function normalizeLineIds() {
   }
 }
 
+
+//time parsing
+
+function parseTime24(timeStr) {
+      // Expected format: HH:MM:SS (24-hour)
+      const match = /^(\d{2}):(\d{2}):(\d{2})$/.exec(timeStr.trim());
+      if (!match) throw new Error("Invalid format. Use HH:MM:SS, e.g. 16:53:22.");
+
+      const hours = Number(match[1]);
+      const minutes = Number(match[2]);
+      const seconds = Number(match[3]);
+
+      // Basic range checks
+      if (hours < 0 || hours > 23) throw new Error("Hours must be 00 through 23.");
+      if (minutes < 0 || minutes > 59) throw new Error("Minutes must be 00 through 59.");
+      if (seconds < 0 || seconds > 59) throw new Error("Seconds must be 00 through 59.");
+
+      return hours * 60 * 60 + minutes * 60 + seconds;
+}
+
+//preprocessing of lines
+function process_lines(){
+  for(let i = 0; i < lines.length; i++){
+    for(let j = 0; j < lines[i].branches.length; j++){
+      if(!lines[i].branches[j].hasOwnProperty("branch_type")){
+        continue;
+      }
+      if(lines[i].branches[j].branch_type != "unidirectional"){
+        continue;
+      }
+      
+      //array of times in seconds since 00:00:00
+      lines[i].branches[j].spawn_times = [];
+
+      //time array - logs the events.
+      lines[i].branches[j].events = new Array(86400).fill(0);
+
+      //the range of trains that are active
+      lines[i].branches[j].head = 0;
+      lines[i].branches[j].tail = 0;
+
+      for(let k = 0; k < lines[i].branches[j].timetable.length; k++){
+        console.log(lines[i].branches[j].timetable[k].time + ':00');
+        lines[i].branches[j].spawn_times[k] = parseTime24(lines[i].branches[j].timetable[k].time + ':00');
+
+        //haven't considered trains starting at 23:00 and ending on the next day yet. For now, assume that they despawn at 23:59.
+        lines[i].branches[j].events[lines[i].branches[j].spawn_times[k]] = 1;
+
+        //since despawn time calculation requires calculating travel time, do this in the generation phase.
+        //despawn_time = max(lines[i].branches[j].spawn_times[k] + travel_time, 86399);
+      }
+      console.log(lines[i].branches[j].spawn_times);
+    }
+  }
+
+}
+
+
+
 function loadJsonFile(replace) {
   const input = document.getElementById(replace ? 'jsonFileReplace' : 'jsonFileAppend');
   if (input && input.files && input.files.length > 0) {
@@ -691,6 +750,10 @@ function loadJsonFile(replace) {
         normalizeLineIds();
         reset_animation();
         reset_lines();
+
+        //do the processing here. For unidirectional lines.
+        process_lines();
+
         setJsonLoadStatus(replace ? 'Lines replaced.' : 'Lines appended.');
         input.value = '';
       } catch (err) {
