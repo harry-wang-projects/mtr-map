@@ -838,23 +838,28 @@ function process_lines(){
         lines[i].branches[j].first_times = [];
         for(let k = 0; k < lines[i].branches[j].timetable.length; k++){
           console.log(lines[i].branches[j].timetable[k].time + ':00');
-          begin_time = parseTime24(lines[i]. branches[j].timetable[k].time + ':00');
+          let begin_time = parseTime24(lines[i].branches[j].timetable[k].time + ':00');
 
           lines[i].branches[j].first_times[k] = begin_time
         }
         //now, for each interval, generate all of the spawns.
         for(let k = 0; k < lines[i].branches[j].timetable.length; k++){
-          console.log(lines[i].branches[j].timetable[k].time + ':00');
-          begin_time = parseTime24(lines[i]. branches[j].timetable[k].time + ':00');
+          let begin_time = lines[i].branches[j].first_times[k];
+          let next_time = 86399;
+          if(k + 1 < lines[i].branches[j].timetable.length){
+            next_time = lines[i].branches[j].first_times[k+1];
+          }
 
-          //loop across all of the times between this time and hte next.
-          lines[i].branches[j].spawn_times[k] = begin_time
+          for(let current_time = begin_time; current_time + lines[i].branches[j].timetable[k].frequency < next_time; current_time += lines[i].branches[j].timetable[k].frequency){
+            lines[i].branches[j].spawn_times.push(current_time);
+            
+            //haven't considered trains starting at 23:00 and ending on the next day yet. For now, assume that they despawn at 23:59.
+            lines[i].branches[j].events[Math.floor((current_time)/60)] = 1;
 
-          //haven't considered trains starting at 23:00 and ending on the next day yet. For now, assume that they despawn at 23:59.
-          lines[i].branches[j].events[Math.floor((lines[i].branches[j]. spawn_times[k])/60)] = 1;
+            //since despawn time calculation requires calculating travel time, do this in the generation phase.
+            //despawn_time = max(lines[i].branches[j].spawn_times[k] +  travel_time, 86399);
+          }
 
-          //since despawn time calculation requires calculating travel time, do this in the generation phase.
-          //despawn_time = max(lines[i].branches[j].spawn_times[k] +  travel_time, 86399);
         }
       }else{
         for(let k = 0; k < lines[i].branches[j].timetable.length; k++){
