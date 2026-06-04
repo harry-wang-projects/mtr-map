@@ -1,3 +1,12 @@
+June 3: Plan for scheduled trains
+Write a function to preprocess all of the times (i.e. process when the animation is being prepared. Add new stuff to the array.).
+- Make an array storing the times (seconds after 00:00) of trains spawning
+- Make a "head" and "tail" value marking the positions in the array of the current train. If a train spawns, shift head forward. If a train despawns, shift tail forward. Like a queue.
+- Make a queue of markers corresponding to it.
+- Make a 86400-length array storing whether or not something should happen at each second. A train spawning/despawning should do this. Checking the spawning/despawning should only happen when the ith element of this array is 1.
+- When checking, check if the current time is in the range of (train spawn time, train spawn time + amount of time needed to travel). If yes, then draw it.
+
+
 A bit more from May 30:
 Look into how to get the route geometries of the routes (GeoJSON)?
 Add more file export/import options. (I.e. export it directly as an HTML file)

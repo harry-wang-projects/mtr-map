@@ -33,6 +33,10 @@ class Train {
     this.segmentProgress = 0; // seconds into current leg
     //whether the train is moving/dwelling. It should start moving.
     this.movingstate = 1;
+    //start by dwelling if it's a unidirectional train.
+    if(this.type == 'unidirectional'){
+      this.movingstate = 0;
+    }
     this.dwellProgress= 0; //seconds into dwell
     //when it last refreshed
     this.lastrefresh = 0;
@@ -196,6 +200,12 @@ class Train {
               this.idx = stations.length - 1;
             }
           }
+        }else if(this.type == "unidirectional"){
+          this.idx += this.dir;
+          //for unidirectional trains, the last stop is the last
+          if (this.idx === 0 || this.idx === stations.length - 1){
+            this.returned = true;
+          }
         }else{
           // leave station
           this.idx += this.dir;
@@ -203,7 +213,6 @@ class Train {
           // ---------- turn-around at termini ----------
           if (this.idx === 0 || this.idx === stations.length-1){
             this.dir *= -1;                 // reverse
-            // -- loop-completion logic (see #2) --
             
             //if it went back to startdir, it means that it completed a loop.
             if (this.dir === this.startDir){
@@ -265,6 +274,15 @@ function generateAnimation(onProgress = null){
           total += (st.dwell || 0) + (st.run || 0);
         }
         return Math.max(1, Math.round(total));
+      }else if(branch.branch_type == "unidirectional"){
+        //unidirectional is close to circular as it's only one direction.
+        let total = 0;
+        for(let s = 0; s < branch.stations.length - 1; s++){
+          const st = branch.stations[s];
+          total += (st.dwell || 0) + (st.run || 0);
+        }
+        total += branch.stations[branch.stations.length - 1].dwell;
+        return Math.max(1, Math.round(total));
       }else{
         let total = 0;
         let dwelling = 0;
@@ -323,7 +341,7 @@ function generateAnimation(onProgress = null){
           const spawnEvery = branch.SPAWN_EVERY || 0;
 
           // Create a single train trajectory for this branch.
-          const line_type = (branch.hasOwnProperty("branch_type") && branch.branch_type === "circular") ? "circular" : "normal";
+          const line_type = (branch.hasOwnProperty("branch_type")) ? branch.branch_type : "normal";
           const train = new Train(i, b, 1, false, line_type);
 
           let trajectory = [];
@@ -336,10 +354,20 @@ function generateAnimation(onProgress = null){
             if(onProgress && totalSteps > 0){
               onProgress(stepsDone, totalSteps, 0, true);
             }
+
+            if(branch.branch_type === "unidirectional"){
+              /*
+              if(train.returned == true){
+                console.log(t);
+              }
+              */
+            }
           }
           trajectory.pop();
           journeyTimeSeconds = trajectory.length;
+          console.log("simulated:");
           console.log(journeyTimeSeconds);
+          console.log("calculated:");
           console.log(computeBranchJourneySeconds(branch));
 
           // Spawn offsets: create "virtual trains" at spawn frequency intervals.
