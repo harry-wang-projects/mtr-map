@@ -799,19 +799,67 @@ function normalizeLineIds() {
 //split bidirectional branches into opposite-facing unidirectional branches
 function split_bidirectional(){
   for(let i = 0; i < lines.length; i++){
+    const newBranches = [];
     for(let j = 0; j < lines[i].branches.length; j++){
-      if(!lines[i].branches[j].hasOwnProperty("branch_type")){
+      const branch = lines[i].branches[j];
+      if(!branch.hasOwnProperty("branch_type")){
         continue;
       }
-      if(!lines[i].branches[j].hasOwnProperty("scheduling")){
+      if(!branch.hasOwnProperty("scheduling")){
         continue;
       }
-      if(lines[i].branches[j].branch_type != "bidirectional"){
+      if(branch.branch_type != "bidirectional"){
         continue;
       }
 
-      //split the branch.
+      // Convert original branch to unidirectional (forward direction)
+      branch.branch_type = "unidirectional";
+
+      // Build flipped stations for the reverse-direction branch
+      const stations = branch.stations;
+      const n = stations.length;
+      const flippedStations = [];
+
+      for(let k = 0; k < n; k++){
+        const origStation = stations[n - 1 - k];
+        const flippedStation = {
+          name: origStation.name,
+          lat: origStation.lat,
+          lng: origStation.lng,
+          dwell: origStation.dwell,
+        };
+
+        if(k < n - 1){
+          // Run time from flipped[k] to flipped[k+1] equals original stations[n-2-k].run
+          flippedStation.run = stations[n - 2 - k].run;
+
+          // Checkpoints between flipped[k] and flipped[k+1] come from original stations[n-2-k].checkpoints,
+          // reversed in order, with each progress replaced by 1 - original_progress
+          const srcCheckpoints = stations[n - 2 - k].checkpoints;
+          if(srcCheckpoints && Array.isArray(srcCheckpoints) && srcCheckpoints.length > 0){
+            flippedStation.checkpoints = [...srcCheckpoints].reverse().map(cp => ({
+              lat: cp.lat,
+              lng: cp.lng,
+              progress: 1 - (cp.progress !== undefined ? cp.progress : (cp.progresss !== undefined ? cp.progresss : 0))
+            }));
+          }
+        }
+
+        flippedStations.push(flippedStation);
+      }
+
+      const flippedBranch = {
+        branch_type: "unidirectional",
+        scheduling: branch.scheduling,
+        timetable: JSON.parse(JSON.stringify(branch.timetable)),
+        stations: flippedStations,
+      };
+
+      newBranches.push(flippedBranch);
     }
+
+    // Append all flipped branches after iterating to avoid processing them in the same loop
+    lines[i].branches.push(...newBranches);
   }
 }
 
