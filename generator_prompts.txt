@@ -8,3 +8,12 @@ Fill in the function "split_bidirectional" in @kimi_mtr/kimi_mtr.js . It cycles 
 - Flip the order of each list of checkpoints. If the checkpoints of a station were initially in the order E, F, G, then the order should be changed to G, F, E. Furthermore, the progress of each checkpoint should be updated to 1 - [original progress].
 
 Remember to add the newly cloned branch to the list of branches in the line it belongs to.
+
+
+
+
+Move time display (currently the element tickdisplay) into the box containing the "playback stage" items. Furthermore, show a 24-hour time alongside it. The 24-hour time should be the time that is equal to n seconds past 00:00:00, where n is the current time in seconds, i.e. the variable "elapsedSeconds". For example, 14:02:33 corresponds to 14*60*60 + 2*60 + 33 = 50553 seconds.
+
+Next, make an input in the "playback stage" box where the user can set the current time. The input should be in the form of a 24-hour time (14:02:33). Convert this time to seconds (i.e. 50553 seconds for 14:02:33) and set the current time to this.
+
+Finally, display the 24-hour time on the map. Don't put it at a specific latitude or longtitude. Make it hover at the top of the map.

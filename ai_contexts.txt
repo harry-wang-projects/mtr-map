@@ -1,7 +1,7 @@
 
 kimi_mtr.js:
 
-Focus on the @kimi_mtr directory, specifically @kimi_mtr/kimi_mtr.html, @kimi_mtr/kimi_mtr.js, and @kimi_mtr/animation-generator.js in this task.
+Focus on the @kimi_mtr directory, specifically @kimi_mtr/kimi_mtr.html, @kimi_mtr/kimi_mtr.js, @kimi_mtr/lines_preprocessing.js, and @kimi_mtr/animation-generator.js in this task.
 This is an animation generator that generates time-lapse animations showing subway trains moving on a map. Each train is marked by a label and moves around.
 
 It takes in a javascript array called "lines". In the array, each object is a "line" with a specific color, name, and marker type. There are "branches" in each "line" with a specific spawn frequency and a list of stations that represent branches of the line. Each station contains a latitude and longtitude, travel time, dwell time, and an optional list of checkpoints. The travel time is the time, in seconds, needed for the train to travel to the next station on the list. The dwell time is the time, in seconds, that the train stops at the station. The list of checkpoints contains checkpoints that the train passes when going to the next station. Each checkpoint has a latitude and longtitude, and a "progress" value between 0 and 1 representing the amount of progress the train makes when it goes pass the checkpoint. For instance, if the "progress" is 0.7, then the train passes through the checkpoint when it is 70% of the way to the next station.
@@ -23,16 +23,11 @@ Rules:
 Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change. Do not commit any changes.
 
 Task:
+Move time display (currently the element tickdisplay) into the box containing the "playback stage" items. Furthermore, show a 24-hour time alongside it. The 24-hour time should be the time that is equal to n seconds past 00:00:00, where n is the current time in seconds, i.e. the variable "elapsedSeconds". For example, 14:02:33 corresponds to 14*60*60 + 2*60 + 33 = 50553 seconds.
 
-Fill in the function "split_bidirectional" in @kimi_mtr/kimi_mtr.js . It cycles through all branches of all lines, and searches for branches of type "bidirectional". For "bidirectional" branches, it should split that branch into two "unidirectional" branches. Specifically, turn the original branch into a "unidirectional" branch and clone a flipped version of that "unidirectional" branch. To flip a branch involves the following:
-- Keep the timetable and branch_type the same.
-- Reverse the order of the stations. If the original stations were in the order A, B, C, D, then change it to D, C, B, A.
-- Shift the station the checkpoints belong to. If the original stations were in the order A, B, C, D and the flipped stations are in the order D, C, B, A, then A's checkpoints should be transferred to B, B's checkpoints should be transferred to C, and so on.
-- Flip the order of each list of checkpoints. If the checkpoints of a station were initially in the order E, F, G, then the order should be changed to G, F, E. Furthermore, the progress of each checkpoint should be updated to 1 - [original progress].
+Next, make an input in the "playback stage" box where the user can set the current time. The input should be in the form of a 24-hour time (14:02:33). Convert this time to seconds (i.e. 50553 seconds for 14:02:33) and set the current time to this.
 
-Remember to add the newly cloned branch to the list of branches in the line it belongs to.
-
-
+Finally, display the 24-hour time on the map. Don't put it at a specific latitude or longtitude. Make it hover at the top of the map. 
 
 Make sure to check to see if there are any errors/bugs when you are finished.
 
