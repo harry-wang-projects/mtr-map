@@ -20,18 +20,6 @@ class Train {
     //this shows if the train finished one cycle
     this.finishedtraverse = false;
 
-    //graphics settings
-    /*
-    if(lines[this.line_id].hasOwnProperty("label")){
-      this.label = lines[this.line_id].label;
-    }
-    if(lines[this.line_id].hasOwnProperty("markertype")){
-      this.markertype = lines[this.line_id].markertype;
-    }
-    if(lines[this.line_id].hasOwnProperty("image")){
-      this.image = lines[this.line_id].image;
-    }
-    */
     
     // Get the branch
     const branch = lines[this.line_id].branches[this.branch_id];
@@ -202,11 +190,6 @@ class Train {
           this.idx += this.dir;
           if(this.idx === stations.length || this.dir === -1){
             this.returned = true;
-            /*
-            if(!branch.firstTrainFinished){
-              branch.firstTrainFinished = true;
-            }
-            */
             if(this.idx === stations.length){
               this.idx = 0;
             }else if(this.idx === -1){
@@ -216,44 +199,22 @@ class Train {
         }else{
           // leave station
           this.idx += this.dir;
-          //this.arrivalTick = tick;
           // turnaround at termini
           // ---------- turn-around at termini ----------
           if (this.idx === 0 || this.idx === stations.length-1){
             this.dir *= -1;                 // reverse
-            //this.arrivalTick = tick;        // mark arrival for dwell calculation
             // -- loop-completion logic (see #2) --
             
             //if it went back to startdir, it means that it completed a loop.
             if (this.dir === this.startDir){
               this.returned = true;
-              /*
-              if (!branch.firstTrainFinished){ 
-                branch.firstTrainFinished = true; 
-                branch.spawnEnabled=false; 
-                //delete the last train as 2 trains will look close together.
-                branch.trains[branch.trains.length-1].marker.remove();
-                branch.trains.pop();
-              }
-              */
             }
-            /*
-            if (this.dir === -1 && this.idx === stations.length-1){ // finished CCW loop
-              if (!firstTrainFinished){ firstTrainFinished = true; spawnEnabled=false; }
-            }
-            */
           }
         }
         this.movingstate = 0;
         this.dwellProgress = this.segmentProgress - leg + 1;
         this.segmentProgress = 0;
       }
-      /*
-      //reduce refresh rate as it shouldn't exceed 60 fps
-      if(refreshcoords == 1 && this.marker){
-        this.marker.setLatLng(this.latlng());
-      }
-      */
     }else{
       //dwelling
       if(this.dwellProgress < dwell){
@@ -265,19 +226,6 @@ class Train {
         if(this.returned == true){
           this.finishedtraverse = true;
         }
-
-        /*
-        // -- loop-completion logic (see #2) --
-        if (branch.firstTrainFinished && branch.spawnEnabled){
-          branch.spawnEnabled=false; 
-          //delete the last train as 2 trains will look close together.
-          const lastTrain = branch.trains[branch.trains.length-1];
-          if(lastTrain && lastTrain.marker){
-            lastTrain.marker.remove();
-          }
-          branch.trains.pop();
-        }
-        */
         this.segmentProgress = this.dwellProgress - dwell + 1;
       }
     }
@@ -373,13 +321,6 @@ function generateAnimation(onProgress = null){
           let journeyTimeSeconds = computeBranchJourneySeconds(branch);
           const offset_time = branch.offset_time || 0;
           const spawnEvery = branch.SPAWN_EVERY || 0;
-
-          // Disable any spawn bookkeeping during generation.
-          //branch.spawnEnabled = false;
-          //branch.firstTrainFinished = false;
-          branch.lastspawn = 0;
-          //branch.trains = branch.trains || [];
-          //branch.trains.length = 0;
 
           // Create a single train trajectory for this branch.
           const line_type = (branch.hasOwnProperty("branch_type") && branch.branch_type === "circular") ? "circular" : "normal";

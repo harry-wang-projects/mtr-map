@@ -182,10 +182,12 @@ function reset_lines(){
     if(!line.branches) continue;
     for(let b = 0; b < line.branches.length; b++){
       const branch = line.branches[b];
+      /*
       if(branch.trains){
         branch.trains.forEach(t => t.remove());
         branch.trains.length = 0;
       }
+      */
     }
   }
   
@@ -213,9 +215,7 @@ function reset_lines(){
       // Build coordinates array including checkpoints
       draw_branchroute(branch, lines[i].line_color);
 
-      branch.trains = [];
-      branch.firstTrainFinished = false;
-      branch.lastspawn = 0;
+      //branch.trains = [];
     }
   }
 
@@ -316,10 +316,8 @@ function restart(){
     const line = lines[i];
     for(let b = 0; b < line.branches.length; b++){
       const branch = line.branches[b];
-      branch.trains.forEach(t=>t.remove());
-      branch.trains.length = 0;
-      branch.firstTrainFinished = false;
-      branch.lastspawn = 0;
+      //branch.trains.forEach(t=>t.remove());
+      //branch.trains.length = 0;
     }
   }
   tick = 0;
