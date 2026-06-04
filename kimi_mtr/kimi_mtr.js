@@ -797,6 +797,7 @@ function normalizeLineIds() {
 
 
 //split bidirectional branches into opposite-facing unidirectional branches
+/*
 function split_bidirectional(){
   for(let i = 0; i < lines.length; i++){
     const newBranches = [];
@@ -964,7 +965,7 @@ function process_lines(){
   }
 
 }
-
+*/
 
 
 function loadJsonFile(replace) {
