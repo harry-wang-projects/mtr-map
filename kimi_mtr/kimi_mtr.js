@@ -420,7 +420,9 @@ function playAnimationFrame(time){
             if(elapsedSeconds < lines[i].branches[b].spawn_times[lines[i].branches[b].head]){
               break;
             }
-            console.log("adding");
+            console.log("adding:" + lines[i].name);
+            console.log(lines[i].branches[b].head);
+            console.log(lines[i].branches[b].spawn_times[lines[i].branches[b].head]);
 
             //add the marker
             const pos = trajectory[0];
@@ -447,7 +449,10 @@ function playAnimationFrame(time){
               break;
             }
 
-            console.log(lines[i].name);
+            console.log("deleting:" + lines[i].name);
+            console.log(lines[i].branches[b].tail);
+            console.log(lines[i].branches[b].spawn_times[lines[i].branches[b].tail]);
+
             animationTrajectories[i][b].markers[ lines[i].branches[b].tail].remove();
 
 
@@ -458,14 +463,18 @@ function playAnimationFrame(time){
         }
 
 
-
         //display the trains in the queue.
         for(let k = lines[i].branches[b].tail; k < lines[i].branches[b].head; k++){
-          const timeProgress = (elapsedSeconds - lines[i].branches[b].spawn_times[k]) % journeyTimeSeconds;
+          //if it doesn't get deleted yet, then wait more.
+          let timeProgress = elapsedSeconds - lines[i].branches[b].spawn_times[k];
+          if(timeProgress >= journeyTimeSeconds - 1){
+            timeProgress = journeyTimeSeconds - 1;
+          }
           const pos = trajectory[timeProgress];
           if(!pos) continue;
 
           branchMeta.markers[k].setLngLat([pos.lng, pos.lat]);
+          trainsOnThisLine++;
         }
       }else{
         for(let k = 0; k < initialProgresses.length; k++){
