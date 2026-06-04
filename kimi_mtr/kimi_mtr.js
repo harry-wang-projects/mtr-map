@@ -465,17 +465,45 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
       if(!trajectory || journeyTimeSeconds <= 0) continue;
 
       animationTrajectories[i][b].markers = [];
+  
+      if(lines[i].branches[j].branch_type == "unidirectional"){
+        //unidirectional lines. The markers are in a queue.
+        animationTrajectories[i][b].markerhead = 0;
+        animationTrajectories[i][b].markertail = 0;
 
-      for(let k = 0; k < initialProgresses.length; k++){
-        const timeProgress = (initialProgresses[k]) % journeyTimeSeconds;
-        const pos = trajectory[timeProgress];
-        if(!pos) continue;
+        //start iterating. Start with head. Add the markers first.
+        //no train can despawn at time 0, so no need to pop anything.
+        let reached = false;
+        while(!reached){
+          if(lines[i].branches[j].spawn_times[ animationTrajectories[i][b].markerhead] != 0){
+            reached = true;
+          }
+          const pos = trajectory[timeProgress];
+          const el = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
+          const marker = new maplibregl.Marker({element: el, anchor:  'center'}).setLngLat([pos.lng, pos.lat]).addTo(map);
+          playbackMarkers.push(marker);
+          
+          //add the marker
+          animationTrajectories[i][b].markers[ animationTrajectories[i][b].markerhead] = marker;
+          markerhead++;
 
-        const el = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
-        const marker = new maplibregl.Marker({element: el, anchor: 'center'}).setLngLat([pos.lng, pos.lat]).addTo(map);
-        playbackMarkers.push(marker);
-        animationTrajectories[i][b].markers[k] = marker;
-        trainsOnThisLine++;
+          //change the head of spawn progresses.
+          lines[i].branches[j].head++;
+        }
+
+      }else{
+        //normal or circular lines. Just markers that don't change.
+        for(let k = 0; k < initialProgresses.length; k++){
+          const timeProgress = (initialProgresses[k]) %   journeyTimeSeconds;
+          const pos = trajectory[timeProgress];
+          if(!pos) continue;
+
+          const el = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
+          const marker = new maplibregl.Marker({element: el, anchor:  'center'}).setLngLat([pos.lng, pos.lat]).addTo(map);
+          playbackMarkers.push(marker);
+          animationTrajectories[i][b].markers[k] = marker;
+          trainsOnThisLine++;
+        }
       }
     }
 
@@ -730,9 +758,12 @@ function process_lines(){
       lines[i].branches[j].spawn_times = [];
 
       //time array - logs the events.
+      //todo: Make this more efficient. Can reduce to a 1440 length array. Make it so that spawning/despawning can only be accurate to the minute.
       lines[i].branches[j].events = new Array(86400).fill(0);
 
       //the range of trains that are active
+      //note: head = the newest train, tail = the oldest train.
+      //head > tail at all times.
       lines[i].branches[j].head = 0;
       lines[i].branches[j].tail = 0;
 
