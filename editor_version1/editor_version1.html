@@ -418,9 +418,17 @@
                             if (target === 'station') {
                                 station.lat = e.lngLat.lat;
                                 station.lng = e.lngLat.lng;
+
+                                if(station.lng < 0){
+                                    station.lng = 360 + station.lng;
+                                }
                             } else if (target === 'checkpoint' && station.checkpoints && station.checkpoints[checkpointIndex]) {
                                 station.checkpoints[checkpointIndex].lat = e.lngLat.lat;
                                 station.checkpoints[checkpointIndex].lng = e.lngLat.lng;
+
+                                if(station.checkpoints[checkpointIndex].lng < 0){
+                                    station.checkpoints[checkpointIndex].lng = 360 + station.checkpoints[checkpointIndex].lng;
+                                }
                             }
                             this.coordinateMode = null;
                         }
