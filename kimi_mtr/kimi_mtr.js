@@ -355,12 +355,28 @@ function generate_train_icon(markertype, line_color, label, image){
     img.src = image;
     img.style.cssText = 'height:100%;width:100%;object-fit:cover;display:block;';
     el.appendChild(img);
+  }else if(markertype == "largehkmtr"){
+    el.style.cssText = `background:${line_color};overflow:hidden;width:36px;height:36px;border-radius:50%;border:4px solid ${line_color};`;
+    const img = document.createElement('img');
+    img.src = image;
+    img.style.cssText = 'height:100%;width:100%;object-fit:cover;display:block;';
+    el.appendChild(img);
   }else if(markertype == "image"){
     const img = document.createElement('img');
     img.src = image;
     img.style.cssText = 'width:30px;height:30px;object-fit:contain;';
     img.className = 'my-image-icon';
     el.appendChild(img);
+  }else if(markertype =="largeimage"){
+    const img = document.createElement('img');
+    img.src = image;
+    img.style.cssText = 'width:45px;height:45px;object-fit:contain;';
+    img.className = 'my-image-icon';
+    el.appendChild(img);
+  }else if(markertype == "bus"){
+    el.style.cssText = `background:${line_color};color:#ffffff;
+        height: 20px; width: 28px;border-radius:4px;font-size: 13px;text-align: center;`;
+    el.textContent = label;
   }else{
     el.style.cssText = `background:${line_color};width:20px;height:20px;border-radius:50%;border:2px solid #fff;`;
   }

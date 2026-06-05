@@ -62,7 +62,15 @@
                             </div>
                             <div class="parameter-group">
                                 <label>Marker Type:</label>
-                                <input type="text" v-model="line.markertype">
+                                <select type="text" v-model="line.markertype">
+                                    <option value="default">Default</option>
+                                    <option value="hkmtr">hkmtr</option>
+                                    <option value="largehkmtr">largehkmtr</option>
+                                    <option value="hklrt">hklrt</option>
+                                    <option value="image">image</option>
+                                    <option value="largeimage">largeimage</option>
+                                    <option value="bus">bus</option>
+                                </select>
                             </div>
                             <div class="parameter-group">
                                 <label>Image</label>
