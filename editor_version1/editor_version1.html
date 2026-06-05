@@ -180,7 +180,19 @@
                                             <button @click="calculate_allprogresses(lineIndex, branchIndex)" class="change">Calculate All Progresses</button>
                                         </div>
                                     </div>
-                                    
+
+                                    <div class="parameter-row">
+                                        <div class="parameter-group">
+                                            <button @click="updateBranchTraversalTime(lineIndex, branchIndex)" class="change">Show Traversal Time</button>
+                                        </div>
+                                        <div class="parameter-group">
+                                            <span v-if="getBranchTraversalTime(lineIndex, branchIndex) !== null">
+                                                Traversal time: {{ getBranchTraversalTime(lineIndex, branchIndex) }} s
+                                            </span>
+                                            <span v-else>Traversal time: not calculated</span>
+                                        </div>
+                                    </div>
+
                                     <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section">
                                         
                                         <div class="parameter-row">
@@ -336,6 +348,7 @@
                     polylines: [],
                     activeTab: 0,
                     activeBranchTabs: {},
+                    branchTraversalTimes: {},
                     coordinateMode: null,
                     confirmModal: {
                         show: false,
@@ -404,6 +417,18 @@
                 calculate_progress(lineIndex, branchIndex, stationIndex) { calculate_progress(this, lineIndex, branchIndex, stationIndex); },
                 calculate_allprogresses(lineIndex, branchIndex) { calculate_allprogresses(this, lineIndex, branchIndex); },
                 calculate_traveltimes(lineIndex, branchIndex) { calculate_traveltimes(this, lineIndex, branchIndex); },
+                calculateBranchTraversalTime(lineIndex, branchIndex) {
+                    // TODO: implement this function
+                    // should return the traversal time in seconds for the given branch
+                },
+                updateBranchTraversalTime(lineIndex, branchIndex) {
+                    const key = `${lineIndex}-${branchIndex}`;
+                    this.branchTraversalTimes[key] = this.calculateBranchTraversalTime(lineIndex, branchIndex);
+                },
+                getBranchTraversalTime(lineIndex, branchIndex) {
+                    const key = `${lineIndex}-${branchIndex}`;
+                    return this.branchTraversalTimes.hasOwnProperty(key) ? this.branchTraversalTimes[key] : null;
+                },
                 initMap() {
                     this.map = new maplibregl.Map({
                         container: 'map',

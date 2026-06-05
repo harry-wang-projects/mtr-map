@@ -7,6 +7,6 @@ Rules:
 Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
 
 Task:
-In @editor_version/editor_version1.html, check the saveToCookie function in the vue app. Check why it doesn't save a cookie and fix it.
+In @editor_version/editor_version1.html, for each branch of each line, add a div showing the time needed for a train to traverse it. Don't make it update every time something gets modified. Rather, add a button that updates the time needed when clicked. Also, don't write the function that calculates the traversal time. Just write an empty function and let me write it.
 
 Make sure that the code can run in the end.
