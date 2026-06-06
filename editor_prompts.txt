@@ -40,3 +40,6 @@ Specifically, if the button is in between two stations, then the program inserts
 
 
 For each station and checkpoint marker on the map on the right, make it such that when the marker gets clicked, the highighted point becomes the station/checkpoint of the marker. If a station marker gets clicked, that station should be highlighted; If a checkpoint marker gets clicked, that checkpoint should be highlighted. Also, change the active line/branch tabs to the line/branch containing the point currently highlighted.
+
+
+Currently, when a station/checkpoint marker on the right gets clicked, the highlighted point becomes the station/checkpoint of the marker. Also, the active line/branch tabs switch to the line/branch containing the point currently highlighted. Make it such that in the list of stations on the left, the program scrolls down to the station/checkpoint currently highlighted.

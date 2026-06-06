@@ -215,7 +215,7 @@
                                         </div>
                                     </div>
 
-                                    <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section">
+                                    <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section" :data-map-highlight="`station-${lineIndex}-${branchIndex}-${stationIndex}`">
                                         
                                         <div class="parameter-row">
                                             <div class="parameter-group">
@@ -274,7 +274,7 @@
                                             </div>
                                         </div>
                                         
-                                        <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section">
+                                        <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section" :data-map-highlight="`checkpoint-${lineIndex}-${branchIndex}-${stationIndex}-${checkpointIndex}`">
                                             <h4>Checkpoint {{ checkpointIndex + 1 }}</h4>
                                             
                                             <div class="parameter-row">
@@ -945,6 +945,29 @@
                            this.coordinateMode.stationIndex === stationIndex &&
                            this.coordinateMode.checkpointIndex === checkpointIndex;
                 },
+                scrollToMapHighlight() {
+                    this.$nextTick(() => {
+                        const h = this.mapHighlight;
+                        if (!h) return;
+                        const id =
+                            h.type === 'station'
+                                ? `station-${h.lineIndex}-${h.branchIndex}-${h.stationIndex}`
+                                : `checkpoint-${h.lineIndex}-${h.branchIndex}-${h.stationIndex}-${h.checkpointIndex}`;
+                        const el = document.querySelector(`[data-map-highlight="${id}"]`);
+                        if (!el) return;
+                        const panel = document.querySelector('.editor-panel');
+                        if (!panel) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            return;
+                        }
+                        const panelRect = panel.getBoundingClientRect();
+                        const elRect = el.getBoundingClientRect();
+                        const scrollTop =
+                            elRect.top - panelRect.top + panel.scrollTop -
+                            (panel.clientHeight / 2) + (elRect.height / 2);
+                        panel.scrollTo({ top: scrollTop, behavior: 'smooth' });
+                    });
+                },
                 showStationOnMap(lineIndex, branchIndex, stationIndex) {
                     this.activeTab = lineIndex;
                     this.setActiveBranchTab(lineIndex, branchIndex);
@@ -955,6 +978,7 @@
                         stationIndex
                     };
                     this.updateMap(false);
+                    this.scrollToMapHighlight();
                 },
                 showCheckpointOnMap(lineIndex, branchIndex, stationIndex, checkpointIndex) {
                     this.activeTab = lineIndex;
@@ -967,6 +991,7 @@
                         checkpointIndex
                     };
                     this.updateMap(false);
+                    this.scrollToMapHighlight();
                 },
                 isStationMapHighlight(lineIndex, branchIndex, stationIndex) {
                     return (
