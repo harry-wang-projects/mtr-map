@@ -460,7 +460,6 @@
                     this.branchTraversalTimes[key] = this.calculateBranchTraversalTime(lineIndex, branchIndex);
                 },
                 flip_branch(lineIndex, branchIndex){
-                    console.log(JSON.parse(JSON.stringify(this.lines[lineIndex].branches[branchIndex])));
                     flip_branch(this, lineIndex, branchIndex);
                 },
                 getBranchTraversalTime(lineIndex, branchIndex) {
