@@ -369,6 +369,7 @@
                     map: null,
                     markers: [],
                     polylines: [],
+                    segmentButtons: [],
                     activeTab: 0,
                     activeBranchTabs: {},
                     branchTraversalTimes: {},
@@ -440,7 +441,7 @@
                 deleteStation(lineIndex, branchIndex, stationIndex) { deleteStation(this, lineIndex, branchIndex, stationIndex); },
                 addCheckpoint(lineIndex, branchIndex, stationIndex) { addCheckpoint(this, lineIndex, branchIndex, stationIndex); },
                 deleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex) { deleteCheckpoint(this, lineIndex, branchIndex, stationIndex, checkpointIndex); },
-                insertCheckpointAt(lineIndex, branchIndex, stationIndex, insertIndex) { insertCheckpointAt(this, lineIndex, branchIndex, stationIndex, insertIndex); },
+                insertCheckpointAt(lineIndex, branchIndex, stationIndex, insertIndex, initialLat, initialLng, initialProgress) { insertCheckpointAt(this, lineIndex, branchIndex, stationIndex, insertIndex, initialLat, initialLng, initialProgress); },
                 moveStationUp(lineIndex, branchIndex, stationIndex) { moveStationUp(this, lineIndex, branchIndex, stationIndex); },
                 moveCheckpointUp(lineIndex, branchIndex, stationIndex, checkpointIndex) { moveCheckpointUp(this, lineIndex, branchIndex, stationIndex, checkpointIndex); },
                 calculate_progress(lineIndex, branchIndex, stationIndex) { calculate_progress(this, lineIndex, branchIndex, stationIndex); },
@@ -532,8 +533,10 @@
                         if (this.map.getLayer(id)) this.map.removeLayer(id);
                         if (this.map.getSource(id)) this.map.removeSource(id);
                     });
+                    if (this.segmentButtons) { this.segmentButtons.forEach(m => m.remove()); }
                     this.markers = [];
                     this.polylines = [];
+                    this.segmentButtons = [];
 
                     if (!this.map.isStyleLoaded()) {
                         this.map.once('load', () => this.updateMap(change_zoom));
@@ -645,6 +648,77 @@
                                     }
                                 });
                                 this.polylines.push(sourceId);
+                            }
+                        });
+                    });
+
+                    // Segment midpoint buttons for inserting checkpoints
+                    const addSegBtn = (lat1, lng1, lat2, lng2, li, bi, si, insertIdx, initProg) => {
+                        const midLat = (lat1 + lat2) / 2;
+                        const midLng = (lng1 + lng2) / 2;
+                        const btnEl = document.createElement('button');
+                        btnEl.className = 'segment-midpoint-btn';
+                        btnEl.textContent = '+';
+                        btnEl.title = 'Insert checkpoint here';
+                        btnEl.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            this.insertCheckpointAt(li, bi, si, insertIdx, midLat, midLng, initProg);
+                        });
+                        const segMarker = new maplibregl.Marker({ element: btnEl, anchor: 'center' })
+                            .setLngLat([midLng, midLat])
+                            .addTo(this.map);
+                        this.segmentButtons.push(segMarker);
+                    };
+
+                    lineRenderOrder.forEach(({ line, lineIndex }) => {
+                        if (line.line_visible === false) return;
+                        line.branches.forEach((branch, branchIndex) => {
+                            const stations = branch.stations;
+                            if (!stations || stations.length < 2) return;
+                            const isCircular = branch.branch_type === 'circular';
+
+                            for (let s = 0; s < stations.length; s++) {
+                                const station = stations[s];
+                                const isLast = s === stations.length - 1;
+                                if (isLast && !isCircular) continue;
+
+                                const nextStation = isLast ? stations[0] : stations[s + 1];
+                                if (!station.lat || !station.lng || !nextStation.lat || !nextStation.lng) continue;
+
+                                const rawCps = (station.checkpoints && Array.isArray(station.checkpoints)) ? station.checkpoints : [];
+                                const sortedCpWithIdx = rawCps
+                                    .map((cp, idx) => ({ cp, originalIdx: idx }))
+                                    .sort((a, b) => (a.cp.progress || 0) - (b.cp.progress || 0));
+
+                                if (sortedCpWithIdx.length === 0) {
+                                    // station → nextStation (no checkpoints): insert into station s at index 0
+                                    addSegBtn(station.lat, station.lng, nextStation.lat, nextStation.lng,
+                                        lineIndex, branchIndex, s, 0, 0.5);
+                                } else {
+                                    // station → sorted_cp[0]: insert before sorted_cp[0] in raw array
+                                    const cp0 = sortedCpWithIdx[0];
+                                    if (cp0.cp.lat && cp0.cp.lng) {
+                                        addSegBtn(station.lat, station.lng, cp0.cp.lat, cp0.cp.lng,
+                                            lineIndex, branchIndex, s, cp0.originalIdx,
+                                            (cp0.cp.progress || 0) / 2);
+                                    }
+                                    // sorted_cp[j] → sorted_cp[j+1]: insert after cpA in raw array
+                                    for (let j = 0; j < sortedCpWithIdx.length - 1; j++) {
+                                        const cpA = sortedCpWithIdx[j];
+                                        const cpB = sortedCpWithIdx[j + 1];
+                                        if (!cpA.cp.lat || !cpA.cp.lng || !cpB.cp.lat || !cpB.cp.lng) continue;
+                                        addSegBtn(cpA.cp.lat, cpA.cp.lng, cpB.cp.lat, cpB.cp.lng,
+                                            lineIndex, branchIndex, s, cpA.originalIdx + 1,
+                                            ((cpA.cp.progress || 0) + (cpB.cp.progress || 0)) / 2);
+                                    }
+                                    // sorted_cp[last] → nextStation: insert after cpLast in raw array
+                                    const cpLast = sortedCpWithIdx[sortedCpWithIdx.length - 1];
+                                    if (cpLast.cp.lat && cpLast.cp.lng) {
+                                        addSegBtn(cpLast.cp.lat, cpLast.cp.lng, nextStation.lat, nextStation.lng,
+                                            lineIndex, branchIndex, s, cpLast.originalIdx + 1,
+                                            ((cpLast.cp.progress || 0) + 1) / 2);
+                                    }
+                                }
                             }
                         });
                     });

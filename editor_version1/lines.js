@@ -183,15 +183,15 @@ export function addCheckpoint(vm, lineIndex, branchIndex, stationIndex) {
     vm.coordinateMode = { target: 'checkpoint', lineIndex, branchIndex, stationIndex, checkpointIndex };
 }
 
-export function insertCheckpointAt(vm, lineIndex, branchIndex, stationIndex, insertIndex) {
+export function insertCheckpointAt(vm, lineIndex, branchIndex, stationIndex, insertIndex, initialLat, initialLng, initialProgress) {
     const station = vm.lines[lineIndex].branches[branchIndex].stations[stationIndex];
     if (!station.checkpoints) {
         station.checkpoints = [];
     }
     const newCheckpoint = {
-        lat: station.lat,
-        lng: station.lng,
-        progress: 0.5
+        lat: (initialLat !== undefined && initialLat !== null) ? initialLat : station.lat,
+        lng: (initialLng !== undefined && initialLng !== null) ? initialLng : station.lng,
+        progress: (initialProgress !== undefined && initialProgress !== null) ? initialProgress : 0.5
     };
     station.checkpoints.splice(insertIndex, 0, newCheckpoint);
     vm.coordinateMode = { target: 'checkpoint', lineIndex, branchIndex, stationIndex, checkpointIndex: insertIndex };
