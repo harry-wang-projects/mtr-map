@@ -43,3 +43,5 @@ For each station and checkpoint marker on the map on the right, make it such tha
 
 
 Currently, when a station/checkpoint marker on the right gets clicked, the highlighted point becomes the station/checkpoint of the marker. Also, the active line/branch tabs switch to the line/branch containing the point currently highlighted. Make it such that in the list of stations on the left, the program scrolls down to the station/checkpoint currently highlighted.
+
+When a checkpoint or station is being highlighted on a map, the "show on map" button turns into a different color. Make it such that the div containing details of the checkpoint/station highlighted (i.e. the station-section or checkpoint-section div) gets a background color of light green. 

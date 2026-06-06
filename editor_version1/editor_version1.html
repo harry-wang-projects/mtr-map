@@ -218,7 +218,7 @@
                                         </div>
                                     </div>
 
-                                    <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section" :data-map-highlight="`station-${lineIndex}-${branchIndex}-${stationIndex}`">
+                                    <div v-for="(station, stationIndex) in branch.stations" :key="stationIndex" class="station-section" :class="{ 'map-highlight': isStationMapHighlight(lineIndex, branchIndex, stationIndex) }" :data-map-highlight="`station-${lineIndex}-${branchIndex}-${stationIndex}`">
                                         
                                         <div class="parameter-row">
                                             <div class="parameter-group">
@@ -277,7 +277,7 @@
                                             </div>
                                         </div>
                                         
-                                        <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section" :data-map-highlight="`checkpoint-${lineIndex}-${branchIndex}-${stationIndex}-${checkpointIndex}`">
+                                        <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section" :class="{ 'map-highlight': isCheckpointMapHighlight(lineIndex, branchIndex, stationIndex, checkpointIndex) }" :data-map-highlight="`checkpoint-${lineIndex}-${branchIndex}-${stationIndex}-${checkpointIndex}`">
                                             <h4>Checkpoint {{ checkpointIndex + 1 }}</h4>
                                             
                                             <div class="parameter-row">
