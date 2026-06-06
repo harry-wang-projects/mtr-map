@@ -273,18 +273,30 @@ export function flip_branch(vm, lineIndex, branchIndex){
             if(branch.stations[i].checkpoints == undefined || branch.stations[i].checkpoints == null || branch.stations[i].checkpoints == []){
                 continue
             }
+            console.log("start:");
+            console.log(JSON.parse(JSON.stringify(branch.stations[i].checkpoints)));
             let flipped_checkpoints = [];
+            console.log("flipping");
             for(let j = branch.stations[i].checkpoints.length - 1; j >= 0; j--){
                 flipped_checkpoints.push(branch.stations[i].checkpoints[j]);
             }
             console.log("unflipped:");
-            console.log(branch.stations[i].checkpoints);
+            console.log(JSON.parse(JSON.stringify(branch.stations[i].checkpoints)));
             console.log("flipped:");
-            console.log(flipped_checkpoints)
+            console.log(JSON.parse(JSON.stringify(flipped_checkpoints)))
+            if(branch.stations[i].checkpoints.length != flipped_checkpoints.length){
+                alert("!!!!");
+            }
             branch.stations[i].checkpoints = flipped_checkpoints;
             for(let j = 0; j < branch.stations[i].checkpoints.length; j++){
-                branch.stations[i].checkpoints[j].progress = 1 - branch.   stations[i].checkpoints[j].progress;
+                let original = branch.stations[i].checkpoints[j].progress;
+                branch.stations[i].checkpoints[j].progress = 1 - original;
+                console.log("changed");
+                console.log(original);
+                console.log(branch.stations[i].checkpoints[j].progress);
             }
+            console.log("transformed:");
+            console.log(JSON.parse(JSON.stringify(branch.stations[i].checkpoints)));
         }
     }
 
