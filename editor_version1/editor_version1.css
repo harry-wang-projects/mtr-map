@@ -401,6 +401,12 @@
         button.change:hover {
             background: #d68910;
         }
+        button.regular {
+            background: #4a90e2;
+        }
+        button.regular:hover {
+            background: #4a90e2;
+        }
         button.segment-midpoint-btn {
             width: 18px;
             height: 18px;

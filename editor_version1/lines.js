@@ -248,6 +248,51 @@ export function moveCheckpointUp(vm, lineIndex, branchIndex, stationIndex, check
     vm.updateMap(false);
 }
 
+export function flip_branch(vm, lineIndex, branchIndex){
+    let branch = vm.lines[lineIndex].branches[branchIndex];
+    let flipped_stations = [];
+
+    //step 1: Flip stations
+    for(let i = branch.stations.length - 1; i >= 0; i--){
+        flipped_stations.push(branch.stations[i]);
+    }
+    branch.stations = flipped_stations;
+
+    //step 2: Change travel time
+    //Before it was A B C D, now it is D C B A. Before, the travel time from A to B was on A, the travel time from B to C was on B, and so on. Now, the travel time from A to B is on B. 
+    //Shift everything up by one.
+    //The same thing can be applied to the list of checkpoints.
+    for(let i = 1; i < branch.stations.length; i++){
+        branch.stations[i - 1].run = branch.stations[i].run;
+        branch.stations[i - 1].checkpoints = branch.stations[i].checkpoints;
+    }
+
+    //Step 4: Flip checkpoints. Then, change their progresses.
+    for(let i = 0; i < branch.stations.length; i++){
+        if(branch.stations[i].hasOwnProperty("checkpoints")){
+            if(branch.stations[i].checkpoints == undefined || branch.stations[i].checkpoints == null || branch.stations[i].checkpoints == []){
+                continue
+            }
+            let flipped_checkpoints = [];
+            for(let j = branch.stations[i].checkpoints.length - 1; j >= 0; j--){
+                flipped_checkpoints.push(branch.stations[i].checkpoints[j]);
+            }
+            console.log("unflipped:");
+            console.log(branch.stations[i].checkpoints);
+            console.log("flipped:");
+            console.log(flipped_checkpoints)
+            branch.stations[i].checkpoints = flipped_checkpoints;
+            for(let j = 0; j < branch.stations[i].checkpoints.length; j++){
+                branch.stations[i].checkpoints[j].progress = 1 - branch.   stations[i].checkpoints[j].progress;
+            }
+        }
+    }
+
+}
+
+
+
+
 export function calculate_progress(vm, lineIndex, branchIndex, stationIndex) {
     let i = lineIndex;
     let j = branchIndex;

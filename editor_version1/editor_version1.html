@@ -114,7 +114,7 @@
                             </div>
                         </div>
                         <button @click="addBranch(lineIndex)" class="add">Add Branch</button>
-                        <button @click="cloneLine(lineIndex)" class="change">Clone Line</button>
+                        <button @click="cloneLine(lineIndex)" class="regular">Clone Line</button>
                         <button @click="requestDeleteLine(lineIndex)" class="delete">Delete Line</button>
                         <button @click="updateicon(lineIndex)" class="change">View Icon</button>
 
@@ -193,13 +193,13 @@
                                             <button @click="requestDeleteBranch(lineIndex, branchIndex)" class="delete">Delete Branch</button>
                                         </div>
                                         <div class="parameter-group">
-                                            <button @click="cloneBranch(lineIndex, branchIndex)" class="change">Clone Branch</button>
+                                            <button @click="cloneBranch(lineIndex, branchIndex)" class="regular">Clone Branch</button>
                                         </div>
                                         <div class="parameter-group">
-                                            <button @click="calculate_traveltimes(lineIndex, branchIndex)" class="change">Calculate Times</button>
+                                            <button @click="calculate_traveltimes(lineIndex, branchIndex)" class="regular">Calculate Times</button>
                                         </div>
                                         <div class="parameter-group">
-                                            <button @click="calculate_allprogresses(lineIndex, branchIndex)" class="change">Calculate All Progresses</button>
+                                            <button @click="calculate_allprogresses(lineIndex, branchIndex)" class="regular">Calculate All Progresses</button>
                                         </div>
                                     </div>
 
@@ -212,6 +212,9 @@
                                                 Traversal time: {{ getBranchTraversalTime(lineIndex, branchIndex) }} s
                                             </span>
                                             <span v-else>Traversal time: not calculated</span>
+                                        </div>
+                                        <div class="parameter-group">
+                                            <button @click="flip_branch(lineIndex, branchIndex)" class="regular">Flip Branch</button>
                                         </div>
                                     </div>
 
@@ -251,7 +254,7 @@
                                                 <button
                                                     @click="moveStationUp(lineIndex, branchIndex, stationIndex)"
                                                     :disabled="stationIndex === 0"
-                                                    class="change">
+                                                    class="regular">
                                                     Move Up
                                                 </button>
                                             </div>
@@ -262,7 +265,7 @@
                                                 <button @click="addCheckpoint(lineIndex, branchIndex, stationIndex)" class="add">Add Checkpoint</button>
                                             </div>
                                             <div class="parameter-group">
-                                                <button @click="calculate_progress(lineIndex, branchIndex, stationIndex)" class="change">Calculate Progresses</button>
+                                                <button @click="calculate_progress(lineIndex, branchIndex, stationIndex)" class="regular">Calculate Progresses</button>
                                             </div>
                                             <div class="parameter-group">
                                                 <button
@@ -300,7 +303,7 @@
                                                     <button
                                                         @click="moveCheckpointUp(lineIndex, branchIndex, stationIndex, checkpointIndex)"
                                                         :disabled="checkpointIndex === 0"
-                                                        class="change">
+                                                        class="regular">
                                                         Move Up
                                                     </button>
                                                 </div>
@@ -358,7 +361,7 @@
             addLine, cloneLine, requestDeleteLine, requestDeleteBranch, requestDeleteStation, requestDeleteCheckpoint,
             confirmDelete, cancelDelete, deleteLine, addBranch, cloneBranch, deleteBranch,
             updateicon, addStation, deleteStation, addCheckpoint, deleteCheckpoint, insertCheckpointAt,
-            moveStationUp, moveCheckpointUp, calculate_progress, calculate_allprogresses, calculate_traveltimes, computeBranchJourneySeconds
+            moveStationUp, moveCheckpointUp, flip_branch, calculate_progress, calculate_allprogresses, calculate_traveltimes, computeBranchJourneySeconds
         } from "./lines.js";
         const { createApp } = Vue;
 
@@ -455,6 +458,9 @@
                 updateBranchTraversalTime(lineIndex, branchIndex) {
                     const key = `${lineIndex}-${branchIndex}`;
                     this.branchTraversalTimes[key] = this.calculateBranchTraversalTime(lineIndex, branchIndex);
+                },
+                flip_branch(lineIndex, branchIndex){
+                    flip_branch(this, lineIndex, branchIndex);
                 },
                 getBranchTraversalTime(lineIndex, branchIndex) {
                     const key = `${lineIndex}-${branchIndex}`;
