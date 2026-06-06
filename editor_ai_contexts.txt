@@ -7,6 +7,6 @@ Rules:
 Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
 
 Task:
-In @editor_version/editor_version1.html, for each branch of each line, add a div showing the time needed for a train to traverse it. Don't make it update every time something gets modified. Rather, add a button that updates the time needed when clicked. Also, don't write the function that calculates the traversal time. Just write an empty function and let me write it.
+In @editor_version1/editor_version1.html, add a "settings" screen that the user can toggle to show/hide (add a switch at the top to do this). When the "settings" screen gets shown, the data about the lines and branches gets hidden, and the content in the "settings" screen replaces it (However, don't cover the map. Only hide the left side showing the lines and branches.). In the "settings" screen, list out all of the lines in this.lines, and add a toggling switch between "show/hide" for each line. If a line is in "hide" mode, it doesn't get shown on the map on the right; If a line is in "show" mode, it gets shown. Also, in the settings, next to each line, add a "z-index" that the user can input. This z-index determines whether the lines get shown on the front/back on the map, with higher z-index lines being shown on the front/top. Make sure that this z-index variable is stored in this.lines, as I will need to export the z-index values as part of the data.
 
 Make sure that the code can run in the end.

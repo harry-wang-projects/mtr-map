@@ -18,12 +18,34 @@
                 <button @click="exportJSON">Export JSON</button>
                 <button @click="saveToCookie" class="add">Save to Cookie</button>
                 <button @click="zoomOut">Zoom Out</button>
+                <button @click="showSettings = !showSettings" :class="['settings-toggle', { active: showSettings }]">
+                    {{ showSettings ? 'Close Settings' : 'Settings' }}
+                </button>
             </div>
-            
+
+            <!-- Settings panel -->
+            <div v-if="showSettings" class="settings-panel">
+                <h3>Line Settings</h3>
+                <p v-if="lines.length === 0" style="font-size:13px;color:#666;">No lines to configure.</p>
+                <div v-for="(line, lineIndex) in lines" :key="lineIndex" class="settings-line-row">
+                    <span class="settings-line-color" :style="{ backgroundColor: line.line_color }"></span>
+                    <span class="settings-line-name">{{ line.name || `Line ${lineIndex + 1}` }}</span>
+                    <div class="settings-zindex-group">
+                        <label>Z-index:</label>
+                        <input type="number" v-model.number="line.line_zindex">
+                    </div>
+                    <label class="toggle-switch" :title="line.line_visible !== false ? 'Visible' : 'Hidden'">
+                        <input type="checkbox" :checked="line.line_visible !== false" @change="line.line_visible = $event.target.checked">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <template v-if="!showSettings">
             <div v-if="lines.length === 0" class="line-editor">
                 <p>No lines added yet. Click "Add Line" to get started.</p>
             </div>
-            
+
             <div v-else>
                 <div class="tabs">
                     <div v-for="(line, lineIndex) in lines" 
@@ -305,8 +327,9 @@
                     </div>
                 </div>
             </div>
+            </template>
         </div>
-        
+
         <div class="map-panel">
             <div id="map"></div>
         </div>
@@ -350,6 +373,7 @@
                     activeBranchTabs: {},
                     branchTraversalTimes: {},
                     coordinateMode: null,
+                    showSettings: false,
                     confirmModal: {
                         show: false,
                         message: '',
@@ -394,7 +418,12 @@
                 nextUniqueLineId() { return nextUniqueLineId(this); },
                 nextUniqueBranchId(lineIndex) { return nextUniqueBranchId(this, lineIndex); },
                 nextUniqueLineName(baseName) { return nextUniqueLineName(this, baseName); },
-                addLine() { addLine(this); },
+                addLine() {
+                    addLine(this);
+                    const nl = this.lines[this.lines.length - 1];
+                    if (!nl.hasOwnProperty('line_visible')) nl.line_visible = true;
+                    if (!nl.hasOwnProperty('line_zindex')) nl.line_zindex = 0;
+                },
                 cloneLine(lineIndex) { cloneLine(this, lineIndex); },
                 requestDeleteLine(lineIndex) { requestDeleteLine(this, lineIndex); },
                 requestDeleteBranch(lineIndex, branchIndex) { requestDeleteBranch(this, lineIndex, branchIndex); },
@@ -514,7 +543,13 @@
                     let allCoords = [];
                     let polylineCounter = 0;
 
-                    this.lines.forEach((line, lineIndex) => {
+                    // Render lines in ascending z-index order so higher z-index appears on top
+                    const lineRenderOrder = this.lines
+                        .map((line, lineIndex) => ({ line, lineIndex }))
+                        .sort((a, b) => (a.line.line_zindex || 0) - (b.line.line_zindex || 0));
+
+                    lineRenderOrder.forEach(({ line, lineIndex }) => {
+                        if (line.line_visible === false) return;
                         line.branches.forEach((branch, branchIndex) => {
                             let coords = [];
 
@@ -555,7 +590,7 @@
                                         this.mapHighlight.stationIndex === stationIndex;
                                     const size = stationHl ? 32 : 12;
                                     const el = document.createElement('div');
-                                    el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background-color:${line.line_color};border:${stationHl ? '5px solid #ffcc00' : '2px solid #000'};opacity:${stationHl ? '1' : '0.8'};cursor:pointer;box-sizing:border-box;`;
+                                    el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background-color:${line.line_color};border:${stationHl ? '5px solid #ffcc00' : '2px solid #000'};opacity:${stationHl ? '1' : '0.8'};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
                                     const popup = new maplibregl.Popup({ offset: 12 })
                                         .setHTML(`<b>${station.name || 'Unnamed'}</b><br>${line.name}`);
                                     const marker = new maplibregl.Marker({ element: el })
@@ -577,7 +612,7 @@
                                                 this.mapHighlight.checkpointIndex === checkpointIndex;
                                             const cpSize = cpHl ? 28 : 8;
                                             const cpEl = document.createElement('div');
-                                            cpEl.style.cssText = `width:${cpSize}px;height:${cpSize}px;border-radius:50%;background-color:#ffffff;border:${cpHl ? '5px solid #ffcc00' : `2px solid ${line.line_color}`};cursor:pointer;box-sizing:border-box;`;
+                                            cpEl.style.cssText = `width:${cpSize}px;height:${cpSize}px;border-radius:50%;background-color:#ffffff;border:${cpHl ? '5px solid #ffcc00' : `2px solid ${line.line_color}`};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
                                             const cpPopup = new maplibregl.Popup({ offset: 12 })
                                                 .setHTML(`<b>Checkpoint ${checkpointIndex + 1}</b><br>${station.name || 'Unnamed'}<br>${line.name}`);
                                             const cpMarker = new maplibregl.Marker({ element: cpEl })
@@ -723,6 +758,8 @@
                     //show icons
                     for(let i = 0; i < this.lines.length; i++){
                         this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image);
+                        if (!this.lines[i].hasOwnProperty('line_visible')) this.lines[i].line_visible = true;
+                        if (!this.lines[i].hasOwnProperty('line_zindex')) this.lines[i].line_zindex = 0;
                     }
                 },
                 importJSON() {
@@ -761,6 +798,8 @@
                                     }
                                     //properties to set
                                     this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image);
+                                    if (!this.lines[i].hasOwnProperty('line_visible')) this.lines[i].line_visible = true;
+                                    if (!this.lines[i].hasOwnProperty('line_zindex')) this.lines[i].line_zindex = 0;
                                 }
                             } catch (error) {
                                 alert('Invalid JSON file');
@@ -1049,6 +1088,8 @@
                                         this.lines[i].acceleration = 1.0;
                                     }
                                     this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image);
+                                    if (!this.lines[i].hasOwnProperty('line_visible')) this.lines[i].line_visible = true;
+                                    if (!this.lines[i].hasOwnProperty('line_zindex')) this.lines[i].line_zindex = 0;
                                 }
                                 return true;
                             } catch (error) {
