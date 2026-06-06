@@ -7,8 +7,6 @@ Rules:
 Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
 
 Task:
-Work on the folder @editor_version1. On the map, in the middle of each line segment, i.e. each segment either connecting a station with a station, a station with a checkpoint, or a checkpoint with a checkpoint, add a button that the user can click. When the button gets clicked on, the program enters checkpoint mode, inserting a checkpoint between the two stations/checkpoints that the button is between. 
-
-Specifically, if the button is in between two stations, then the program inserts a checkpoint into the previous station (i.e. the station that comes earlier among the two); If the button is between two checkpoints, the program inserts a checkpoint to the station that those two checkpoints belong to, between those two checkpoints; If the button is between a checkpoint and a station, then if the station comes before the checkpoint, the checkpoint must be part of that station, so the program inserts a new checkpoint to the station, before the checkpoint; If the station comes after the checkpoint, than the program inserts a new checkpoint to the station the checkpoint belongs to, after the checkpoint. 
+For each station and checkpoint marker on the map on the right, make it such that when the marker gets clicked, the highlighted point becomes the station/checkpoint of the marker. If a station marker gets clicked, that station should be highlighted; If a checkpoint marker gets clicked, that checkpoint should be highlighted. Also, change the active line/branch tabs to the line/branch containing the point currently highlighted.
 
 Make sure that the code can run in the end.

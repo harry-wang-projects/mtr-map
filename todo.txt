@@ -26,7 +26,7 @@ Stuff to do (editor):
 Map rotation.
 - Display the round trip travel time
 - Put circular “buttons” on midpoints of sections. When clicked, a checkpoint should be inserted there (turn on checkpoint mode so the user can click on the position).
-
+- Flip Branch!
 
 Ongoing:
 Split the code into shorter readable segments

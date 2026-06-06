@@ -594,6 +594,10 @@
                                     const size = stationHl ? 32 : 12;
                                     const el = document.createElement('div');
                                     el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background-color:${line.line_color};border:${stationHl ? '5px solid #ffcc00' : '2px solid #000'};opacity:${stationHl ? '1' : '0.8'};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
+                                    el.addEventListener('click', (e) => {
+                                        e.stopPropagation();
+                                        this.showStationOnMap(lineIndex, branchIndex, stationIndex);
+                                    });
                                     const popup = new maplibregl.Popup({ offset: 12 })
                                         .setHTML(`<b>${station.name || 'Unnamed'}</b><br>${line.name}`);
                                     const marker = new maplibregl.Marker({ element: el })
@@ -616,6 +620,10 @@
                                             const cpSize = cpHl ? 28 : 8;
                                             const cpEl = document.createElement('div');
                                             cpEl.style.cssText = `width:${cpSize}px;height:${cpSize}px;border-radius:50%;background-color:#ffffff;border:${cpHl ? '5px solid #ffcc00' : `2px solid ${line.line_color}`};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
+                                            cpEl.addEventListener('click', (e) => {
+                                                e.stopPropagation();
+                                                this.showCheckpointOnMap(lineIndex, branchIndex, stationIndex, checkpointIndex);
+                                            });
                                             const cpPopup = new maplibregl.Popup({ offset: 12 })
                                                 .setHTML(`<b>Checkpoint ${checkpointIndex + 1}</b><br>${station.name || 'Unnamed'}<br>${line.name}`);
                                             const cpMarker = new maplibregl.Marker({ element: cpEl })
@@ -938,6 +946,8 @@
                            this.coordinateMode.checkpointIndex === checkpointIndex;
                 },
                 showStationOnMap(lineIndex, branchIndex, stationIndex) {
+                    this.activeTab = lineIndex;
+                    this.setActiveBranchTab(lineIndex, branchIndex);
                     this.mapHighlight = {
                         type: 'station',
                         lineIndex,
@@ -947,6 +957,8 @@
                     this.updateMap(false);
                 },
                 showCheckpointOnMap(lineIndex, branchIndex, stationIndex, checkpointIndex) {
+                    this.activeTab = lineIndex;
+                    this.setActiveBranchTab(lineIndex, branchIndex);
                     this.mapHighlight = {
                         type: 'checkpoint',
                         lineIndex,
