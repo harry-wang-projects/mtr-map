@@ -19,4 +19,51 @@ Next, make an input in the "playback stage" box where the user can set the curre
 Finally, display the 24-hour time on the map. Don't put it at a specific latitude or longtitude. Make it hover at the top of the map.
 
 
-Make it so that for the lines variable, I can set "z-index" variables for each line. The "z-index" determines how forward/backward the markers of each line get shown on the map. For example, if line A has a z-index of 10 and line B has a z-index of 5, then the trains (i.e. markers representing trains) of line A should be on top of the trains of line B on the map.
+Make it so that for the "lines" array, I can set "z-index" variables for each line (It will be called "line_zindex" in each line object). The "z-index" determines how forward/backward the markers of each line get shown on the map. For example, if line A has a z-index of 10 and line B has a z-index of 5, then the trains (i.e. markers representing trains) of line A should be on top of the trains of line B on the map. 
+
+The following is an example of where the z-index should be read:
+
+{
+   "line_id": 0,
+   "name": "Island Line",
+   "line_color": "#0860a8",
+   "branches": [
+     {
+       "branch_id": 0,
+       "SPAWN_EVERY": 216,
+       "offset_time": 0,
+       "stations": [
+         {
+           "name": "Chai Wan",
+           "lat": 22.265,
+           "lng": 114.237,
+           "run": 114,
+           "dwell": 120,
+           "checkpoints": [
+             {
+               "lat": 22.272069382233497,
+               "lng": 114.24096219688232,
+               "progress": 0.5
+             }
+           ]
+         },
+         {
+           "name": "Heng Fa Chuen",
+           "lat": 22.277,
+           "lng": 114.239,
+           "run": 96,
+           "dwell": 30,
+           "checkpoints": []
+         },
+       ],
+       "branch_type": "normal"
+     }
+   ],
+   "label": "Island Line",
+   "markertype": "hkmtr",
+   "image": "assets/mtr_train1.png",
+   "max_speed": 18,
+   "acceleration": 0.6,
+   "line_visible": true,
+   "line_zindex": 0
+ },
