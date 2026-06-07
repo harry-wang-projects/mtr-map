@@ -226,38 +226,8 @@
                                                 <input type="text" v-model="station.name">
                                             </div>
                                             <div class="parameter-group">
-                                                <label>Run Time (seconds):</label>
-                                                <input type="number" v-model.number="station.run">
-                                            </div>
-                                            <div class="parameter-group">
                                                 <label>Dwell Time (seconds):</label>
                                                 <input type="number" v-model.number="station.dwell">
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="parameter-row">
-                                            <div class="parameter-group">
-                                                <button @click="toggleCoordinateMode(lineIndex, branchIndex, stationIndex)" 
-                                                        :class="['coordinate-button', { active: isCoordinateModeActive(lineIndex, branchIndex, stationIndex) }]">
-                                                    {{ isCoordinateModeActive(lineIndex, branchIndex, stationIndex) ? 'Click Map to Set' : 'Set from Map' }}
-                                                </button>
-                                            </div>
-                                            <div class="parameter-group">
-                                                <button
-                                                    @click="moveStationUp(lineIndex, branchIndex, stationIndex)"
-                                                    :disabled="stationIndex === 0"
-                                                    class="regular">
-                                                    Move Up
-                                                </button>
-                                            </div>
-                                            <div class="parameter-group">
-                                                <button @click="requestDeleteStation(lineIndex, branchIndex, stationIndex)" class="delete">Delete Station</button>
-                                            </div>
-                                            <div class="parameter-group">
-                                                <button @click="addCheckpoint(lineIndex, branchIndex, stationIndex)" class="add">Add Checkpoint</button>
-                                            </div>
-                                            <div class="parameter-group">
-                                                <button @click="calculate_progress(lineIndex, branchIndex, stationIndex)" class="regular">Calculate Progresses</button>
                                             </div>
                                             <div class="parameter-group">
                                                 <button
@@ -267,27 +237,44 @@
                                                     Show on map
                                                 </button>
                                             </div>
+                                            <div class="parameter-group">
+                                                <button @click="toggleCoordinateMode(lineIndex, branchIndex, stationIndex)" 
+                                                        :class="['coordinate-button', { active: isCoordinateModeActive(lineIndex, branchIndex, stationIndex) }]">
+                                                    {{ isCoordinateModeActive(lineIndex, branchIndex, stationIndex) ? 'Click Map to Set' : 'Set from Map' }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="parameter-row">
+                                            <div class="parameter-group">
+                                                <button @click="requestDeleteStation(lineIndex, branchIndex, stationIndex)" class="delete">Delete Station</button>
+                                            </div>
+                                            <div class="parameter-group">
+                                                <button @click="addCheckpoint(lineIndex, branchIndex, stationIndex)" class="add">Add Checkpoint</button>
+                                            </div>
+                                            <div class="parameter-group">
+                                                <button
+                                                    @click="moveStationUp(lineIndex, branchIndex, stationIndex)"
+                                                    :disabled="stationIndex === 0"
+                                                    class="regular">
+                                                    Move Up
+                                                </button>
+                                            </div>
                                         </div>
                                         
                                         <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section" :class="{ 'map-highlight': isCheckpointMapHighlight(lineIndex, branchIndex, stationIndex, checkpointIndex) }" :data-map-highlight="`checkpoint-${lineIndex}-${branchIndex}-${stationIndex}-${checkpointIndex}`">
-                                            <h4>Checkpoint {{ checkpointIndex + 1 }}</h4>
                                             <div class="parameter-row">
+                                                <div class="parameter-group">
+                                                    <h4>Checkpoint {{ checkpointIndex + 1 }}</h4>
+                                                </div>
+                                                <div class="parameter-group">
+                                                    <button @click="requestDeleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex)" class="delete">Delete</button>
+                                                </div>
                                                 <div class="parameter-group">
                                                     <button @click="toggleCheckpointCoordinateMode(lineIndex, branchIndex, stationIndex, checkpointIndex)" 
                                                             :class="['coordinate-button', { active: isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex) }]">
                                                         {{ isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex) ? 'Click Map to Set' : 'Set from Map' }}
                                                     </button>
-                                                </div>
-                                                <div class="parameter-group">
-                                                    <button
-                                                        @click="moveCheckpointUp(lineIndex, branchIndex, stationIndex, checkpointIndex)"
-                                                        :disabled="checkpointIndex === 0"
-                                                        class="regular">
-                                                        Move Up
-                                                    </button>
-                                                </div>
-                                                <div class="parameter-group">
-                                                    <button @click="requestDeleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex)" class="delete">Delete</button>
                                                 </div>
                                                 <div class="parameter-group">
                                                     <button
@@ -536,7 +523,7 @@
                     // Render lines in ascending z-index order so higher z-index appears on top
                     const lineRenderOrder = this.lines
                         .map((line, lineIndex) => ({ line, lineIndex }))
-                        .sort((a, b) => (a.line.line_zindex || 0) - (b.line.line_zindex || 0));
+                        /*.sort((a, b) => (a.line.line_zindex || 0) - (b.line.line_zindex || 0))*/;
 
                     lineRenderOrder.forEach(({ line, lineIndex }) => {
                         if (line.line_visible === false) return;
