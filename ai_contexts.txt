@@ -26,7 +26,7 @@ Only do the things specified in the prompt. Do not change parts of the code that
 
 Task:
 
-Make it so that for the "lines" array, I can set "z-index" variables for each line (It will be called "line_zindex" in each line object). The "z-index" determines how forward/backward the markers of each line get shown on the map. For example, if line A has a z-index of 10 and line B has a z-index of 5, then the trains (i.e. markers representing trains) of line A should be on top of the trains of line B on the map. 
+Make it so that for the "lines" array, I can set a "z-index" variable for each line (It will be called "line_zindex" in each line object). The "z-index" determines how forward/backward the markers of each line get shown on the map. For example, if line A has a z-index of 10 and line B has a z-index of 5, then the trains (i.e. markers representing trains) of line A should be on top of the trains of line B on the map. 
 
 The following is an example of where the z-index should be read:
 {

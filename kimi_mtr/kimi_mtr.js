@@ -344,6 +344,22 @@ function remove_decimals(){
 
 let spawn_completed_time = 0;
 
+function getLineZIndex(lineCfg) {
+  return lineCfg.hasOwnProperty("line_zindex") ? lineCfg.line_zindex : 0;
+}
+
+function createPlaybackMarker(lineCfg, pos) {
+  const train_image = lineCfg.hasOwnProperty("image") ? lineCfg.image : "";
+  const markertype = lineCfg.hasOwnProperty("markertype") ? lineCfg.markertype : "";
+  const el = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
+  el.style.zIndex = String(getLineZIndex(lineCfg));
+  const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+    .setLngLat([pos.lng, pos.lat])
+    .addTo(map);
+  playbackMarkers.push(marker);
+  return marker;
+}
+
 function generate_train_icon(markertype, line_color, label, image){
   const el = document.createElement('div');
   if(markertype == "hklrt"){
@@ -415,9 +431,6 @@ function playAnimationFrame(time){
   for(let i = 0; i < lines.length; i++){
     const lineCfg = lines[i];
     const lineMeta = animationTrajectories[i] || [];
-    const train_image = lineCfg.hasOwnProperty("image") ? lineCfg.image : "";
-    const markertype = lineCfg.hasOwnProperty("markertype") ? lineCfg.markertype : "";
-    const line_icon = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
 
     let trainsOnThisLine = 0;
 
@@ -451,9 +464,7 @@ function playAnimationFrame(time){
 
             //add the marker
             const pos = trajectory[0];
-            const el = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
-            const marker = new maplibregl.Marker({element: el, anchor:  'center'}).setLngLat([pos.lng, pos.lat]).addTo(map);
-            playbackMarkers.push(marker);
+            const marker = createPlaybackMarker(lineCfg, pos);
 
             animationTrajectories[i][b].markers[ lines[i].branches[b].head] = marker;
 
@@ -553,11 +564,11 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
   // Create markers for all virtual trains at this time.
   // Each branch has a trajectory array indexed by `timeProgress` (seconds).
   // A train's `timeProgress` advances by 1 per frame and wraps with modulo.
-  for(let i = 0; i < lines.length; i++){
+  // Lower line_zindex lines are created first so higher z-index markers stack on top.
+  const lineIndices = lines.map((_, idx) => idx).sort((a, b) => getLineZIndex(lines[a]) - getLineZIndex(lines[b]));
+  for(const i of lineIndices){
     const lineCfg = lines[i];
     const lineMeta = animationTrajectories[i] || [];
-    const train_image = lineCfg.hasOwnProperty("image") ? lineCfg.image : "";
-    const markertype = lineCfg.hasOwnProperty("markertype") ? lineCfg.markertype : "";
     let trainsOnThisLine = 0;
 
     for(let b = 0; b < (lineCfg.branches ? lineCfg.branches.length : 0); b++){
@@ -581,9 +592,7 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
             break;
           }
           const pos = trajectory[0];
-          const el = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
-          const marker = new maplibregl.Marker({element: el, anchor:  'center'}).setLngLat([pos.lng, pos.lat]).addTo(map);
-          playbackMarkers.push(marker);
+          const marker = createPlaybackMarker(lineCfg, pos);
           
           //add the marker
           animationTrajectories[i][b].markers[ animationTrajectories[i][b].markerhead] = marker;
@@ -602,9 +611,7 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
           const pos = trajectory[timeProgress];
           if(!pos) continue;
 
-          const el = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
-          const marker = new maplibregl.Marker({element: el, anchor:  'center'}).setLngLat([pos.lng, pos.lat]).addTo(map);
-          playbackMarkers.push(marker);
+          const marker = createPlaybackMarker(lineCfg, pos);
           animationTrajectories[i][b].markers[k] = marker;
           trainsOnThisLine++;
         }
