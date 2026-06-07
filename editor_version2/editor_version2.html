@@ -21,6 +21,7 @@
                 <button @click="showSettings = !showSettings" :class="['settings-toggle', { active: showSettings }]">
                     {{ showSettings ? 'Close Settings' : 'Settings' }}
                 </button>
+                <button @click="calculate_all" class="regular">Calculate All</button>
             </div>
 
             <!-- Settings panel -->
@@ -418,6 +419,14 @@
                 calculate_progress(lineIndex, branchIndex, stationIndex) { calculate_progress(this, lineIndex, branchIndex, stationIndex); },
                 calculate_allprogresses(lineIndex, branchIndex) { calculate_allprogresses(this, lineIndex, branchIndex); },
                 calculate_traveltimes(lineIndex, branchIndex) { calculate_traveltimes(this, lineIndex, branchIndex); },
+                calculate_all(){
+                    for(let i = 0; i < this.lines.length; i++){
+                        for(let j = 0; j < this.lines[i].branches.length; j++){
+                            calculate_allprogresses(this, i, j);
+                            calculate_traveltimes(this, i, j);
+                        }
+                    }
+                },
                 calculateBranchTraversalTime(lineIndex, branchIndex) {
                     // TODO: implement this function
                     // should return the traversal time in seconds for the given branch
@@ -876,6 +885,7 @@
                     input.click();
                 },
                 exportJSON() {
+                    this.calculate_all();
                     const dataStr = JSON.stringify(this.lines, null, 2);
                     const dataBlob = new Blob([dataStr], { type: 'application/json' });
                     const url = URL.createObjectURL(dataBlob);
@@ -1118,9 +1128,7 @@
                     }
                     //calculate everything
                     if(event.key === 'k' || event.key === 'K') {
-                        let lineindex_to_use = this.activeTab;
-                        let branchindex_to_use = this.getActiveBranchTab(lineindex_to_use);
-                        this.calculate_allprogresses(lineindex_to_use, branchindex_to_use);
+                        this.calculate_all();
                     }
                     //calculate everything
                     if(event.key === 'l' || event.key === 'L') {
@@ -1131,10 +1139,6 @@
                         let lineindex_to_use = this.activeTab;
                         let branchindex_to_use = this.getActiveBranchTab(lineindex_to_use);
                         this.addTimetableEntry(lineindex_to_use, branchindex_to_use);
-                    }
-                    //calculate everything
-                    if(event.key === 'l' || event.key === 'L') {
-                        this.exportJSON();
                     }
                 },
                 onBranchTypeChange(lineIndex, branchIndex) {
