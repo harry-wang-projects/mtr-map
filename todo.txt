@@ -1,3 +1,9 @@
+June 27 Update:
+- Remove all buttons (delete, set on map, show on map) from checkpoints and only show "1", "2", "3" ... and highlight the checkpoint currently begin selected. Deleting should be done in a "delete all checkpoints" button. Even better, just show "checkpoint 10/13" without showing the individual checkpoints.
+- Add a button the move the checkpoints from one station to the previous station. They should be in their original order. Also add the option to move the checkpoints to the next station.
+- Dropout - Randomly remove a percentage (e.g. 50%) of stations. Used for buses that don't stop at all stops.
+- GeoJSON path to checkpoints: Start by putting all of the points as checkpoints of the first station. Then, slowly allocate them. E.g. if station 1 has checkpoints 1 to 50, station 2 has checkpoints 51 to 150, and station 3 has checkpoints 151 to 200, then start by moving all checkpoints to station 1. Shift checkpoints 51 to 200 to station 2, then shift checkpoints 151 to 200 to station 3. Make a separate tool for this.
+
 Stuff to do (data):
 - Use GTFS data to generate the coordinates. Input a series of routeIDs and bus numbers and turn it into a json file storing stations. Then, manually add the checkpoints. 
 - Look into how to get the route geometries of the routes (GeoJSON)?
