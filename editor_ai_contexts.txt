@@ -1,7 +1,7 @@
-editor_version1.html:
+editor_version2.html:
 
-Focus on the folder @editor_version1.
-This is a json editor that edits a json file (an object in the code) that stores information about a subway network. The network consists of lines, which consist of branches, which consist of stations. All information can be edited. In addition, the positions (latitude, longtitudes) of stations can be edited by clicking on a map.
+Focus on the folder @editor_version2.
+This is a json editor that edits a json file (an object in the code) that stores information about a subway network. The network consists of lines, which consist of branches, which consist of stations. All information can be edited. In addition, the positions (latitude, longtitudes) of stations can be edited by clicking on a map. There are also many different keys one can press to edit/delete stations.
 
 Rules:
 Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
