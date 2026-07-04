@@ -504,6 +504,8 @@
                                 }
                             }
                             this.coordinateMode = null;
+                            this.updateMap(false);
+                            this.updateMap_highlight();
                         }
                     });
                 },
@@ -592,12 +594,15 @@
                             // stations and checkpoint markers (checkpoints are also polyline vertices; markers make them easy to highlight)
                             branch.stations.forEach((station, stationIndex) => {
                                 if (station.lat && station.lng) {
+                                    /*
                                     const stationHl =
                                         this.mapHighlight &&
                                         this.mapHighlight.type === 'station' &&
                                         this.mapHighlight.lineIndex === lineIndex &&
                                         this.mapHighlight.branchIndex === branchIndex &&
                                         this.mapHighlight.stationIndex === stationIndex;
+                                    */
+                                    const stationHl = false;
                                     const size = stationHl ? 32 : 12;
                                     const el = document.createElement('div');
                                     el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background-color:${line.line_color};border:${stationHl ? '5px solid #ffcc00' : '2px solid #000'};opacity:${stationHl ? '1' : '0.8'};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
@@ -617,6 +622,7 @@
                                 if (station.checkpoints && Array.isArray(station.checkpoints)) {
                                     station.checkpoints.forEach((checkpoint, checkpointIndex) => {
                                         if (checkpoint.lat && checkpoint.lng) {
+                                            /*
                                             const cpHl =
                                                 this.mapHighlight &&
                                                 this.mapHighlight.type === 'checkpoint' &&
@@ -624,6 +630,8 @@
                                                 this.mapHighlight.branchIndex === branchIndex &&
                                                 this.mapHighlight.stationIndex === stationIndex &&
                                                 this.mapHighlight.checkpointIndex === checkpointIndex;
+                                            */
+                                            const cpHl = false;
                                             const cpSize = cpHl ? 28 : 8;
                                             const cpEl = document.createElement('div');
                                             cpEl.style.cssText = `width:${cpSize}px;height:${cpSize}px;border-radius:50%;background-color:#ffffff;border:${cpHl ? '5px solid #ffcc00' : `2px solid ${line.line_color}`};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
