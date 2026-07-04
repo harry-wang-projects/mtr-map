@@ -296,6 +296,50 @@ export function delete_allcheckpoints(vm, lineIndex, branchIndex, stationIndex){
     vm.lines[lineIndex].branches[branchIndex].stations[stationIndex].checkpoints = [];
 }
 
+export function moveCheckpointsUp(vm, lineIndex, branchIndex, stationIndex) {
+    if (stationIndex <= 0) return;
+    const stations = vm.lines[lineIndex].branches[branchIndex].stations;
+    const station = stations[stationIndex];
+    const prevStation = stations[stationIndex - 1];
+
+    if (!station.checkpoints || station.checkpoints.length === 0) return;
+    if (!prevStation.checkpoints) prevStation.checkpoints = [];
+
+    const h = vm.mapHighlight;
+    let endIndex;
+    if (h && h.type === 'checkpoint' && h.lineIndex === lineIndex && h.branchIndex === branchIndex && h.stationIndex === stationIndex) {
+        endIndex = h.checkpointIndex;
+    } else {
+        endIndex = station.checkpoints.length - 1;
+    }
+
+    const toMove = station.checkpoints.splice(0, endIndex + 1);
+    prevStation.checkpoints.push(...toMove);
+    calculate_allprogresses(vm, lineIndex, branchIndex);
+}
+
+export function moveCheckpointsDown(vm, lineIndex, branchIndex, stationIndex) {
+    const stations = vm.lines[lineIndex].branches[branchIndex].stations;
+    if (stationIndex >= stations.length - 1) return;
+    const station = stations[stationIndex];
+    const nextStation = stations[stationIndex + 1];
+
+    if (!station.checkpoints || station.checkpoints.length === 0) return;
+    if (!nextStation.checkpoints) nextStation.checkpoints = [];
+
+    const h = vm.mapHighlight;
+    let startIndex;
+    if (h && h.type === 'checkpoint' && h.lineIndex === lineIndex && h.branchIndex === branchIndex && h.stationIndex === stationIndex) {
+        startIndex = h.checkpointIndex;
+    } else {
+        startIndex = 0;
+    }
+
+    const toMove = station.checkpoints.splice(startIndex);
+    nextStation.checkpoints.unshift(...toMove);
+    calculate_allprogresses(vm, lineIndex, branchIndex);
+}
+
 
 
 export function calculate_progress(vm, lineIndex, branchIndex, stationIndex) {

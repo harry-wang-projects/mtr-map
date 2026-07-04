@@ -265,7 +265,25 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        
+
+                                        <div class="parameter-row">
+                                            <div class="parameter-group">
+                                                <button
+                                                    @click="moveCheckpointsUp(lineIndex, branchIndex, stationIndex)"
+                                                    :disabled="stationIndex === 0"
+                                                    class="regular">
+                                                    Move Checkpoints Up
+                                                </button>
+                                            </div>
+                                            <div class="parameter-group">
+                                                <button
+                                                    @click="moveCheckpointsDown(lineIndex, branchIndex, stationIndex)"
+                                                    :disabled="stationIndex === branch.stations.length - 1"
+                                                    class="regular">
+                                                    Move Checkpoints Down
+                                                </button>
+                                            </div>
+                                        </div>
 
                                         <div v-if="station.checkpoints"  class="checkpoint-section" :class="{ 'map-highlight': isCheckpointMapHighlight_samestation(lineIndex, branchIndex, stationIndex) }" :data-map-highlight="`checkpoint-${lineIndex}-${branchIndex}-${stationIndex}`">
                                             <div>
@@ -327,7 +345,8 @@
             addLine, cloneLine, requestDeleteLine, requestDeleteBranch, requestDeleteStation, requestDeleteCheckpoint,
             confirmDelete, cancelDelete, deleteLine, addBranch, cloneBranch, deleteBranch,
             updateicon, addStation, deleteStation, addCheckpoint, deleteCheckpoint, insertCheckpointAt,
-            moveStationUp, moveCheckpointUp, flip_branch, delete_allcheckpoints, calculate_progress, calculate_allprogresses, calculate_traveltimes, computeBranchJourneySeconds
+            moveStationUp, moveCheckpointUp, flip_branch, delete_allcheckpoints, calculate_progress, calculate_allprogresses, calculate_traveltimes, computeBranchJourneySeconds,
+            moveCheckpointsUp, moveCheckpointsDown
         } from "./lines.js";
         const { createApp } = Vue;
 
@@ -416,6 +435,8 @@
                 delete_allcheckpoints(lineIndex, branchIndex, stationIndex){
                     delete_allcheckpoints(this, lineIndex, branchIndex, stationIndex);
                 },
+                moveCheckpointsUp(lineIndex, branchIndex, stationIndex) { moveCheckpointsUp(this, lineIndex, branchIndex, stationIndex); },
+                moveCheckpointsDown(lineIndex, branchIndex, stationIndex) { moveCheckpointsDown(this, lineIndex, branchIndex, stationIndex); },
                 calculate_progress(lineIndex, branchIndex, stationIndex) { calculate_progress(this, lineIndex, branchIndex, stationIndex); },
                 calculate_allprogresses(lineIndex, branchIndex) { calculate_allprogresses(this, lineIndex, branchIndex); },
                 calculate_traveltimes(lineIndex, branchIndex) { calculate_traveltimes(this, lineIndex, branchIndex); },
