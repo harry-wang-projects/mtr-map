@@ -266,32 +266,20 @@
                                             </div>
                                         </div>
                                         
+
+                                        <div v-if="station.checkpoints"  class="checkpoint-section" :class="{ 'map-highlight': isCheckpointMapHighlight_samestation(lineIndex, branchIndex, stationIndex) }" :data-map-highlight="`checkpoint-${lineIndex}-${branchIndex}-${stationIndex}`">
+                                            <div>
+                                                <div class="parameter-group">
+                                                    <h4>Checkpoint {{getCheckpointMapHighlight(lineIndex, branchIndex, stationIndex)}} / {{getCheckpointCount(lineIndex, branchIndex, stationIndex)}}</h4>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section" :class="{ 'map-highlight': isCheckpointMapHighlight(lineIndex, branchIndex, stationIndex, checkpointIndex) }" :data-map-highlight="`checkpoint-${lineIndex}-${branchIndex}-${stationIndex}-${checkpointIndex}`">
                                             <div>
                                                 <div class="parameter-group">
                                                     <h4>Checkpoint {{ checkpointIndex + 1 }}</h4>
                                                 </div>
-                                                <!--
-                                                <div class="parameter-group">
-                                                    <button @click="requestDeleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex)" class="delete">Delete</button>
-                                                </div>
-                                                -->
-                                                <!--
-                                                <div class="parameter-group">
-                                                    <button @click="toggleCheckpointCoordinateMode(lineIndex, branchIndex, stationIndex, checkpointIndex)" 
-                                                            :class="['coordinate-button', { active: isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex) }]">
-                                                        {{ isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex) ? 'Click Map to Set' : 'Set from Map' }}
-                                                    </button>
-                                                </div>
-                                                <div class="parameter-group">
-                                                    <button
-                                                        type="button"
-                                                        @click="showCheckpointOnMap(lineIndex, branchIndex, stationIndex, checkpointIndex)"
-                                                        :class="['map-show', { active: isCheckpointMapHighlight(lineIndex, branchIndex, stationIndex, checkpointIndex) }]">
-                                                        Show on map
-                                                    </button>
-                                                </div>
-                                                -->
                                             </div>
                                         </div>
                                         
@@ -953,7 +941,7 @@
                         const id =
                             h.type === 'station'
                                 ? `station-${h.lineIndex}-${h.branchIndex}-${h.stationIndex}`
-                                : `checkpoint-${h.lineIndex}-${h.branchIndex}-${h.stationIndex}-${h.checkpointIndex}`;
+                                : `checkpoint-${h.lineIndex}-${h.branchIndex}-${h.stationIndex}`;
                         const el = document.querySelector(`[data-map-highlight="${id}"]`);
                         if (!el) return;
                         const panel = document.querySelector('.editor-panel');
@@ -979,7 +967,7 @@
                         stationIndex
                     };
                     this.updateMap(false);
-                    this.scrollToMapHighlight();
+                    //this.scrollToMapHighlight();
                 },
                 showCheckpointOnMap(lineIndex, branchIndex, stationIndex, checkpointIndex) {
                     this.activeTab = lineIndex;
@@ -992,7 +980,7 @@
                         checkpointIndex
                     };
                     this.updateMap(false);
-                    this.scrollToMapHighlight();
+                    //this.scrollToMapHighlight();
                 },
                 isStationMapHighlight(lineIndex, branchIndex, stationIndex) {
                     return (
@@ -1012,6 +1000,29 @@
                         this.mapHighlight.stationIndex === stationIndex &&
                         this.mapHighlight.checkpointIndex === checkpointIndex
                     );
+                },
+                isCheckpointMapHighlight_samestation(lineIndex, branchIndex, stationIndex) {
+                    return (
+                        this.mapHighlight &&
+                        this.mapHighlight.type === 'checkpoint' &&
+                        this.mapHighlight.lineIndex === lineIndex &&
+                        this.mapHighlight.branchIndex === branchIndex &&
+                        this.mapHighlight.stationIndex === stationIndex
+                    );
+                },
+                getCheckpointMapHighlight(lineIndex, branchIndex, stationIndex) {
+                    if(this.mapHighlight &&
+                        this.mapHighlight.type === 'checkpoint' &&
+                        this.mapHighlight.lineIndex === lineIndex &&
+                        this.mapHighlight.branchIndex === branchIndex &&
+                        this.mapHighlight.stationIndex === stationIndex){
+                        
+                        return (this.mapHighlight.checkpointIndex + 1).toString();
+                    }
+                    return "-";
+                },
+                getCheckpointCount(lineIndex, branchIndex, stationIndex){
+                    return this.lines[lineIndex].branches[branchIndex].stations[stationIndex].checkpoints.length;
                 },
                 handleKeyPress(event) {
                     const isInputField = event.target.tagName === 'INPUT';
@@ -1103,6 +1114,7 @@
                         if (lat && lng) {
                             this.map.setCenter([lng, lat]);
                         }
+                        this.scrollToMapHighlight();
                     }
                     //go to checkpoint mode
                     if (event.key === 'e' || event.key === 'E') {
