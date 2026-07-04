@@ -458,10 +458,6 @@ function playAnimationFrame(time){
             if(elapsedSeconds < lines[i].branches[b].spawn_times[lines[i].branches[b].head]){
               break;
             }
-            console.log("adding:" + lines[i].name);
-            console.log(lines[i].branches[b].head);
-            console.log(lines[i].branches[b].spawn_times[lines[i].branches[b].head]);
-
             //add the marker
             const pos = trajectory[0];
             const marker = createPlaybackMarker(lineCfg, pos);
@@ -484,10 +480,6 @@ function playAnimationFrame(time){
             if(elapsedSeconds - (lines[i].branches[b].spawn_times[lines[i].branches[b].tail] + lines[i].branches[b].travel_time) < 0){
               break;
             }
-
-            console.log("deleting:" + lines[i].name);
-            console.log(lines[i].branches[b].tail);
-            console.log(lines[i].branches[b].spawn_times[lines[i].branches[b].tail]);
 
             animationTrajectories[i][b].markers[ lines[i].branches[b].tail].remove();
 
@@ -745,8 +737,6 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
         let travel_time = animationTrajectories[i][j].trajectory.length;
         lines[i].branches[j].travel_time = travel_time;
         for(let k = 0; k < lines[i].branches[j].spawn_times.length; k++){
-          console.log("finished:")
-          console.log(lines[i].branches[j].spawn_times[k] + travel_time);
           lines[i].branches[j].events[Math.floor((lines[i].branches[j].spawn_times[k] + travel_time)/60)] = 1;
         }
       }
