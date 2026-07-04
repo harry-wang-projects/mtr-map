@@ -251,6 +251,9 @@
                                                 <button @click="requestDeleteStation(lineIndex, branchIndex, stationIndex)" class="delete">Delete Station</button>
                                             </div>
                                             <div class="parameter-group">
+                                                <button @click="delete_allcheckpoints(lineIndex, branchIndex, stationIndex)" class="delete">Delete Checkpoints</button>
+                                            </div>
+                                            <div class="parameter-group">
                                                 <button @click="addCheckpoint(lineIndex, branchIndex, stationIndex)" class="add">Add Checkpoint</button>
                                             </div>
                                             <div class="parameter-group">
@@ -264,13 +267,16 @@
                                         </div>
                                         
                                         <div v-if="station.checkpoints" v-for="(checkpoint, checkpointIndex) in station.checkpoints" :key="checkpointIndex" class="checkpoint-section" :class="{ 'map-highlight': isCheckpointMapHighlight(lineIndex, branchIndex, stationIndex, checkpointIndex) }" :data-map-highlight="`checkpoint-${lineIndex}-${branchIndex}-${stationIndex}-${checkpointIndex}`">
-                                            <div class="parameter-row">
+                                            <div>
                                                 <div class="parameter-group">
                                                     <h4>Checkpoint {{ checkpointIndex + 1 }}</h4>
                                                 </div>
+                                                <!--
                                                 <div class="parameter-group">
                                                     <button @click="requestDeleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex)" class="delete">Delete</button>
                                                 </div>
+                                                -->
+                                                <!--
                                                 <div class="parameter-group">
                                                     <button @click="toggleCheckpointCoordinateMode(lineIndex, branchIndex, stationIndex, checkpointIndex)" 
                                                             :class="['coordinate-button', { active: isCheckpointCoordinateModeActive(lineIndex, branchIndex, stationIndex, checkpointIndex) }]">
@@ -285,6 +291,7 @@
                                                         Show on map
                                                     </button>
                                                 </div>
+                                                -->
                                             </div>
                                         </div>
                                         
@@ -330,7 +337,7 @@
             addLine, cloneLine, requestDeleteLine, requestDeleteBranch, requestDeleteStation, requestDeleteCheckpoint,
             confirmDelete, cancelDelete, deleteLine, addBranch, cloneBranch, deleteBranch,
             updateicon, addStation, deleteStation, addCheckpoint, deleteCheckpoint, insertCheckpointAt,
-            moveStationUp, moveCheckpointUp, flip_branch, calculate_progress, calculate_allprogresses, calculate_traveltimes, computeBranchJourneySeconds
+            moveStationUp, moveCheckpointUp, flip_branch, delete_allcheckpoints, calculate_progress, calculate_allprogresses, calculate_traveltimes, computeBranchJourneySeconds
         } from "./lines.js";
         const { createApp } = Vue;
 
@@ -401,7 +408,7 @@
                 requestDeleteLine(lineIndex) { requestDeleteLine(this, lineIndex); },
                 requestDeleteBranch(lineIndex, branchIndex) { requestDeleteBranch(this, lineIndex, branchIndex); },
                 requestDeleteStation(lineIndex, branchIndex, stationIndex) { requestDeleteStation(this, lineIndex, branchIndex, stationIndex); },
-                requestDeleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex) { requestDeleteCheckpoint(this, lineIndex, branchIndex, stationIndex, checkpointIndex); },
+                //requestDeleteCheckpoint(lineIndex, branchIndex, stationIndex, checkpointIndex) { requestDeleteCheckpoint(this, lineIndex, branchIndex, stationIndex, checkpointIndex); },
                 confirmDelete() { confirmDelete(this); },
                 cancelDelete() { cancelDelete(this); },
                 deleteLine(lineIndex) { deleteLine(this, lineIndex); },
@@ -416,6 +423,9 @@
                 insertCheckpointAt(lineIndex, branchIndex, stationIndex, insertIndex, initialLat, initialLng, initialProgress) { insertCheckpointAt(this, lineIndex, branchIndex, stationIndex, insertIndex, initialLat, initialLng, initialProgress); },
                 moveStationUp(lineIndex, branchIndex, stationIndex) { moveStationUp(this, lineIndex, branchIndex, stationIndex); },
                 moveCheckpointUp(lineIndex, branchIndex, stationIndex, checkpointIndex) { moveCheckpointUp(this, lineIndex, branchIndex, stationIndex, checkpointIndex); },
+                delete_allcheckpoints(lineIndex, branchIndex, stationIndex){
+                    delete_allcheckpoints(this, lineIndex, branchIndex, stationIndex);
+                },
                 calculate_progress(lineIndex, branchIndex, stationIndex) { calculate_progress(this, lineIndex, branchIndex, stationIndex); },
                 calculate_allprogresses(lineIndex, branchIndex) { calculate_allprogresses(this, lineIndex, branchIndex); },
                 calculate_traveltimes(lineIndex, branchIndex) { calculate_traveltimes(this, lineIndex, branchIndex); },

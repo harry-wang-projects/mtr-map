@@ -292,6 +292,11 @@ export function flip_branch(vm, lineIndex, branchIndex){
 
 
 
+export function delete_allcheckpoints(vm, lineIndex, branchIndex, stationIndex){
+    vm.lines[lineIndex].branches[branchIndex].stations[stationIndex].checkpoints = [];
+}
+
+
 
 export function calculate_progress(vm, lineIndex, branchIndex, stationIndex) {
     let i = lineIndex;
