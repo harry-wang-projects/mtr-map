@@ -15,6 +15,7 @@
             <div class="controls">
                 <button @click="addLine" class="add">Add Line</button>
                 <button @click="importJSON">Import JSON</button>
+                <button @click="appendJSON">Import JSON (Append)</button>
                 <button @click="exportJSON">Export JSON</button>
                 <button @click="saveToCookie" class="add">Save to Cookie</button>
                 <button @click="zoomOut">Zoom Out</button>
@@ -896,6 +897,67 @@
                                         }
                                       }
                                     }
+                                }
+                            } catch (error) {
+                                alert('Invalid JSON file');
+                            }
+                        };
+                        reader.readAsText(file);
+                    };
+                    input.click();
+                },
+                appendJSON() {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.json';
+                    input.onchange = (e) => {
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            try {
+                                const parsed = JSON.parse(event.target.result);
+
+                                //only proceed if the data is an array of "line" objects (each with a branches array)
+                                if (!Array.isArray(parsed) || !parsed.every(item => item && Array.isArray(item.branches))) {
+                                    alert('Invalid JSON file: expected an array of line objects');
+                                    return;
+                                }
+
+                                //add line type to branches
+                                for(let i = 0; i < parsed.length; i++){
+                                    for(let j = 0; j < parsed[i].branches.length; j++){
+                                        if(!parsed[i].branches[j].hasOwnProperty('branch_type')){
+                                            parsed[i].branches[j].branch_type = "normal";
+                                        }
+                                    }
+                                    //properties it may or may not have
+                                    if(!parsed[i].hasOwnProperty('label')){
+                                        parsed[i].label = parsed[i].name;
+                                    }
+                                    if(!parsed[i].hasOwnProperty('markertype')){
+                                        parsed[i].markertype = "default";
+                                    }
+                                    if(!parsed[i].hasOwnProperty('image')){
+                                        parsed[i].image = "";
+                                    }
+                                    if(!parsed[i].hasOwnProperty('max_speed')){
+                                        parsed[i].max_speed = 22.2;
+                                    }
+                                    if(!parsed[i].hasOwnProperty('acceleration')){
+                                        parsed[i].acceleration = 1.0;
+                                    }
+                                    //properties to set
+                                    parsed[i].icon = generate_train_icon_2(parsed[i].markertype, parsed[i].line_color, parsed[i].label, parsed[i].image);
+                                    if (!parsed[i].hasOwnProperty('line_visible')) parsed[i].line_visible = true;
+                                    if (!parsed[i].hasOwnProperty('line_zindex')) parsed[i].line_zindex = 0;
+                                    for(let j = 0; j < parsed[i].branches.length; j++){
+                                      for(let k = 0; k < parsed[i].branches[j].stations.length; k++){
+                                        if(!parsed[i].branches[j].stations[k].hasOwnProperty("checkpoints")){
+                                            parsed[i].branches[j].stations[k].checkpoints = [];
+                                        }
+                                      }
+                                    }
+                                    this.lines.push(parsed[i]);
                                 }
                             } catch (error) {
                                 alert('Invalid JSON file');

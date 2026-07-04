@@ -8,13 +8,9 @@ Only do the things specified in the prompt. Do not change parts of the code that
 
 Task:
 
-For each station of each branch in the editor, add buttons called "move checkpoints up" and "move checkpoints down". The "move checkpoints up" button moves the checkpoints of that station to the previous station, appending them to the end of the checkpoints of the previous station. The "move checkpoints down" button moves the checkpoints of that station to the next station. In "move checkpoints down", the checkpoints being moved should be appended to the front of the checkpoints of the next station. Also, the checkpoints should be kept in the original order.
+At the top of the page, add another import JSON button next to the current "import JSON" button. For this new button, instead of replacing the this.lines array with the data in the imported JSON, keep the data in this.lines and append the data from the imported JSON to this.lines. For example, if this.lines contains "line" objects A, B, and C and the imported JSON contains "line" objects D and E, then this.lines should contain "line" objects A, B, C, D, and E after the appending. 
 
-As an example, if station 1 has checkpoints in the order A B C, station 2 has checkpoints in the order D E F, and station 3 has checkpoints in the order G H I, then if we press "move checkpoints up" for station 2, the checkpoints D E F should be moved the end of the checkpoints of station 1. Station 1's checkpoints should now be in the order A B C D E F; If we press "move checkpoints down" for station 2, its checkpoints should be moved to the front of the checkpoints of station 3. Station 3's checkpoints should now be in the order D E F G H I.
-
-Also, if the station that we're moving checkpoints for has a checkpoint that is currently being selected/highlighted (i.e. in the this.mapHighlight object), then don't move all of the checkpoints. If "move checkpoints up" is clicked, move the checkpoints from checkpoint 0 up to the checkpoint being selected (including that checkpoint); If "move checkpoints down" is clicked, move the checkpoints from the checkpoint being selected to the last checkpoint (including the original checkpoint). If the station itself is being selected and not one of its checkpoints, then just move all of the checkpoints.
-
-For example, if a station has 10 checkpoints and checkpoint 3 is currently selected, then if "move checkpoints up" is clicked, move the checkpoints 0, 1, 2, and 3 to the previous station. If "move checkpoints down" is clicked, move the checkpoints from 3 to 9 (including 3 and 9) to the next station. 
+If the data isn't in the form of an array of "line" objects like in this.lines, then don't do anything.
 
 
 Make sure that the code can run in the end.
