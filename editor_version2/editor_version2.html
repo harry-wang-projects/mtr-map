@@ -566,23 +566,25 @@
                                 const station = branch.stations[s];
                                 coords.push([station.lng, station.lat]);
                                 if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
-                                    const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+                                    /*const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
                                         const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
                                         const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
                                         return progA - progB;
-                                    });
-                                    sortedCheckpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
+                                    });*/
+                                    //sortedCheckpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
+                                    station.checkpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
                                 }
                             }
                             if(branch.hasOwnProperty("branch_type") && branch.branch_type === "circular"){
                                 const station = branch.stations[branch.stations.length - 1];
                                 if(station.checkpoints && Array.isArray(station.checkpoints)){
-                                    const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
+                                    /*const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
                                         const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
                                         const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
                                         return progA - progB;
-                                    });
-                                    sortedCheckpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
+                                    });*/
+                                    //sortedCheckpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
+                                    station.checkpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
                                 }
                                 coords.push([branch.stations[0].lng, branch.stations[0].lat]);
                             }
@@ -665,80 +667,7 @@
                         });
                     });
 
-                    // Segment midpoint buttons for inserting checkpoints
-                    //test: Disable, see if performance increases
-
-                    /*
-                    const addSegBtn = (lat1, lng1, lat2, lng2, li, bi, si, insertIdx, initProg) => {
-                        const midLat = (lat1 + lat2) / 2;
-                        const midLng = (lng1 + lng2) / 2;
-                        const btnEl = document.createElement('button');
-                        btnEl.className = 'segment-midpoint-btn';
-                        btnEl.textContent = '+';
-                        btnEl.title = 'Insert checkpoint here';
-                        btnEl.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            this.insertCheckpointAt(li, bi, si, insertIdx, midLat, midLng, initProg);
-                        });
-                        const segMarker = new maplibregl.Marker({ element: btnEl, anchor: 'center' })
-                            .setLngLat([midLng, midLat])
-                            .addTo(this.map);
-                        this.segmentButtons.push(segMarker);
-                    };
-
-                    lineRenderOrder.forEach(({ line, lineIndex }) => {
-                        if (line.line_visible === false) return;
-                        line.branches.forEach((branch, branchIndex) => {
-                            const stations = branch.stations;
-                            if (!stations || stations.length < 2) return;
-                            const isCircular = branch.branch_type === 'circular';
-
-                            for (let s = 0; s < stations.length; s++) {
-                                const station = stations[s];
-                                const isLast = s === stations.length - 1;
-                                if (isLast && !isCircular) continue;
-
-                                const nextStation = isLast ? stations[0] : stations[s + 1];
-                                if (!station.lat || !station.lng || !nextStation.lat || !nextStation.lng) continue;
-
-                                const rawCps = (station.checkpoints && Array.isArray(station.checkpoints)) ? station.checkpoints : [];
-                                const sortedCpWithIdx = rawCps
-                                    .map((cp, idx) => ({ cp, originalIdx: idx }))
-                                    .sort((a, b) => (a.cp.progress || 0) - (b.cp.progress || 0));
-
-                                if (sortedCpWithIdx.length === 0) {
-                                    // station → nextStation (no checkpoints): insert into station s at index 0
-                                    addSegBtn(station.lat, station.lng, nextStation.lat, nextStation.lng,
-                                        lineIndex, branchIndex, s, 0, 0.5);
-                                } else {
-                                    // station → sorted_cp[0]: insert before sorted_cp[0] in raw array
-                                    const cp0 = sortedCpWithIdx[0];
-                                    if (cp0.cp.lat && cp0.cp.lng) {
-                                        addSegBtn(station.lat, station.lng, cp0.cp.lat, cp0.cp.lng,
-                                            lineIndex, branchIndex, s, cp0.originalIdx,
-                                            (cp0.cp.progress || 0) / 2);
-                                    }
-                                    // sorted_cp[j] → sorted_cp[j+1]: insert after cpA in raw array
-                                    for (let j = 0; j < sortedCpWithIdx.length - 1; j++) {
-                                        const cpA = sortedCpWithIdx[j];
-                                        const cpB = sortedCpWithIdx[j + 1];
-                                        if (!cpA.cp.lat || !cpA.cp.lng || !cpB.cp.lat || !cpB.cp.lng) continue;
-                                        addSegBtn(cpA.cp.lat, cpA.cp.lng, cpB.cp.lat, cpB.cp.lng,
-                                            lineIndex, branchIndex, s, cpA.originalIdx + 1,
-                                            ((cpA.cp.progress || 0) + (cpB.cp.progress || 0)) / 2);
-                                    }
-                                    // sorted_cp[last] → nextStation: insert after cpLast in raw array
-                                    const cpLast = sortedCpWithIdx[sortedCpWithIdx.length - 1];
-                                    if (cpLast.cp.lat && cpLast.cp.lng) {
-                                        addSegBtn(cpLast.cp.lat, cpLast.cp.lng, nextStation.lat, nextStation.lng,
-                                            lineIndex, branchIndex, s, cpLast.originalIdx + 1,
-                                            ((cpLast.cp.progress || 0) + 1) / 2);
-                                    }
-                                }
-                            }
-                        });
-                    });
-                    */
+                    
                     // Only fit bounds if not in coordinate mode
                     if (allCoords.length > 0 && !this.coordinateMode && change_zoom === true) {
                         const lngs = allCoords.map(c => c[0]);
@@ -749,6 +678,54 @@
                         );
                     }
                 },
+
+                //fast version of update map. Only changes the highlight.
+                updateMap_highlight() {
+                    this.validateMapHighlight();
+                    
+                    if(this.highlight_marker){
+                       this.highlight_marker.remove();
+                    }
+
+                    if(!this.mapHighlight){
+                        return;
+                    }
+
+                    let lineIndex = this.mapHighlight.lineIndex;
+                    let branchIndex = this.mapHighlight.branchIndex;
+                    let stationIndex = this.mapHighlight.stationIndex;
+                    let marker_lat = 0;
+                    let marker_lng = 0;
+
+                    if(this.mapHighlight.type == "checkpoint"){
+                        let checkpointIndex = this.mapHighlight.checkpointIndex;
+                        marker_lat = this.lines[lineIndex].branches[branchIndex].stations[stationIndex].checkpoints[checkpointIndex].lat;
+                        marker_lng = this.lines[lineIndex].branches[branchIndex].stations[stationIndex].checkpoints[checkpointIndex].lng;
+                    }else if(this.mapHighlight.type == "station"){
+                        marker_lat = this.lines[lineIndex].branches[branchIndex].stations[stationIndex].lat;
+                        marker_lng = this.lines[lineIndex].branches[branchIndex].stations[stationIndex].lng;
+                    }
+
+                    if (!this.map.isStyleLoaded()) {
+                        this.map.once('load', () => this.updateMap(change_zoom));
+                        return;
+                    }
+
+                    const size = 32;
+                    const el = document.createElement('div');
+                    el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background-color:${this.lines[lineIndex].line_color};border:${'5px solid #ffcc00'};opacity:${'1'};cursor:pointer;box-sizing:border-box;z-index:${this.lines[lineIndex].line_zindex || 0};`;
+                    el.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.showStationOnMap(lineIndex, branchIndex, stationIndex);
+                    });
+                    const popup = new maplibregl.Popup({ offset: 12 }).setHTML(`<b>${this.lines[lineIndex].branches[branchIndex].stations[stationIndex].name || 'Unnamed'}</b><br>${this.lines[lineIndex].name}`);
+                    this.highlight_marker = new maplibregl.Marker({ element: el })
+                        .setLngLat([marker_lng, marker_lat])
+                        .setPopup(popup)
+                        .addTo(this.map);
+                },
+                
+
                 loadSampleData() {
                     const sampleData = [
                         {
@@ -1051,7 +1028,7 @@
                         branchIndex,
                         stationIndex
                     };
-                    this.updateMap(false);
+                    this.updateMap_highlight();
                     //this.scrollToMapHighlight();
                 },
                 showCheckpointOnMap(lineIndex, branchIndex, stationIndex, checkpointIndex) {
@@ -1064,7 +1041,7 @@
                         stationIndex,
                         checkpointIndex
                     };
-                    this.updateMap(false);
+                    this.updateMap_highlight();
                     //this.scrollToMapHighlight();
                 },
                 isStationMapHighlight(lineIndex, branchIndex, stationIndex) {
