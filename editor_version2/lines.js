@@ -307,8 +307,10 @@ export function moveCheckpointsUp(vm, lineIndex, branchIndex, stationIndex) {
 
     const h = vm.mapHighlight;
     let endIndex;
+    let is_highlighted = false;
     if (h && h.type === 'checkpoint' && h.lineIndex === lineIndex && h.branchIndex === branchIndex && h.stationIndex === stationIndex) {
         endIndex = h.checkpointIndex;
+        is_highlighted = true;
     } else {
         endIndex = station.checkpoints.length - 1;
     }
@@ -316,6 +318,12 @@ export function moveCheckpointsUp(vm, lineIndex, branchIndex, stationIndex) {
     const toMove = station.checkpoints.splice(0, endIndex + 1);
     prevStation.checkpoints.push(...toMove);
     calculate_allprogresses(vm, lineIndex, branchIndex);
+
+    //change highlighted point to the station itself.
+    if(is_highlighted == true){
+        h.type = 'station';
+        vm.updateMap_highlight();
+    }
 }
 
 export function moveCheckpointsDown(vm, lineIndex, branchIndex, stationIndex) {
@@ -329,8 +337,10 @@ export function moveCheckpointsDown(vm, lineIndex, branchIndex, stationIndex) {
 
     const h = vm.mapHighlight;
     let startIndex;
+    let is_highlighted = false;
     if (h && h.type === 'checkpoint' && h.lineIndex === lineIndex && h.branchIndex === branchIndex && h.stationIndex === stationIndex) {
         startIndex = h.checkpointIndex;
+        is_highlighted = true;
     } else {
         startIndex = 0;
     }
@@ -338,6 +348,13 @@ export function moveCheckpointsDown(vm, lineIndex, branchIndex, stationIndex) {
     const toMove = station.checkpoints.splice(startIndex);
     nextStation.checkpoints.unshift(...toMove);
     calculate_allprogresses(vm, lineIndex, branchIndex);
+
+    //change highlighted point to the station itself.
+    if(is_highlighted == true){
+        h.type = 'station';
+        h.stationIndex = h.stationIndex + 1;
+        vm.updateMap_highlight();
+    }
 }
 
 

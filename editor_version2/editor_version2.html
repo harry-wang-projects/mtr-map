@@ -1232,6 +1232,18 @@
                         let branchindex_to_use = this.getActiveBranchTab(lineindex_to_use);
                         this.addTimetableEntry(lineindex_to_use, branchindex_to_use);
                     }
+
+                    //checkpoint moving. Kinda niche. F = up, V = down.
+                    if(event.key === 'f' || event.key == 'F'){
+                        if (!this.mapHighlight) return;
+                        const h = this.mapHighlight;
+                        moveCheckpointsUp(this, h.lineIndex, h.branchIndex, h.stationIndex);
+                    }
+                    if(event.key === 'v' || event.key == 'V'){
+                        if (!this.mapHighlight) return;
+                        const h = this.mapHighlight;
+                        moveCheckpointsDown(this, h.lineIndex, h.branchIndex, h.stationIndex);
+                    }
                 },
                 onBranchTypeChange(lineIndex, branchIndex) {
                     const branch = this.lines[lineIndex].branches[branchIndex];
