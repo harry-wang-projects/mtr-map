@@ -124,7 +124,9 @@ function reset_animation(){
   stopPlayback();
   clearPlaybackMarkers();
   if(typeof animationTrajectories !== 'undefined') animationTrajectories = [];
+  //FRAMEUPDATE: added frames version
   if(typeof currentPlaybackTime !== 'undefined') currentPlaybackTime = 0;
+  if(typeof currentPlaybackTime_frames !== 'undefined') currentPlaybackTime_frames = 0;
   if(typeof tick !== 'undefined') tick = 0;
 }
 
@@ -318,6 +320,7 @@ let animationPlaybackDurationSeconds = 0; // User-requested playback length (gen
 let isGenerating = false;
 let isPlaying = false;
 let currentPlaybackTime = 0;
+let currentPlaybackTime_frames = 0;
 let playbackMarkers = []; // Markers for playback mode
 
 let tick = 0;               // global time in seconds (used during generation)
@@ -459,7 +462,7 @@ function playAnimationFrame(time){
       if(lines[i].branches[b].branch_type == "unidirectional"){
         const time_value = elapsedFrames;
         //Once a minute: Update the queue.
-        if(elapsedFrames % 60 == 0){
+        if(elapsedFrames % (60 * animation_fps) == 0){
           //step 1: Add new trains.
           let add_finished = false;
           while (true){
@@ -469,7 +472,8 @@ function playAnimationFrame(time){
             }
 
             //break out if this train isn't active yet
-            if(elapsedFrames < lines[i].branches[b].spawn_times[lines[i].branches[b].head]){
+            //FRAMEUPDATE: spawn_times doesn't change. Hence, animationfps gets multiplied.
+            if(elapsedFrames < lines[i].branches[b].spawn_times[lines[i].branches[b].head] * animation_fps){
               break;
             }
             //add the marker
@@ -491,7 +495,8 @@ function playAnimationFrame(time){
               break;
             }
             //break out if this train is still active
-            if(elapsedFrames - (lines[i].branches[b].spawn_times[lines[i].branches[b].tail] + lines[i].branches[b].travel_time) < 0){
+            //FRAMEUPDATE: spawn_times doesn't change. Hence, animationfps gets multiplied.
+            if(elapsedFrames - (lines[i].branches[b].spawn_times[lines[i].branches[b].tail] * animation_fps + lines[i].branches[b].travel_time_frames) < 0){
               break;
             }
 
@@ -508,7 +513,7 @@ function playAnimationFrame(time){
         //display the trains in the queue.
         for(let k = lines[i].branches[b].tail; k < lines[i].branches[b].head; k++){
           //if it doesn't get deleted yet, then wait more.
-          //FRAMEUDPATE: Multiplied spawn_times by the animation_fps
+          //FRAMEUDPATE: Multiplied spawn_times by the animation_fps. Hence, timeProgress represents the frame.
           let timeProgress = elapsedFrames - lines[i].branches[b].spawn_times[k] * animation_fps;
           if(timeProgress >= journeyTimeFrames - 1){
             timeProgress = journeyTimeFrames - 1;
@@ -643,20 +648,16 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
   currentPlaybackSpeed = playbackSpeed;
   if(resetTime){
     currentPlaybackTime = 0;
+    currentPlayBackTime_frames = 0;
   }
   
   // Play at specified speed (frames per second)
   const frameInterval = 1000 / playbackSpeed; // milliseconds between frames
   
   playbackIntervalId = setInterval(() => {
-    /*
-    if(currentPlaybackTime >= animationPlaybackDurationSeconds){
-      stopPlayback();
-      return;
-    }
-    */
-    playAnimationFrame(currentPlaybackTime + spawn_completed_time);
-    currentPlaybackTime++;
+    
+    playAnimationFrame(currentPlaybackTime_frames + spawn_completed_time);
+    currentPlaybackTime_frames++;
   }, frameInterval);
 }
 
@@ -675,14 +676,9 @@ function updatePlaybackSpeed(newSpeed){
   const frameInterval = 1000 / newSpeed; // milliseconds between frames
   
   playbackIntervalId = setInterval(() => {
-    /*
-    if(currentPlaybackTime >= animationPlaybackDurationSeconds){
-      stopPlayback();
-      return;
-    }
-    */
-    playAnimationFrame(currentPlaybackTime + spawn_completed_time);
-    currentPlaybackTime++;
+    
+    playAnimationFrame(currentPlaybackTime_frames + spawn_completed_time);
+    currentPlaybackTime_frames++;
   }, frameInterval);
 }
 
@@ -704,11 +700,6 @@ function pausePlayback(){
 
 function resumePlayback(playbackSpeed = 1){
   if(isPlaying) return;
-  /*
-  if(currentPlaybackTime >= animationPlaybackDurationSeconds){
-    currentPlaybackTime = 0;
-  }
-  */
   startPlayback(playbackSpeed, false); // Don't reset time when resuming
 }
 
@@ -761,8 +752,12 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
         if(lines[i].branches[j].branch_type != "unidirectional"){
           continue;
         }
+        //FRAMEUPDATE: Now, travel_time is in frames.
         let travel_time = animationTrajectories[i][j].trajectory.length;
         lines[i].branches[j].travel_time = travel_time;
+        //animation_fps was already multiplied
+        let travel_time_frames = animationTrajectories[i][j].trajectory.length;
+        lines[i].branches[j].travel_time_frames = travel_time_frames;
         for(let k = 0; k < lines[i].branches[j].spawn_times.length; k++){
           lines[i].branches[j].events[Math.floor((lines[i].branches[j].spawn_times[k] + travel_time)/60)] = 1;
         }
@@ -798,7 +793,7 @@ document.getElementById('pauseBtn')?.addEventListener('click', () => {
 document.getElementById('stopBtn')?.addEventListener('click', () => {
   stopPlayback();
   clearPlaybackMarkers();
-  currentPlaybackTime = 0;
+  currentPlaybackTime_frames = 0;
   document.getElementById("tickdisplay").textContent = 'Stopped';
   const mapOverlay = document.getElementById("mapTimeOverlay");
   if(mapOverlay) mapOverlay.textContent = '';
@@ -914,7 +909,7 @@ document.getElementById('setTimeBtn')?.addEventListener('click', () => {
     alert('Invalid time values.');
     return;
   }
-  currentPlaybackTime = h * 3600 + m * 60 + s;
+  currentPlaybackTime_frames = (h * 3600 + m * 60 + s) * animation_fps;
 
   //for scheduled_frequencies, reset the queue. We can just reset the head and tail back to 0 and redo it.
   //also, delete all trains.
