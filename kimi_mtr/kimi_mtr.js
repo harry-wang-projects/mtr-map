@@ -263,7 +263,8 @@ const map = new maplibregl.Map({
     sources: {
       osm: {
         type: 'raster',
-        tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        //tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        tiles: ["https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg"],
         tileSize: 256,
         attribution: '© OSM'
       }
