@@ -398,6 +398,7 @@
                 },
                 lines: {
                     handler() {
+                        //could be a reason performance is bad, but not sure
                         this.updateMap(false);
                     },
                     deep: true
@@ -635,15 +636,20 @@
                                             const cpSize = cpHl ? 28 : 8;
                                             const cpEl = document.createElement('div');
                                             cpEl.style.cssText = `width:${cpSize}px;height:${cpSize}px;border-radius:50%;background-color:#ffffff;border:${cpHl ? '5px solid #ffcc00' : `2px solid ${line.line_color}`};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
+                                            //removing clicking and stuff to improve iperformance
+                                            /*
                                             cpEl.addEventListener('click', (e) => {
                                                 e.stopPropagation();
                                                 this.showCheckpointOnMap(lineIndex, branchIndex, stationIndex, checkpointIndex);
                                             });
+                                            */
+                                            /*
                                             const cpPopup = new maplibregl.Popup({ offset: 12 })
                                                 .setHTML(`<b>Checkpoint ${checkpointIndex + 1}</b><br>${station.name || 'Unnamed'}<br>${line.name}`);
+                                            */
                                             const cpMarker = new maplibregl.Marker({ element: cpEl })
                                                 .setLngLat([checkpoint.lng, checkpoint.lat])
-                                                .setPopup(cpPopup)
+                                                /*.setPopup(cpPopup)*/
                                                 .addTo(this.map);
                                             this.markers.push(cpMarker);
                                         }
@@ -1221,8 +1227,15 @@
                     //calculate everything
                     if(event.key === 'k' || event.key === 'K') {
                         this.calculate_all();
+                        this.updateMap(false);
+
                     }
-                    //calculate everything
+                    //update map
+                    if(event.key === 'u' || event.key === 'U') {
+                        this.updateMap(false);
+
+                    }
+                    //export JSON
                     if(event.key === 'l' || event.key === 'L') {
                         this.exportJSON();
                     }
