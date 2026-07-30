@@ -30,19 +30,22 @@ class Train {
     //If the direction = -1, then it is the larger numbered station.
     //If it is stopped, then it is the current station.
     this.idx  = direction===1 ? 0 : stations.length-1; // start at terminus
-    this.segmentProgress = 0; // seconds into current leg
+    //FRAMEUPDATE: segmentProgress now records in frames.
+    //this is different from the segmentProgress in the checkpoints.
+    this.legProgress = 0; // seconds into current leg
     //whether the train is moving/dwelling. It should start moving.
     this.movingstate = 1;
     //start by dwelling if it's a unidirectional train.
     if(this.type == 'unidirectional'){
       this.movingstate = 0;
     }
+    //FRAMEUPDATE: dwellProgress now records in frames.
     this.dwellProgress= 0; //seconds into dwell
     //when it last refreshed
-    this.lastrefresh = 0;
+    //this.lastrefresh = 0;
 
     //how many stations it went to. Used for debugging.
-    this.visitedstations = 0;
+    //this.visitedstations = 0;
     
     
   }
@@ -82,7 +85,7 @@ class Train {
     }
     
     // Calculate progress using accel_func (between stations, not checkpoints)
-    const time_progress = this.segmentProgress / runTime;
+    const time_progress = this.legProgress / (runTime * animation_fps);
     let prog_floor = Math.floor(time_progress * 100);
     let prog_ceil = Math.min(Math.floor(time_progress * 100) + 1, accel_func.length - 1);
     prog_floor = Math.max(0, Math.min(prog_floor, accel_func.length - 1));
@@ -175,17 +178,18 @@ class Train {
     let dwell = 0;
     //when direction = 1, it is idx. When direction = -1, it is idx - 1.
     //circular line change for stepping.
+    //FRAMEUPDATE: leg and dwell are in frames, not seconds.
     if(this.type == "circular" && this.dir != 1 && this.idx == 0){
-      leg = stations[stations.length - 1].run;
-      dwell = stations[this.idx].dwell; // station ahead when moving
+      leg = stations[stations.length - 1].run * animation_fps;
+      dwell = stations[this.idx].dwell * animation_fps; // station ahead when moving
     }else{
       //when direction = 1, it is idx. When direction = -1, it is idx - 1.
-      leg = stations[this.dir===1?this.idx:(this.idx - 1)].run;
-      dwell = stations[(this.dir===1?this.idx:this.idx)].dwell; // station ahead when moving
+      leg = stations[this.dir===1?this.idx:(this.idx - 1)].run * animation_fps;
+      dwell = stations[(this.dir===1?this.idx:this.idx)].dwell * animation_fps; // station ahead when moving
     }
     if(this.movingstate == 1){
-      if (this.segmentProgress < leg){               // still running
-        this.segmentProgress+=TICK_LENGTH;
+      if (this.legProgress < leg){               // still running
+        this.legProgress+=TICK_LENGTH;
       } else {                                       // arrived
         //if (tick - this.arrivalTick < dwell) return; // dwelling
 
@@ -221,21 +225,21 @@ class Train {
           }
         }
         this.movingstate = 0;
-        this.dwellProgress = this.segmentProgress - leg + 1;
-        this.segmentProgress = 0;
+        this.dwellProgress = this.legProgress - leg + 1;
+        this.legProgress = 0;
       }
     }else{
       //dwelling
       if(this.dwellProgress < dwell){
         this.dwellProgress+=TICK_LENGTH;
       }else{
-        this.visitedstations++;
+        //this.visitedstations++;
         this.movingstate = 1;
 
         if(this.returned == true){
           this.finishedtraverse = true;
         }
-        this.segmentProgress = this.dwellProgress - dwell + 1;
+        this.legProgress = this.dwellProgress - dwell + 1;
       }
     }
   }
@@ -320,11 +324,12 @@ function generateAnimation(onProgress = null){
       animationTrajectories = new Array(lines.length);
 
       // Total work for progress reporting: sum of per-branch trajectory lengths.
+      //FRAMEUPDATE: Changed to the value multiplied by the fps, though this probably isn't important
       let totalSteps = 0;
       for(let i = 0; i < lines.length; i++){
         const line = lines[i];
         for(let b = 0; b < line.branches.length; b++){
-          totalSteps += computeBranchJourneySeconds(line.branches[b]);
+          totalSteps += computeBranchJourneySeconds(line.branches[b]) * animation_fps;
         }
       }
 
@@ -336,9 +341,15 @@ function generateAnimation(onProgress = null){
 
         for(let b = 0; b < line.branches.length; b++){
           const branch = line.branches[b];
+          //FRAMEUPDATE: add variables using frames
+          //original variables
           let journeyTimeSeconds = computeBranchJourneySeconds(branch);
           const offset_time = branch.offset_time || 0;
           const spawnEvery = branch.SPAWN_EVERY || 0;
+          //frameupdate variables
+          let journeyTimeFrames = journeyTimeSeconds * animation_fps;
+          const offset_frames = branch.offset_time * animation_fps;
+          const spawnEvery_frames = branch.SPAWN_EVERY * animation_fps;
 
           // Create a single train trajectory for this branch.
           const line_type = (branch.hasOwnProperty("branch_type")) ? branch.branch_type : "normal";
@@ -364,20 +375,20 @@ function generateAnimation(onProgress = null){
             }
           }
           trajectory.pop();
-          journeyTimeSeconds = trajectory.length;
+          journeyTimeFrames = trajectory.length;
           console.log("simulated:");
-          console.log(journeyTimeSeconds);
+          console.log(journeyTimeFrames);
           console.log("calculated:");
           console.log(computeBranchJourneySeconds(branch));
 
           // Spawn offsets: create "virtual trains" at spawn frequency intervals.
           // We initialize their timeProgress values at the global playback start (spawn_completed_time).
           // Count matches: trains at progress k*SPAWN_EVERY for k such that k*SPAWN_EVERY < journeyTimeSeconds.
-          const count = spawnEvery > 0 ? Math.floor((journeyTimeSeconds - 1) / spawnEvery) : 1;
+          const count = spawnEvery_frames > 0 ? Math.floor((journeyTimeFrames - 1) / spawnEvery_frames) : 1;
           const initialProgresses = new Array(count);
           for(let k = 0; k < count; k++){
-            const spawnTime = offset_time + k * spawnEvery;
-            initialProgresses[k] = mod(spawn_completed_time - spawnTime, journeyTimeSeconds);
+            const spawnTime_frames = offset_frames + k * spawnEvery_frames;
+            initialProgresses[k] = mod(spawn_completed_time - spawnTime_frames, journeyTimeSeconds);
           }
 
           animationTrajectories[i][b] = {
