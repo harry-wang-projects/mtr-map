@@ -99,6 +99,25 @@ let lines = [
   },
 ];
 
+//frames per (simulated) second toggling
+//this is the value of the fps that is being toggled
+let toggle_fps = 1;
+//this is the value of the fps of the current animation. When generate_animation gets pressed, this should be set to toggle_fps.
+let animation_fps = 1;
+
+const select = document.getElementById('frame_select');
+const display = document.getElementById('fpsdisplay');
+
+select.addEventListener('change', function() {
+  toggle_fps = parseInt(this.value, 10);
+  display.textContent = "Number of frames per second inside the simulation: " + toggle_fps.toString();
+  console.log('Updated to:', myInteger);
+});
+
+
+
+
+
 /* =========  END CONFIG  ================================================ */
 function reset_animation(){
   // Stop video/playback and clear playback state
@@ -533,6 +552,7 @@ function playAnimationFrame(time){
 }
 
 let playbackIntervalId = null;
+//in frames per second (real seconds)
 let currentPlaybackSpeed = 1;
 
 function startPlayback(playbackSpeed = 1, resetTime = true){
@@ -704,6 +724,10 @@ document.getElementById('generateBtn')?.addEventListener('click', async () => {
   generateBtn.disabled = true;
   generateBtn.textContent = 'Generating...';
   statusDiv.textContent = 'Starting generation...';
+
+  //set the frames per simulated second
+  animation_fps = toggle_fps;
+  //alert(toggle_fps);
   
   //turn all travel times into integers.
   remove_decimals();
