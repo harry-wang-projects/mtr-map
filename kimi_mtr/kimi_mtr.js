@@ -432,18 +432,12 @@ function playAnimationFrame(time){
     return;
   }
 
-  const elapsedSeconds = time - spawn_completed_time;
-  if(elapsedSeconds < 0) return;
-  /*
-  if(elapsedSeconds >= animationPlaybackDurationSeconds){
-    stopPlayback();
-    return;
-  }
-  */
-
-  // Clear existing markers
-  //clearPlaybackMarkers();
-
+  //FRAMEUPDATE: Changed elapsedSeconds to elapsedFrames
+  //const elapsedSeconds = time - spawn_completed_time;
+  //if(elapsedSeconds < 0) return;
+  const elapsedFrames = time - spawn_completed_time;
+  if(elapsedFrames < 0) return;
+  
   // Create markers for all virtual trains at this time.
   // Each branch has a trajectory array indexed by `timeProgress` (seconds).
   // A train's `timeProgress` advances by 1 per frame and wraps with modulo.
@@ -457,14 +451,15 @@ function playAnimationFrame(time){
       const branchMeta = lineMeta[b];
       if(!branchMeta) continue;
 
-      const { trajectory, journeyTimeSeconds, initialProgresses } = branchMeta;
-      if(!trajectory || journeyTimeSeconds <= 0) continue;
+      //FRAMEUPDATE: Changed variable names from seconds to frames
+      const { trajectory, journeyTimeFrames, initialProgresses } = branchMeta;
+      if(!trajectory || journeyTimeFrames <= 0) continue;
 
 
       if(lines[i].branches[b].branch_type == "unidirectional"){
-        const time_value = elapsedSeconds;
+        const time_value = elapsedFrames;
         //Once a minute: Update the queue.
-        if(elapsedSeconds % 60 == 0){
+        if(elapsedFrames % 60 == 0){
           //step 1: Add new trains.
           let add_finished = false;
           while (true){
@@ -474,7 +469,7 @@ function playAnimationFrame(time){
             }
 
             //break out if this train isn't active yet
-            if(elapsedSeconds < lines[i].branches[b].spawn_times[lines[i].branches[b].head]){
+            if(elapsedFrames < lines[i].branches[b].spawn_times[lines[i].branches[b].head]){
               break;
             }
             //add the marker
@@ -496,7 +491,7 @@ function playAnimationFrame(time){
               break;
             }
             //break out if this train is still active
-            if(elapsedSeconds - (lines[i].branches[b].spawn_times[lines[i].branches[b].tail] + lines[i].branches[b].travel_time) < 0){
+            if(elapsedFrames - (lines[i].branches[b].spawn_times[lines[i].branches[b].tail] + lines[i].branches[b].travel_time) < 0){
               break;
             }
 
@@ -513,9 +508,10 @@ function playAnimationFrame(time){
         //display the trains in the queue.
         for(let k = lines[i].branches[b].tail; k < lines[i].branches[b].head; k++){
           //if it doesn't get deleted yet, then wait more.
-          let timeProgress = elapsedSeconds - lines[i].branches[b].spawn_times[k];
-          if(timeProgress >= journeyTimeSeconds - 1){
-            timeProgress = journeyTimeSeconds - 1;
+          //FRAMEUDPATE: Multiplied spawn_times by the animation_fps
+          let timeProgress = elapsedFrames - lines[i].branches[b].spawn_times[k] * animation_fps;
+          if(timeProgress >= journeyTimeFrames - 1){
+            timeProgress = journeyTimeFrames - 1;
           }
           const pos = trajectory[timeProgress];
           if(!pos) continue;
@@ -525,8 +521,13 @@ function playAnimationFrame(time){
         }
       }else{
         for(let k = 0; k < initialProgresses.length; k++){
-          const timeProgress = (initialProgresses[k] + elapsedSeconds) % journeyTimeSeconds;
+          const timeProgress = (initialProgresses[k] + elapsedFrames) % journeyTimeFrames;
+          console.log("__timeprogress:");
+          console.log(timeProgress)
+          console.log("__len:");
+          console.log(trajectory.length);
           const pos = trajectory[timeProgress];
+          console.log(branchMeta.markers.length);
           if(!pos) continue;
 
           /*
@@ -545,8 +546,8 @@ function playAnimationFrame(time){
     }
   }
 
-  const timeStr = secondsToTimeStr(elapsedSeconds);
-  document.getElementById("tickdisplay").textContent = `Playback: ${elapsedSeconds}s | ${timeStr}`;
+  const timeStr = secondsToTimeStr(Math.round(elapsedFrames / animation_fps));
+  document.getElementById("tickdisplay").textContent = `Playback: ${elapsedFrames} frames ${elapsedFrames / animation_fps}s | ${timeStr}`;
   const mapOverlay = document.getElementById("mapTimeOverlay");
   if(mapOverlay) mapOverlay.textContent = timeStr;
 }
@@ -587,8 +588,8 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
       const branchMeta = lineMeta[b];
       if(!branchMeta) continue;
 
-      const { trajectory, journeyTimeSeconds, initialProgresses } = branchMeta;
-      if(!trajectory || journeyTimeSeconds <= 0) continue;
+      const { trajectory, journeyTimeFrames, initialProgresses } = branchMeta;
+      if(!trajectory || journeyTimeFrames <= 0) continue;
 
       animationTrajectories[i][b].markers = [];
   
@@ -618,8 +619,10 @@ function startPlayback(playbackSpeed = 1, resetTime = true){
 
       }else{
         //normal or circular lines. Just markers that don't change.
+        console.log("><initialprogresslen:");
         for(let k = 0; k < initialProgresses.length; k++){
-          const timeProgress = (initialProgresses[k]) %   journeyTimeSeconds;
+          const timeProgress = (initialProgresses[k]) %   journeyTimeFrames;
+          console.log(timeProgress);
           const pos = trajectory[timeProgress];
           if(!pos) continue;
 

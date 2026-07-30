@@ -376,10 +376,10 @@ function generateAnimation(onProgress = null){
           }
           trajectory.pop();
           journeyTimeFrames = trajectory.length;
-          console.log("simulated:");
-          console.log(journeyTimeFrames);
-          console.log("calculated:");
-          console.log(computeBranchJourneySeconds(branch));
+          //console.log("simulated:");
+          //console.log(journeyTimeFrames);
+          //console.log("calculated:");
+          //console.log(computeBranchJourneySeconds(branch));
 
           // Spawn offsets: create "virtual trains" at spawn frequency intervals.
           // We initialize their timeProgress values at the global playback start (spawn_completed_time).
@@ -388,14 +388,25 @@ function generateAnimation(onProgress = null){
           const initialProgresses = new Array(count);
           for(let k = 0; k < count; k++){
             const spawnTime_frames = offset_frames + k * spawnEvery_frames;
-            initialProgresses[k] = mod(spawn_completed_time - spawnTime_frames, journeyTimeSeconds);
+            initialProgresses[k] = mod(spawn_completed_time - spawnTime_frames, journeyTimeFrames);
           }
 
+          //FRAMEUPDATE: Changed journeyTimeSeconds to journeyTimeFrames
           animationTrajectories[i][b] = {
             trajectory,
-            journeyTimeSeconds,
+            journeyTimeFrames,
             initialProgresses
           };
+        }
+      }
+
+      //print things out
+      for(let i = 0; i < lines.length; i++){
+        for(let b = 0; b < lines[i].branches.length; b++){
+          console.log("!trajectory length:");
+          console.log(animationTrajectories[i][b].trajectory.length);
+          console.log("!brnachjourney:");
+          console.log(computeBranchJourneySeconds(lines[i].branches[b]));
         }
       }
 
