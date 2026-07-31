@@ -600,6 +600,7 @@
                             this.markers[lineIndex][branchIndex].push(marker);
                             stationCoords.push([station.lng, station.lat]);
                         }
+                        /*
                         if (station.checkpoints && Array.isArray(station.checkpoints)) {
                             station.checkpoints.forEach((checkpoint, checkpointIndex) => {
                                 if (checkpoint.lat && checkpoint.lng) {
@@ -615,6 +616,7 @@
                                 }
                             });
                         }
+                        */
                     });
 
                     if (coords.length > 1) {
@@ -882,7 +884,7 @@
                                     }
                                 }
                                 */
-                                updateMap(true);
+                                this.updateMap(true);
                             } catch (error) {
                                 alert('Invalid JSON file');
                             }
@@ -944,7 +946,7 @@
                                     }
                                     this.lines.push(parsed[i]);
                                 }
-                                updateMap(false);
+                                this.updateMap(false);
                             } catch (error) {
                                 alert('Invalid JSON file');
                             }
@@ -1312,7 +1314,7 @@
                                     if (!this.lines[i].hasOwnProperty('line_visible')) this.lines[i].line_visible = true;
                                     if (!this.lines[i].hasOwnProperty('line_zindex')) this.lines[i].line_zindex = 0;
                                 }
-                                updateMap(true);
+                                this.updateMap(true);
                                 return true;
                             } catch (error) {
                                 console.error('Error loading from cookie:', error);
