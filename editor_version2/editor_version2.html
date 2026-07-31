@@ -680,7 +680,7 @@
                         const lats = allCoords.map(c => c[1]);
                         this.map.fitBounds(
                             [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
-                            { padding: 40 }
+                            { padding: 40, linear: true }
                         );
                     }
                 },
@@ -911,6 +911,7 @@
                                 }
 
                                 //add line type to branches
+                                /*
                                 for(let i = 0; i < parsed.length; i++){
                                     for(let j = 0; j < parsed[i].branches.length; j++){
                                         if(!parsed[i].branches[j].hasOwnProperty('branch_type')){
@@ -944,6 +945,11 @@
                                         }
                                       }
                                     }
+                                    this.lines.push(parsed[i]);
+                                }
+                                */
+                                lines_init(parsed);
+                                for(let i = 0; i < parsed.length; i++){
                                     this.lines.push(parsed[i]);
                                 }
                                 this.updateMap(false);
@@ -1289,6 +1295,7 @@
                     if (savedData) {
                         try {
                             this.lines = JSON.parse(savedData);
+                            /*
                                 for (let i = 0; i < this.lines.length; i++) {
                                     for (let j = 0; j < this.lines[i].branches.length; j++) {
                                         if (!this.lines[i].branches[j].hasOwnProperty('branch_type')) {
@@ -1314,13 +1321,15 @@
                                     if (!this.lines[i].hasOwnProperty('line_visible')) this.lines[i].line_visible = true;
                                     if (!this.lines[i].hasOwnProperty('line_zindex')) this.lines[i].line_zindex = 0;
                                 }
-                                this.updateMap(true);
-                                return true;
-                            } catch (error) {
-                                console.error('Error loading from cookie:', error);
-                                return false;
-                            }
+                            */
+                            lines_init(this.lines);
+                            this.updateMap(true);
+                            return true;
+                        } catch (error) {
+                            console.error('Error loading from cookie:', error);
+                            return false;
                         }
+                    }
                     return false;
                 }
             }
