@@ -139,7 +139,7 @@ export function deleteBranch(vm, lineIndex, branchIndex) {
 }
 
 export function updateicon(vm, lineIndex) {
-    vm.lines[lineIndex].icon = generate_train_icon_2(vm.lines[lineIndex].markertype, vm.lines[lineIndex].line_color, vm.lines[lineIndex].label, vm.lines[lineIndex].image);
+    vm.lines[lineIndex].icon = generate_train_icon_2(vm.lines[lineIndex].markertype, vm.lines[lineIndex].line_color, vm.lines[lineIndex].label, vm.lines[lineIndex].image, vm.lines[lineIndex].icon_size);
     console.log(vm.lines[lineIndex].icon);
 }
 
@@ -488,8 +488,11 @@ export function lines_init(lines){
                                     if(!lines[i].hasOwnProperty('acceleration')){
                                         lines[i].acceleration = 1.0;
                                     }
+                                    if(!lines[i].hasOwnProperty('icon_size')){
+                                        lines[i].icon_size = 30;
+                                    }
                                     //properties to set
-                                    lines[i].icon = generate_train_icon_2(lines[i].markertype, lines[i].line_color, lines[i].label, lines[i].image);
+                                    lines[i].icon = generate_train_icon_2(lines[i].markertype, lines[i].line_color, lines[i].label, lines[i].image, lines[i].icon_size);
                                     if (!lines[i].hasOwnProperty('line_visible')) lines[i].line_visible = true;
                                     if (!lines[i].hasOwnProperty('line_zindex')) lines[i].line_zindex = 0;
                                     for(let j = 0; j < lines[i].branches.length; j++){

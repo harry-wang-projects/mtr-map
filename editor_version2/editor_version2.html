@@ -91,10 +91,8 @@
                                 <select type="text" v-model="line.markertype">
                                     <option value="default">Default</option>
                                     <option value="hkmtr">hkmtr</option>
-                                    <option value="largehkmtr">largehkmtr</option>
                                     <option value="hklrt">hklrt</option>
                                     <option value="image">image</option>
-                                    <option value="largeimage">largeimage</option>
                                     <option value="bus">bus</option>
                                 </select>
                             </div>
@@ -115,6 +113,10 @@
                             <div class="parameter-group">
                                 <label>Acceleration:</label>
                                 <input type="number" v-model="line.acceleration">
+                            </div>
+                            <div class="parameter-group">
+                                <label>Icon size:</label>
+                                <input type="number" v-model="line.icon_size">
                             </div>
                         </div>
                         <button @click="addBranch(lineIndex)" class="add">Add Branch</button>
@@ -830,7 +832,7 @@
                     this.lines = sampleData;
                     //show icons
                     for(let i = 0; i < this.lines.length; i++){
-                        this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image);
+                        this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image, this.lines[i].icon_size);
                         if (!this.lines[i].hasOwnProperty('line_visible')) this.lines[i].line_visible = true;
                         if (!this.lines[i].hasOwnProperty('line_zindex')) this.lines[i].line_zindex = 0;
                     }
@@ -872,7 +874,7 @@
                                         this.lines[i].acceleration = 1.0;
                                     }
                                     //properties to set
-                                    this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image);
+                                    this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image, this.lines[i].icon_size);
                                     if (!this.lines[i].hasOwnProperty('line_visible')) this.lines[i].line_visible = true;
                                     if (!this.lines[i].hasOwnProperty('line_zindex')) this.lines[i].line_zindex = 0;
                                     for(let j = 0; j < this.lines[i].branches.length; j++){
@@ -935,7 +937,7 @@
                                         parsed[i].acceleration = 1.0;
                                     }
                                     //properties to set
-                                    parsed[i].icon = generate_train_icon_2(parsed[i].markertype, parsed[i].line_color, parsed[i].label, parsed[i].image);
+                                    parsed[i].icon = generate_train_icon_2(parsed[i].markertype, parsed[i].line_color, parsed[i].label, parsed[i].image, parsed[i].icon_size);
                                     if (!parsed[i].hasOwnProperty('line_visible')) parsed[i].line_visible = true;
                                     if (!parsed[i].hasOwnProperty('line_zindex')) parsed[i].line_zindex = 0;
                                     for(let j = 0; j < parsed[i].branches.length; j++){
@@ -1317,7 +1319,7 @@
                                     if (!this.lines[i].hasOwnProperty('acceleration')) {
                                         this.lines[i].acceleration = 1.0;
                                     }
-                                    this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image);
+                                    this.lines[i].icon = generate_train_icon_2(this.lines[i].markertype, this.lines[i].line_color, this.lines[i].label, this.lines[i].image, this.lines[i].icon_size);
                                     if (!this.lines[i].hasOwnProperty('line_visible')) this.lines[i].line_visible = true;
                                     if (!this.lines[i].hasOwnProperty('line_zindex')) this.lines[i].line_zindex = 0;
                                 }
