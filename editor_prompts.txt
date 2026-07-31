@@ -58,3 +58,13 @@ For example, if a station has 10 checkpoints and checkpoint 3 is currently selec
 At the top of the page, add another import JSON button next to the current "import JSON" button. For this new button, instead of replacing the this.lines array with the data in the imported JSON, keep the data in this.lines and append the data from the imported JSON to this.lines. For example, if this.lines contains "line" objects A, B, and C and the imported JSON contains "line" objects D and E, then this.lines should contain "line" objects A, B, C, D, and E after the appending. 
 
 If the data isn't in the form of an array of "line" objects like in this.lines, then don't do anything.
+
+
+
+
+
+In @editor_version2/editor_version2.html, the object "this" currently stores all of the markers in this.markers and all of the polylines in this.polylines. The updateMap function updates the map by deleting all of the markers and polylines and then re-drawing them again.
+
+To improve performance, change it such that the markers and polylines are stored by line and branch, meaning that each branch of each line has its markers and polylines stored separately. Next, change updateMap such that it only re-draws the markers and polylines of the branch that changed. For example, in insertCheckpointAt, only update the markers and polylines of the branch that the checkpoint being inserted was in. Make the function require the line ID and branch ID as parameters. 
+
+Next, change the updateMap function in the places where it gets executed (i.e. add the line ID and branch ID parameters). In places where all of the branches are updated (e.g. when the key 'u' is pressed, it updates the entire map), run updateMap for all of the branches. 
