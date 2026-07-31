@@ -374,7 +374,11 @@ function getLineZIndex(lineCfg) {
 function createPlaybackMarker(lineCfg, pos) {
   const train_image = lineCfg.hasOwnProperty("image") ? lineCfg.image : "";
   const markertype = lineCfg.hasOwnProperty("markertype") ? lineCfg.markertype : "";
-  const el = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image);
+  let icon_size = 30;
+  if(lineCfg.hasOwnProperty("icon_size")){
+    icon_size = lineCfg.icon_size;
+  }
+  const el = generate_train_icon(markertype, lineCfg.line_color, lineCfg.label, train_image, icon_size);
   el.style.zIndex = String(getLineZIndex(lineCfg));
   const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
     .setLngLat([pos.lng, pos.lat])
@@ -383,19 +387,20 @@ function createPlaybackMarker(lineCfg, pos) {
   return marker;
 }
 
-function generate_train_icon(markertype, line_color, label, image){
+function generate_train_icon(markertype, line_color, label, image, icon_size){
   const el = document.createElement('div');
   if(markertype == "hklrt"){
-    el.style.cssText = `background:#fff;height:18px;width:32px;border-radius:9px;font-size:11px;text-align:center;line-height:18px;border:2px solid ${line_color};`;
+    //height 18 width 32 border radius 9 font size 11 line height 18
+    el.style.cssText = `background:#fff;height:${icon_size*0.57}px;width:${icon_size}px;border-radius:${icon_size*0.28}px;font-size:${icon_size*0.35}px;text-align:center;line-height:${icon_size*0.57}px;border:2px solid ${line_color};`;
     el.textContent = label;
   }else if(markertype == "hkmtr"){
-    el.style.cssText = `background:${line_color};overflow:hidden;width:24px;height:24px;border-radius:50%;border:4px solid ${line_color};`;
+    el.style.cssText = `background:${line_color};overflow:hidden;width:${icon_size}px;height:${icon_size}px;border-radius:50%;border:4px solid ${line_color};`;
     const img = document.createElement('img');
     img.src = image;
     img.style.cssText = 'height:100%;width:100%;object-fit:cover;display:block;';
     el.appendChild(img);
   }else if(markertype == "largehkmtr"){
-    el.style.cssText = `background:${line_color};overflow:hidden;width:36px;height:36px;border-radius:50%;border:4px solid ${line_color};`;
+    el.style.cssText = `background:${line_color};overflow:hidden;width:${icon_size}px;height:${icon_size}px;border-radius:50%;border:4px solid ${line_color};`;
     const img = document.createElement('img');
     img.src = image;
     img.style.cssText = 'height:100%;width:100%;object-fit:cover;display:block;';
@@ -403,21 +408,22 @@ function generate_train_icon(markertype, line_color, label, image){
   }else if(markertype == "image"){
     const img = document.createElement('img');
     img.src = image;
-    img.style.cssText = 'width:30px;height:30px;object-fit:contain;';
+    img.style.cssText = `width:${icon_size}px;height:${icon_size}px;object-fit:contain;`;
     img.className = 'my-image-icon';
     el.appendChild(img);
   }else if(markertype =="largeimage"){
     const img = document.createElement('img');
     img.src = image;
-    img.style.cssText = 'width:45px;height:45px;object-fit:contain;';
+    img.style.cssText = `width:${icon_size}px;height:${icon_size}px;object-fit:contain;`;
     img.className = 'my-image-icon';
     el.appendChild(img);
   }else if(markertype == "bus"){
+    //height 20 width 28 font size 13 border radius 4
     el.style.cssText = `background:${line_color};color:#ffffff;
-        height: 20px; width: 28px;border-radius:4px;font-size: 13px;text-align: center;`;
+        height: ${icon_size*0.72}px; width: ${icon_size}px;border-radius:${icon_size*0.14}px;font-size: ${icon_size*0.45}px;text-align: center;`;
     el.textContent = label;
   }else{
-    el.style.cssText = `background:${line_color};width:20px;height:20px;border-radius:50%;border:2px solid #fff;`;
+    el.style.cssText = `background:${line_color};width:${icon_size}px;height:${icon_size}px;border-radius:50%;border:2px solid #fff;`;
   }
   return el;
 }
