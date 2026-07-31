@@ -117,12 +117,13 @@ section.content-block p {
 }
 
 .maplibregl-popup-content a.popup-link {
-    display: inline-block;
+    display: block;
     margin-top: 6px;
     color: #14213d;
     font-weight: 600;
     text-decoration: none;
     border-bottom: 2px solid #14213d;
+    width: fit-content;
 }
 
 .maplibregl-popup-content a.popup-link:hover {

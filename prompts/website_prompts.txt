@@ -1,3 +1,5 @@
 Focus on the folder @website. Create a website with a home page and a map page. The home page should contain some space where I can write things (e.g. introduction, inspirations, information). The map page should contain a world map with labels on it. Each label should contain a link that one can click to go to a certain page. Make sure that there is a top bar allowing users to navigate in between pages.
 
 Focus on the folder @website/networks/hkmtr_offpeak. The file kimi_mtr.js uses an object called "lines". Make it read "lines" off the "mtr_offpeak_v9.json" file in the folder. 
+
+Focus on the folder @website. In the JS folder, look at map.js. Currently, each label can only have one link. Make it so that I can add multiple links (all with different titles) to each label. 

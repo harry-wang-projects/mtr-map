@@ -1,19 +1,20 @@
 // Cities to label on the world map. Add more entries here to add more labels.
+// Each city can have multiple links, each with its own title.
 const cities = [
     {
-        name: 'Hong Kong MTR',
+        name: 'Hong Kong',
         coords: [114.1694, 22.3193],
-        link: 'cities/hongkong.html',
-    },
-    {
-        name: 'Hong Kong Light Rail',
-        coords: [114.1294, 22.3593],
-        link: 'cities/hongkong.html',
+        links: [
+            { title: 'MTR', url: 'networks/hkmtr_offpeak/' },
+            { title: 'Light Rail', url: 'networks/hklrt_peak/' },
+        ],
     },
     {
         name: 'Chicago L',
         coords: [-87.6298, 41.8781],
-        link: 'cities/chicago.html',
+        links: [
+            { title: 'View page', url: 'networks/chicagol_offpeak' },
+        ],
     },
 ];
 
@@ -32,8 +33,12 @@ map.on('load', () => {
         el.className = 'city-marker';
         el.title = city.name;
 
+        const linksHtml = city.links
+            .map((link) => `<a class="popup-link" href="${link.url}">${link.title} &rarr;</a>`)
+            .join('');
+
         const popup = new maplibregl.Popup({ offset: 14 }).setHTML(
-            `<h3>${city.name}</h3><a class="popup-link" href="${city.link}">View page &rarr;</a>`
+            `<h3>${city.name}</h3>${linksHtml}`
         );
 
         new maplibregl.Marker({ element: el })
