@@ -882,6 +882,7 @@
                                     }
                                 }
                                 */
+                                updateMap(true);
                             } catch (error) {
                                 alert('Invalid JSON file');
                             }
@@ -943,6 +944,7 @@
                                     }
                                     this.lines.push(parsed[i]);
                                 }
+                                updateMap(false);
                             } catch (error) {
                                 alert('Invalid JSON file');
                             }
@@ -1310,6 +1312,7 @@
                                     if (!this.lines[i].hasOwnProperty('line_visible')) this.lines[i].line_visible = true;
                                     if (!this.lines[i].hasOwnProperty('line_zindex')) this.lines[i].line_zindex = 0;
                                 }
+                                updateMap(true);
                                 return true;
                             } catch (error) {
                                 console.error('Error loading from cookie:', error);
