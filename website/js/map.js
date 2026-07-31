@@ -1,19 +1,19 @@
 // Cities to label on the world map. Add more entries here to add more labels.
 const cities = [
     {
-        name: 'Hong Kong',
+        name: 'Hong Kong MTR',
         coords: [114.1694, 22.3193],
         link: 'cities/hongkong.html',
     },
     {
-        name: 'Chicago',
-        coords: [-87.6298, 41.8781],
-        link: 'cities/chicago.html',
+        name: 'Hong Kong Light Rail',
+        coords: [114.1294, 22.3593],
+        link: 'cities/hongkong.html',
     },
     {
-        name: 'Beijing',
-        coords: [116.4074, 39.9042],
-        link: 'cities/beijing.html',
+        name: 'Chicago L',
+        coords: [-87.6298, 41.8781],
+        link: 'cities/chicago.html',
     },
 ];
 
