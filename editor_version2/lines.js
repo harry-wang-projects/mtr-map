@@ -196,7 +196,7 @@ export function insertCheckpointAt(vm, lineIndex, branchIndex, stationIndex, ins
     station.checkpoints.splice(insertIndex, 0, newCheckpoint);
     vm.coordinateMode = { target: 'checkpoint', lineIndex, branchIndex, stationIndex, checkpointIndex: insertIndex };
     vm.mapHighlight = { type: 'checkpoint', lineIndex, branchIndex, stationIndex, checkpointIndex: insertIndex };
-    vm.updateMap(false);
+    vm.updateMap(false, lineIndex, branchIndex);
 }
 
 export function deleteCheckpoint(vm, lineIndex, branchIndex, stationIndex, checkpointIndex) {
@@ -225,7 +225,7 @@ export function moveStationUp(vm, lineIndex, branchIndex, stationIndex) {
         if (vm.coordinateMode.stationIndex === stationIndex) vm.coordinateMode.stationIndex = stationIndex - 1;
         else if (vm.coordinateMode.stationIndex === stationIndex - 1) vm.coordinateMode.stationIndex = stationIndex;
     }
-    vm.updateMap(false);
+    vm.updateMap(false, lineIndex, branchIndex);
 }
 
 export function moveCheckpointUp(vm, lineIndex, branchIndex, stationIndex, checkpointIndex) {
@@ -245,7 +245,7 @@ export function moveCheckpointUp(vm, lineIndex, branchIndex, stationIndex, check
         if (vm.coordinateMode.checkpointIndex === checkpointIndex) vm.coordinateMode.checkpointIndex = checkpointIndex - 1;
         else if (vm.coordinateMode.checkpointIndex === checkpointIndex - 1) vm.coordinateMode.checkpointIndex = checkpointIndex;
     }
-    vm.updateMap(false);
+    vm.updateMap(false, lineIndex, branchIndex);
 }
 
 export function flip_branch(vm, lineIndex, branchIndex){

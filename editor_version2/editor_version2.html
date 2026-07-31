@@ -359,8 +359,8 @@
                 return {
                     lines: [],
                     map: null,
-                    markers: [],
-                    polylines: [],
+                    markers: {},
+                    polylines: {},
                     segmentButtons: [],
                     activeTab: 0,
                     activeBranchTabs: {},
@@ -509,7 +509,7 @@
                             }
                             this.coordinateMode = null;
                             this.updateMap_highlight();
-                            this.updateMap(false);
+                            this.updateMap(false, lineIndex, branchIndex);
                         }
                     });
                 },
@@ -537,154 +537,141 @@
                         }
                     }
                 },
-                updateMap(change_zoom) {
-                    this.validateMapHighlight();
-                    this.markers.forEach(marker => marker.remove());
-                    this.polylines.forEach(id => {
+                // Redraws the markers/polyline of a single branch. Clears out any
+                // previously-drawn markers/polyline for that branch first. Returns the
+                // station coordinates it drew (for fitBounds), or null if nothing was drawn.
+                redrawBranchMapObjects(lineIndex, branchIndex) {
+                    const line = this.lines[lineIndex];
+                    const branch = line && line.branches[branchIndex];
+
+                    const existingMarkers = (this.markers[lineIndex] && this.markers[lineIndex][branchIndex]) || [];
+                    existingMarkers.forEach(marker => marker.remove());
+                    const existingPolylines = (this.polylines[lineIndex] && this.polylines[lineIndex][branchIndex]) || [];
+                    existingPolylines.forEach(id => {
                         if (this.map.getLayer(id)) this.map.removeLayer(id);
                         if (this.map.getSource(id)) this.map.removeSource(id);
                     });
+
+                    if (!this.markers[lineIndex]) this.markers[lineIndex] = {};
+                    if (!this.polylines[lineIndex]) this.polylines[lineIndex] = {};
+                    this.markers[lineIndex][branchIndex] = [];
+                    this.polylines[lineIndex][branchIndex] = [];
+
+                    if (!branch || line.line_visible === false) {
+                        return null;
+                    }
+
+                    let coords = [];
+                    let stationCoords = [];
+
+                    //copied from kimi_mtr.js
+                    for(let s = 0; s < branch.stations.length; s++){
+                        const station = branch.stations[s];
+                        coords.push([station.lng, station.lat]);
+                        if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
+                            station.checkpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
+                        }
+                    }
+                    if(branch.hasOwnProperty("branch_type") && branch.branch_type === "circular"){
+                        const station = branch.stations[branch.stations.length - 1];
+                        if(station.checkpoints && Array.isArray(station.checkpoints)){
+                            station.checkpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
+                        }
+                        coords.push([branch.stations[0].lng, branch.stations[0].lat]);
+                    }
+
+                    // stations and checkpoint markers (checkpoints are also polyline vertices; markers make them easy to highlight)
+                    branch.stations.forEach((station, stationIndex) => {
+                        if (station.lat && station.lng) {
+                            const stationHl = false;
+                            const size = stationHl ? 32 : 12;
+                            const el = document.createElement('div');
+                            el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background-color:${line.line_color};border:${stationHl ? '5px solid #ffcc00' : '2px solid #000'};opacity:${stationHl ? '1' : '0.8'};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
+                            el.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                this.showStationOnMap(lineIndex, branchIndex, stationIndex);
+                            });
+                            const popup = new maplibregl.Popup({ offset: 12 })
+                                .setHTML(`<b>${station.name || 'Unnamed'}</b><br>${line.name}`);
+                            const marker = new maplibregl.Marker({ element: el })
+                                .setLngLat([station.lng, station.lat])
+                                .setPopup(popup)
+                                .addTo(this.map);
+                            this.markers[lineIndex][branchIndex].push(marker);
+                            stationCoords.push([station.lng, station.lat]);
+                        }
+                        if (station.checkpoints && Array.isArray(station.checkpoints)) {
+                            station.checkpoints.forEach((checkpoint, checkpointIndex) => {
+                                if (checkpoint.lat && checkpoint.lng) {
+                                    const cpHl = false;
+                                    const cpSize = cpHl ? 28 : 8;
+                                    const cpEl = document.createElement('div');
+                                    cpEl.style.cssText = `width:${cpSize}px;height:${cpSize}px;border-radius:50%;background-color:#ffffff;border:${cpHl ? '5px solid #ffcc00' : `2px solid ${line.line_color}`};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
+                                    //removing clicking and stuff to improve iperformance
+                                    const cpMarker = new maplibregl.Marker({ element: cpEl })
+                                        .setLngLat([checkpoint.lng, checkpoint.lat])
+                                        .addTo(this.map);
+                                    this.markers[lineIndex][branchIndex].push(cpMarker);
+                                }
+                            });
+                        }
+                    });
+
+                    if (coords.length > 1) {
+                        const sourceId = `polyline-${lineIndex}-${branchIndex}`;
+                        this.map.addSource(sourceId, {
+                            type: 'geojson',
+                            data: {
+                                type: 'Feature',
+                                geometry: { type: 'LineString', coordinates: coords }
+                            }
+                        });
+                        this.map.addLayer({
+                            id: sourceId,
+                            type: 'line',
+                            source: sourceId,
+                            paint: {
+                                'line-color': line.line_color,
+                                'line-width': 4,
+                                'line-opacity': 0.7
+                            }
+                        });
+                        this.polylines[lineIndex][branchIndex].push(sourceId);
+                    }
+
+                    return stationCoords;
+                },
+
+                // If lineIndex/branchIndex are given, only that branch's markers/polyline are
+                // redrawn. Otherwise every branch of every line is redrawn.
+                updateMap(change_zoom, lineIndex, branchIndex) {
+                    this.validateMapHighlight();
+
                     if (this.segmentButtons) { this.segmentButtons.forEach(m => m.remove()); }
-                    this.markers = [];
-                    this.polylines = [];
                     this.segmentButtons = [];
 
                     if (!this.map.isStyleLoaded()) {
-                        this.map.once('load', () => this.updateMap(change_zoom));
+                        this.map.once('load', () => this.updateMap(change_zoom, lineIndex, branchIndex));
+                        return;
+                    }
+
+                    const updateSingleBranch = lineIndex !== undefined && lineIndex !== null &&
+                        branchIndex !== undefined && branchIndex !== null;
+
+                    if (updateSingleBranch) {
+                        this.redrawBranchMapObjects(lineIndex, branchIndex);
                         return;
                     }
 
                     let allCoords = [];
-                    let polylineCounter = 0;
 
-                    // Render lines in ascending z-index order so higher z-index appears on top
-                    const lineRenderOrder = this.lines
-                        .map((line, lineIndex) => ({ line, lineIndex }))
-                        /*.sort((a, b) => (a.line.line_zindex || 0) - (b.line.line_zindex || 0))*/;
-
-                    lineRenderOrder.forEach(({ line, lineIndex }) => {
-                        if (line.line_visible === false) return;
-                        line.branches.forEach((branch, branchIndex) => {
-                            let coords = [];
-
-                            //copied from kimi_mtr.js
-                            for(let s = 0; s < branch.stations.length; s++){
-                                const station = branch.stations[s];
-                                coords.push([station.lng, station.lat]);
-                                if(s < branch.stations.length - 1 && station.checkpoints && Array.isArray(station.checkpoints)){
-                                    /*const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
-                                        const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
-                                        const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
-                                        return progA - progB;
-                                    });*/
-                                    //sortedCheckpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
-                                    station.checkpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
-                                }
-                            }
-                            if(branch.hasOwnProperty("branch_type") && branch.branch_type === "circular"){
-                                const station = branch.stations[branch.stations.length - 1];
-                                if(station.checkpoints && Array.isArray(station.checkpoints)){
-                                    /*const sortedCheckpoints = [...station.checkpoints].sort((a, b) => {
-                                        const progA = a.progress !== undefined ? a.progress : (a.progresss !== undefined ? a.progresss : 0);
-                                        const progB = b.progress !== undefined ? b.progress : (b.progresss !== undefined ? b.progresss : 0);
-                                        return progA - progB;
-                                    });*/
-                                    //sortedCheckpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
-                                    station.checkpoints.forEach(cp => coords.push([cp.lng, cp.lat]));
-                                }
-                                coords.push([branch.stations[0].lng, branch.stations[0].lat]);
-                            }
-
-                            // stations and checkpoint markers (checkpoints are also polyline vertices; markers make them easy to highlight)
-                            branch.stations.forEach((station, stationIndex) => {
-                                if (station.lat && station.lng) {
-                                    /*
-                                    const stationHl =
-                                        this.mapHighlight &&
-                                        this.mapHighlight.type === 'station' &&
-                                        this.mapHighlight.lineIndex === lineIndex &&
-                                        this.mapHighlight.branchIndex === branchIndex &&
-                                        this.mapHighlight.stationIndex === stationIndex;
-                                    */
-                                    const stationHl = false;
-                                    const size = stationHl ? 32 : 12;
-                                    const el = document.createElement('div');
-                                    el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background-color:${line.line_color};border:${stationHl ? '5px solid #ffcc00' : '2px solid #000'};opacity:${stationHl ? '1' : '0.8'};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
-                                    el.addEventListener('click', (e) => {
-                                        e.stopPropagation();
-                                        this.showStationOnMap(lineIndex, branchIndex, stationIndex);
-                                    });
-                                    const popup = new maplibregl.Popup({ offset: 12 })
-                                        .setHTML(`<b>${station.name || 'Unnamed'}</b><br>${line.name}`);
-                                    const marker = new maplibregl.Marker({ element: el })
-                                        .setLngLat([station.lng, station.lat])
-                                        .setPopup(popup)
-                                        .addTo(this.map);
-                                    this.markers.push(marker);
-                                    allCoords.push([station.lng, station.lat]);
-                                }
-                                if (station.checkpoints && Array.isArray(station.checkpoints)) {
-                                    station.checkpoints.forEach((checkpoint, checkpointIndex) => {
-                                        if (checkpoint.lat && checkpoint.lng) {
-                                            /*
-                                            const cpHl =
-                                                this.mapHighlight &&
-                                                this.mapHighlight.type === 'checkpoint' &&
-                                                this.mapHighlight.lineIndex === lineIndex &&
-                                                this.mapHighlight.branchIndex === branchIndex &&
-                                                this.mapHighlight.stationIndex === stationIndex &&
-                                                this.mapHighlight.checkpointIndex === checkpointIndex;
-                                            */
-                                            const cpHl = false;
-                                            const cpSize = cpHl ? 28 : 8;
-                                            const cpEl = document.createElement('div');
-                                            cpEl.style.cssText = `width:${cpSize}px;height:${cpSize}px;border-radius:50%;background-color:#ffffff;border:${cpHl ? '5px solid #ffcc00' : `2px solid ${line.line_color}`};cursor:pointer;box-sizing:border-box;z-index:${line.line_zindex || 0};`;
-                                            //removing clicking and stuff to improve iperformance
-                                            /*
-                                            cpEl.addEventListener('click', (e) => {
-                                                e.stopPropagation();
-                                                this.showCheckpointOnMap(lineIndex, branchIndex, stationIndex, checkpointIndex);
-                                            });
-                                            */
-                                            /*
-                                            const cpPopup = new maplibregl.Popup({ offset: 12 })
-                                                .setHTML(`<b>Checkpoint ${checkpointIndex + 1}</b><br>${station.name || 'Unnamed'}<br>${line.name}`);
-                                            */
-                                            const cpMarker = new maplibregl.Marker({ element: cpEl })
-                                                .setLngLat([checkpoint.lng, checkpoint.lat])
-                                                /*.setPopup(cpPopup)*/
-                                                .addTo(this.map);
-                                            this.markers.push(cpMarker);
-                                        }
-                                    });
-                                }
-                            });
-
-                            if (coords.length > 1) {
-                                const sourceId = `polyline-${polylineCounter++}`;
-                                this.map.addSource(sourceId, {
-                                    type: 'geojson',
-                                    data: {
-                                        type: 'Feature',
-                                        geometry: { type: 'LineString', coordinates: coords }
-                                    }
-                                });
-                                this.map.addLayer({
-                                    id: sourceId,
-                                    type: 'line',
-                                    source: sourceId,
-                                    paint: {
-                                        'line-color': line.line_color,
-                                        'line-width': 4,
-                                        'line-opacity': 0.7
-                                    }
-                                });
-                                this.polylines.push(sourceId);
-                            }
+                    this.lines.forEach((line, li) => {
+                        line.branches.forEach((branch, bi) => {
+                            const stationCoords = this.redrawBranchMapObjects(li, bi);
+                            if (stationCoords) allCoords = allCoords.concat(stationCoords);
                         });
                     });
 
-                    
                     // Only fit bounds if not in coordinate mode
                     if (allCoords.length > 0 && !this.coordinateMode && change_zoom === true) {
                         const lngs = allCoords.map(c => c[0]);
