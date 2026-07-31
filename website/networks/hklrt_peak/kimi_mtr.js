@@ -17,7 +17,7 @@ let lines = [];
 let linesDataLoaded = false;
 
 function loadLinesData(){
-  fetch('mtr_offpeak_v9.json')
+  fetch('lightrail_v3.json')
     .then(res => res.json())
     .then(data => {
       lines = data;
