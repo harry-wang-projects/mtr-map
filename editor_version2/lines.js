@@ -462,3 +462,42 @@ export function computeBranchJourneySeconds(branch){
         return Math.max(1, Math.round(total));
     }
 }
+
+
+export function lines_init(lines){
+    //add line type to branches
+                                for(let i = 0; i < lines.length; i++){
+                                    for(let j = 0; j < lines[i].branches.length; j++){
+                                        if(!lines[i].branches[j].hasOwnProperty('branch_type')){
+                                            lines[i].branches[j].branch_type = "normal";
+                                        }
+                                    }
+                                    //properties it may or may not have
+                                    if(!lines[i].hasOwnProperty('label')){
+                                        lines[i].label = lines[i].name;
+                                    }
+                                    if(!lines[i].hasOwnProperty('markertype')){
+                                        lines[i].markertype = "default";
+                                    }
+                                    if(!lines[i].hasOwnProperty('image')){
+                                        lines[i].image = "";
+                                    }
+                                    if(!lines[i].hasOwnProperty('max_speed')){
+                                        lines[i].max_speed = 22.2;
+                                    }
+                                    if(!lines[i].hasOwnProperty('acceleration')){
+                                        lines[i].acceleration = 1.0;
+                                    }
+                                    //properties to set
+                                    lines[i].icon = generate_train_icon_2(lines[i].markertype, lines[i].line_color, lines[i].label, lines[i].image);
+                                    if (!lines[i].hasOwnProperty('line_visible')) lines[i].line_visible = true;
+                                    if (!lines[i].hasOwnProperty('line_zindex')) lines[i].line_zindex = 0;
+                                    for(let j = 0; j < lines[i].branches.length; j++){
+                                      for(let k = 0; k < lines[i].branches[j].stations.length; k++){
+                                        if(!lines[i].branches[j].stations[k].hasOwnProperty("checkpoints")){
+                                            lines[i].branches[j].stations[k].checkpoints = [];
+                                        }
+                                      }
+                                    }
+                                }
+}

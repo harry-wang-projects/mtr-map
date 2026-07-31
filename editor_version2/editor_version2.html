@@ -349,7 +349,7 @@
             confirmDelete, cancelDelete, deleteLine, addBranch, cloneBranch, deleteBranch,
             updateicon, addStation, deleteStation, addCheckpoint, deleteCheckpoint, insertCheckpointAt,
             moveStationUp, moveCheckpointUp, flip_branch, delete_allcheckpoints, calculate_progress, calculate_allprogresses, calculate_traveltimes, computeBranchJourneySeconds,
-            moveCheckpointsUp, moveCheckpointsDown
+            moveCheckpointsUp, moveCheckpointsDown, lines_init
         } from "./lines.js";
         const { createApp } = Vue;
         import * as maplibregl from 'https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.mjs';
@@ -857,6 +857,8 @@
                             try {
                                 this.lines = JSON.parse(event.target.result);
 
+                                lines_init(this.lines);
+                                /*
                                 //add line type to branches
                                 for(let i = 0; i < this.lines.length; i++){
                                     for(let j = 0; j < this.lines[i].branches.length; j++){
@@ -892,6 +894,7 @@
                                       }
                                     }
                                 }
+                                */
                             } catch (error) {
                                 alert('Invalid JSON file');
                             }
