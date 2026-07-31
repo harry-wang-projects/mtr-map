@@ -12,13 +12,13 @@ export function generate_train_icon_2(markertype, line_color, label, image, icon
     return `<div style="
         background-color:${line_color};overflow: hidden;
         width:${icon_size}px;height:${icon_size}px;border-radius:50%;
-        border:4px solid ${line_color};"><img src="${image}" style="
+        border:${icon_size * 0.18}px solid ${line_color};"><img src="${image}" style="
         height:100%; width: 100%; object-fit:cover;display:block;"></div>  `;
   }else if(markertype == "largehkmtr"){
     return `<div style="
         background-color:${line_color};overflow: hidden;
         width:${icon_size}px;height:${icon_size}px;border-radius:50%;
-        border:4px solid ${line_color};"><img src="${image}" style="
+        border:${icon_size * 0.18}px solid ${line_color};"><img src="${image}" style="
         height:100%; width: 100%; object-fit:cover;display:block;"></div>  `;
   }else if(markertype == "image"){
     return `<img src="${image}" style="width:${icon_size}px; height: ${icon_size}px ;object-fit:contain;">`;

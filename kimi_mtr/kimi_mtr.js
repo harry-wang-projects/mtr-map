@@ -264,7 +264,8 @@ const map = new maplibregl.Map({
       osm: {
         type: 'raster',
         //tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-        tiles: ["https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg"],
+        //tiles: ["https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg"],
+        tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
         tileSize: 256,
         attribution: '© OSM'
       }
@@ -394,13 +395,13 @@ function generate_train_icon(markertype, line_color, label, image, icon_size){
     el.style.cssText = `background:#fff;height:${icon_size*0.57}px;width:${icon_size}px;border-radius:${icon_size*0.28}px;font-size:${icon_size*0.35}px;text-align:center;line-height:${icon_size*0.57}px;border:2px solid ${line_color};`;
     el.textContent = label;
   }else if(markertype == "hkmtr"){
-    el.style.cssText = `background:${line_color};overflow:hidden;width:${icon_size}px;height:${icon_size}px;border-radius:50%;border:4px solid ${line_color};`;
+    el.style.cssText = `background:${line_color};overflow:hidden;width:${icon_size}px;height:${icon_size}px;border-radius:50%;border:${icon_size * 0.18}px solid ${line_color};`;
     const img = document.createElement('img');
     img.src = image;
     img.style.cssText = 'height:100%;width:100%;object-fit:cover;display:block;';
     el.appendChild(img);
   }else if(markertype == "largehkmtr"){
-    el.style.cssText = `background:${line_color};overflow:hidden;width:${icon_size}px;height:${icon_size}px;border-radius:50%;border:4px solid ${line_color};`;
+    el.style.cssText = `background:${line_color};overflow:hidden;width:${icon_size}px;height:${icon_size}px;border-radius:50%;border:${icon_size * 0.18}px solid ${line_color};`;
     const img = document.createElement('img');
     img.src = image;
     img.style.cssText = 'height:100%;width:100%;object-fit:cover;display:block;';
