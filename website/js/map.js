@@ -1,3 +1,4 @@
+/*
 // Cities to label on the world map. Add more entries here to add more labels.
 // Each city can have multiple links, each with its own title.
 const cities = [
@@ -47,3 +48,4 @@ map.on('load', () => {
             .addTo(map);
     });
 });
+*/
