@@ -88,6 +88,7 @@ function parseTime24(timeStr) {
 //preprocessing of lines
 function process_lines(){
   for(let i = 0; i < lines.length; i++){
+    console.log(lines[i].name);
     for(let j = 0; j < lines[i].branches.length; j++){
       if(!lines[i].branches[j].hasOwnProperty("branch_type")){
         continue;
@@ -101,8 +102,8 @@ function process_lines(){
 
       //sort the times just in case
       lines[i].branches[j].timetable = lines[i].branches[j].timetable.sort((a, b) => a.time.localeCompare(b.time));
-      console.log("sorted:")
-      console.log(lines[i].branches[j].timetable);
+      //console.log("sorted:")
+      //console.log(lines[i].branches[j].timetable);
       
       //array of times in seconds since 00:00:00
       lines[i].branches[j].spawn_times = [];
@@ -123,7 +124,9 @@ function process_lines(){
         //need an extra array to store when the first train of each frequency spawns.
         lines[i].branches[j].first_times = [];
         for(let k = 0; k < lines[i].branches[j].timetable.length; k++){
-          console.log(lines[i].branches[j].timetable[k].time + ':00');
+          if(lines[i].name == "75"){
+            console.log(lines[i].branches[j].timetable[k].time + ':00');
+          }
           let begin_time = parseTime24(lines[i].branches[j].timetable[k].time + ':00');
 
           lines[i].branches[j].first_times[k] = begin_time
@@ -138,6 +141,13 @@ function process_lines(){
 
           let seconds_frequency = Math.ceil(lines[i].branches[j].timetable[k].frequency);
 
+          //spawn a train at spawn_time, no matter what.
+          //if current_time + frequency > next time, the for loop won't happen. Hence, add it here.
+          if(begin_time + lines[i].branches[j].timetable[k].frequency > next_time){
+            lines[i].branches[j].spawn_times.push(begin_time);
+            lines[i].branches[j].events[Math.floor((begin_time))] = 1;
+          }
+
           for(let current_time = begin_time; current_time + lines[i].branches[j].timetable[k].frequency <= next_time; current_time += seconds_frequency){
             lines[i].branches[j].spawn_times.push(current_time);
             
@@ -146,13 +156,16 @@ function process_lines(){
             //since despawn time calculation requires calculating travel time, do this in the generation phase.
             //despawn_time = max(lines[i].branches[j].spawn_times[k] +  travel_time, 86399);
           }
-          console.log("scheduled frequency timetable:")
-          console.log(lines[i].branches[j].spawn_times);
-
+          if(lines[i].name == "75"){
+            console.log("scheduled frequency timetable:")
+            console.log(lines[i].branches[j].spawn_times);
+          }
         }
       }else{
         for(let k = 0; k < lines[i].branches[j].timetable.length; k++){
-          console.log(lines[i].branches[j].timetable[k].time + ':00');
+          if(lines[i].name == "75"){
+            console.log(lines[i].branches[j].timetable[k].time + ':00');
+          }
           lines[i].branches[j].spawn_times[k] = parseTime24(lines[i]. branches[j].timetable[k].time + ':00');
 
         //haven't considered trains starting at 23:00 and ending on the next day yet. For now, assume that they despawn at 23:59.
