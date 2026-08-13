@@ -308,6 +308,7 @@ map.on('load', () => {
     }
   });
   restart();
+  reset_lines();
 });
 
 /* draw static line */
@@ -340,7 +341,7 @@ let finishedticks = 0; //seeing how many ticks actually finished
 
 function restart(){
   reset_animation();
-  reset_lines();
+  //reset_lines();
   for(let i = 0; i < lines.length; i++){
     const line = lines[i];
     for(let b = 0; b < line.branches.length; b++){
