@@ -68,3 +68,6 @@ In @editor_version2/editor_version2.html, the object "this" currently stores all
 To improve performance, change it such that the markers and polylines are stored by line and branch, meaning that each branch of each line has its markers and polylines stored separately. Next, change updateMap such that it only re-draws the markers and polylines of the branch that changed. For example, in insertCheckpointAt, only update the markers and polylines of the branch that the checkpoint being inserted was in. Make the function require the line ID and branch ID as parameters. 
 
 Next, change the updateMap function in the places where it gets executed (i.e. add the line ID and branch ID parameters). In places where all of the branches are updated (e.g. when the key 'u' is pressed, it updates the entire map), run updateMap for all of the branches. 
+
+
+In @editor_version2, for each branch tab, (the part containing information about the branch, above the timetable and the list of the stations in that branch), add a box in which I can enter a dwell time. Also add a button called "Set Dwell Times". When I click this button, it sets the dwell time of each station in this branch to be the dwell time I entered in the box.

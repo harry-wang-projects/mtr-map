@@ -165,6 +165,15 @@
                                             <input type="number" v-model="branch.offset_time">
                                         </div>
                                     </div>
+                                    <div class="parameter-row">
+                                        <div class="parameter-group">
+                                            <label>Dwell Time (seconds):</label>
+                                            <input type="number" v-model.number="branchDwellInputs[lineIndex + '-' + branchIndex]">
+                                        </div>
+                                        <div class="parameter-group">
+                                            <button @click="setDwellTimes(lineIndex, branchIndex)" class="regular">Set Dwell Times</button>
+                                        </div>
+                                    </div>
                                     <div v-if="branch.branch_type === 'unidirectional' || branch.branch_type === 'bidirectional'" class="parameter-row">
                                         <div class="parameter-group">
                                             <label>Scheduling:</label>
@@ -349,7 +358,7 @@
             deepClone, nextUniqueLineId, nextUniqueBranchId, nextUniqueLineName,
             addLine, cloneLine, requestDeleteLine, requestDeleteBranch, requestDeleteStation, requestDeleteCheckpoint,
             confirmDelete, cancelDelete, deleteLine, addBranch, cloneBranch, deleteBranch,
-            updateicon, addStation, deleteStation, addCheckpoint, deleteCheckpoint, insertCheckpointAt,
+            updateicon, setDwellTimes, addStation, deleteStation, addCheckpoint, deleteCheckpoint, insertCheckpointAt,
             moveStationUp, moveCheckpointUp, flip_branch, delete_allcheckpoints, calculate_progress, calculate_allprogresses, calculate_traveltimes, computeBranchJourneySeconds,
             moveCheckpointsUp, moveCheckpointsDown, lines_init
         } from "./lines.js";
@@ -367,6 +376,7 @@
                     activeTab: 0,
                     activeBranchTabs: {},
                     branchTraversalTimes: {},
+                    branchDwellInputs: {},
                     coordinateMode: null,
                     showSettings: false,
                     confirmModal: {
@@ -432,6 +442,7 @@
                 cloneBranch(lineIndex, branchIndex) { cloneBranch(this, lineIndex, branchIndex); },
                 deleteBranch(lineIndex, branchIndex) { deleteBranch(this, lineIndex, branchIndex); },
                 updateicon(lineIndex) { updateicon(this, lineIndex); },
+                setDwellTimes(lineIndex, branchIndex) { setDwellTimes(this, lineIndex, branchIndex); },
                 addStation(lineIndex, branchIndex) { addStation(this, lineIndex, branchIndex); },
                 deleteStation(lineIndex, branchIndex, stationIndex) { deleteStation(this, lineIndex, branchIndex, stationIndex); },
                 addCheckpoint(lineIndex, branchIndex, stationIndex) { addCheckpoint(this, lineIndex, branchIndex, stationIndex); },

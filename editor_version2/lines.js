@@ -143,6 +143,17 @@ export function updateicon(vm, lineIndex) {
     console.log(vm.lines[lineIndex].icon);
 }
 
+export function setDwellTimes(vm, lineIndex, branchIndex) {
+    const branch = vm.lines[lineIndex]?.branches?.[branchIndex];
+    if (!branch || !branch.stations) return;
+    const key = `${lineIndex}-${branchIndex}`;
+    const dwell = vm.branchDwellInputs[key];
+    if (dwell === undefined || dwell === null || dwell === '' || Number.isNaN(dwell)) return;
+    for (const station of branch.stations) {
+        station.dwell = dwell;
+    }
+}
+
 export function addStation(vm, lineIndex, branchIndex) {
     let branch_length = vm.lines[lineIndex].branches[branchIndex].stations.length;
     let default_lat = 0, default_lng = 0;
