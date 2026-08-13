@@ -174,6 +174,8 @@ function draw_branchroute(branch, line_color){
       geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
       properties: { radius: 3, fillColor: line_color, strokeColor: '#fff', strokeWidth: 2, opacity: 1 }
     });
+    //stop drawing those points on features. Improve performance.
+    /*
     if(s.checkpoints && Array.isArray(s.checkpoints)){
       s.checkpoints.forEach(cp => {
         stationPointFeatures.push({
@@ -183,6 +185,7 @@ function draw_branchroute(branch, line_color){
         });
       });
     }
+    */
   });
   updateRouteSources();
 }
