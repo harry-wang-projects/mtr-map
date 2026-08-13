@@ -173,6 +173,13 @@
                                         <div class="parameter-group">
                                             <button @click="setDwellTimes(lineIndex, branchIndex)" class="regular">Set Dwell Times</button>
                                         </div>
+                                        <div class="parameter-group">
+                                            <label>Manual Travel Time:</label>
+                                            <label class="toggle-switch" :title="branch.manual_traveltime ? 'Manual travel times' : 'Automatic travel times'">
+                                                <input type="checkbox" v-model="branch.manual_traveltime">
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                        </div>
                                     </div>
                                     <div v-if="branch.branch_type === 'unidirectional' || branch.branch_type === 'bidirectional'" class="parameter-row">
                                         <div class="parameter-group">
@@ -243,6 +250,10 @@
                                             <div class="parameter-group">
                                                 <label>Dwell Time (seconds):</label>
                                                 <input type="number" v-model.number="station.dwell">
+                                            </div>
+                                            <div v-if="branch.manual_traveltime" class="parameter-group">
+                                                <label>Run Time (seconds):</label>
+                                                <input type="number" v-model.number="station.run">
                                             </div>
                                             <div class="parameter-group">
                                                 <button

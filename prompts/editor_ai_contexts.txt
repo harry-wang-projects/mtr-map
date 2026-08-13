@@ -7,6 +7,6 @@ Rules:
 Only do the things specified in the prompt. Do not change parts of the code that I did not tell you to change.
 
 Task:
-In @editor_version2, for each branch tab, (the part containing information about the branch, above the timetable and the list of the stations in that branch), add a box in which I can enter a dwell time. Also add a button called "Set Dwell Times". When I click this button, it sets the dwell time of each station in this branch to be the dwell time I entered in the box.
+In @editor_version2, for each branch, add a "manual travel time" option that the user can toggle on/off. When this option gets toggled on, the run times of each station should be togglable. This means that textboxes should appear in each station on the branch that allow the user to edit the run time of each station. Furthermore, the function calculate_traveltimes should not automatically calculate the travel time for each station on that branch. When calculate_traveltimes gets run on a branch that has "manual travel time" on, it should do nothing.
 
 Make sure that the code can run in the end.

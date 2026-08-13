@@ -114,6 +114,7 @@ export function addBranch(vm, lineIndex) {
         branch_id: vm.lines[lineIndex].branches.length,
         SPAWN_EVERY: 300,
         offset_time: 0,
+        manual_traveltime: false,
         stations: []
     });
     vm.setActiveBranchTab(lineIndex, vm.lines[lineIndex].branches.length - 1);
@@ -414,6 +415,10 @@ export function calculate_traveltimes(vm, lineIndex, branchIndex) {
     let j = branchIndex;
     let this_branch = vm.lines[i].branches[j];
 
+    if (this_branch.manual_traveltime == true) {
+        return;
+    }
+
     if (!vm.lines[i].hasOwnProperty("max_speed")) {
         vm.lines[i].max_speed = 20;
     }
@@ -481,6 +486,9 @@ export function lines_init(lines){
                                     for(let j = 0; j < lines[i].branches.length; j++){
                                         if(!lines[i].branches[j].hasOwnProperty('branch_type')){
                                             lines[i].branches[j].branch_type = "normal";
+                                        }
+                                        if(!lines[i].branches[j].hasOwnProperty('manual_traveltime')){
+                                            lines[i].branches[j].manual_traveltime = false;
                                         }
                                     }
                                     //properties it may or may not have
