@@ -236,12 +236,6 @@
                                             <span v-else>Traversal time: not calculated</span>
                                         </div>
                                         <div class="parameter-group">
-                                            <span v-if="getBranchDwellTotal(lineIndex, branchIndex) !== null">
-                                                Dwell time: {{ getBranchDwellTotal(lineIndex, branchIndex) }} s
-                                            </span>
-                                            <span v-else>Dwell time: not calculated</span>
-                                        </div>
-                                        <div class="parameter-group">
                                             <button @click="flip_branch(lineIndex, branchIndex)" class="regular">Flip Branch</button>
                                         </div>
                                     </div>
@@ -393,7 +387,6 @@
                     activeTab: 0,
                     activeBranchTabs: {},
                     branchTraversalTimes: {},
-                    branchDwellTotals: {},
                     branchDwellInputs: {},
                     coordinateMode: null,
                     showSettings: false,
@@ -489,17 +482,9 @@
                     // should return the traversal time in seconds for the given branch
                     return computeBranchJourneySeconds(this.lines[lineIndex].branches[branchIndex]);
                 },
-                calculateBranchDwellTotal(lineIndex, branchIndex){
-                    let total = 0
-                    for(let i = 0; i < this.lines[lineIndex].branches[branchIndex].stations.length; i++){
-                        total += this.lines[lineIndex].branches[branchIndex].stations[i].dwell;
-                    }
-                    return total;
-                },
                 updateBranchTraversalTime(lineIndex, branchIndex) {
                     const key = `${lineIndex}-${branchIndex}`;
                     this.branchTraversalTimes[key] = this.calculateBranchTraversalTime(lineIndex, branchIndex);
-                    this.branchDwellTotals[key] = this.calculateBranchDwellTotal(lineIndex, branchIndex);
                 },
                 flip_branch(lineIndex, branchIndex){
                     flip_branch(this, lineIndex, branchIndex);
@@ -507,10 +492,6 @@
                 getBranchTraversalTime(lineIndex, branchIndex) {
                     const key = `${lineIndex}-${branchIndex}`;
                     return this.branchTraversalTimes.hasOwnProperty(key) ? this.branchTraversalTimes[key] : null;
-                },
-                getBranchDwellTotal(lineIndex, branchIndex) {
-                    const key = `${lineIndex}-${branchIndex}`;
-                    return this.branchDwellTotals.hasOwnProperty(key) ? this.branchDwellTotals[key] : null;
                 },
                 initMap() {
                     this.map = new maplibregl.Map({
